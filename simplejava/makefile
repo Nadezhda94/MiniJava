@@ -1,11 +1,11 @@
 all: bison flex build
 
 flex:
-	flex -o "lex.yy.cpp" simplejava.l
+	flex simplejava.l
 
 bison:
-	bison -o "simplejava.tab.cpp" -d simplejava.y 
+	bison -d --report all --report-file simplejava.out simplejava.y
 
-build: 
-	g++ -std=c++11 lex.yy.cpp simplejava.tab.cpp -ll
-
+build:
+	g++ -std=c++11 lex.yy.c simplejava.tab.c
+	rm simplejava.tab.c simplejava.tab.h lex.yy.c
