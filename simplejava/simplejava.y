@@ -1,17 +1,20 @@
 %{
-    
+
 #include <iostream>
 #include <string>
 #include <stdio.h>
-#include "simplejava.tab.hpp"
+#include <iostream>
+#include "simplejava.tab.h"
+using std::cout;
+using std::endl;
 extern FILE * yyin;
 int yylex();
 void yyerror(const char *){};
 
 %}
 
-%union { 
-    int intValue; 
+%union {
+    int intValue;
     bool boolValue;
     char identName[256];
     char str[256];
@@ -19,74 +22,86 @@ void yyerror(const char *){};
 
 %token <intValue> INT
 %token <boolValue> BOOLEAN
-%token <identName> IDENT 
-%token <str> INT_TYPE BOOLEAN_TYPE EXTENDS EQ PLUS IF ELSE WHILE  RETURN  PUBLIC CLASS STATIC  VOID MAIN STRING PRINT  THIS NEW LENGTH ARRAY LBRACE  RBRACE  LPAREN RPAREN LBRACK RBRACK LEQ AND MINUS MULT DIV SEMCOL COMMA BANG DOT 
+%token <identName> IDENT
+%token <str> INT_TYPE BOOLEAN_TYPE EXTENDS EQ PLUS IF ELSE WHILE  RETURN  PUBLIC CLASS STATIC  VOID MAIN STRING PRINT  THIS NEW LENGTH ARRAY LBRACE  RBRACE  LPAREN RPAREN LBRACK RBRACK LEQ AND MINUS MULT DIV SEMCOL COMMA BANG DOT END_OF_FILE
 
-%left PLUS MINUS 
+%left PLUS MINUS
 %left MULT DIV
 %left AND
 
 %nonassoc BANG DOT
-%nonassoc LBRACK RBRACK 
+%nonassoc LBRACK RBRACK
 %nonassoc UMINUS UPLUS
 
 %%
 
 
 program
-        : main_class declarations
+        : main_class declarations END_OF_FILE {cout<<"all";}
         ;
 
 main_class
-        : CLASS IDENT LBRACE PUBLIC STATIC VOID MAIN LPAREN STRING LBRACK RBRACK IDENT RPAREN LBRACE statement RBRACE RBRACE
+        : CLASS IDENT LBRACE PUBLIC STATIC VOID MAIN LPAREN STRING LBRACK RBRACK IDENT RPAREN LBRACE statement RBRACE RBRACE {cout<<"main"<<endl;}
         ;
+
 declarations
-        : declarations class_declaration
-        | 
+        : declarations class_declaration {cout<<"declarations not empty"<<endl;}
+        | {cout<<"declarations empty"<<endl;}
         ;
+
 class_declaration
-        : CLASS IDENT extend_declaration LBRACE var_declarations method_declarations RBRACE
+        : CLASS IDENT extend_declaration LBRACE var_declarations method_declarations RBRACE {cout<<"class declaration"<<endl;}
         ;
+
 extend_declaration
-        : extend_declaration EXTENDS IDENT
-        | EXTENDS IDENT
-        ;
-        
-var_declarations
-        : var_declarations var_declaration
-        | 
-        ;
-method_declarations
-        : method_declarations method_declaration
+        : EXTENDS IDENT
         |
         ;
+
+var_declarations
+        : var_declarations var_declaration
+        |
+        ;
+
+method_declarations
+        : method_declarations method_declaration {cout<<"method append"<<endl;}
+        |
+        ;
+
 var_declaration
         : type IDENT SEMCOL
         ;
+
 method_declaration
         : PUBLIC type IDENT LPAREN params RPAREN LBRACE method_body RETURN expression SEMCOL RBRACE
         ;
+
 vars_dec
-: vars_dec var_declaration
-| var_declaration
-;
+        : vars_dec var_declaration
+        | var_declaration
+        ;
+
 stats
-: stats statement
-| statement
-;
+        : stats statement
+        | statement
+        ;
+
 method_body
         : vars_dec
         | stats
         | vars_dec stats
         |
         ;
+
 params
         : param
         | params COMMA param
         ;
+
 param
         : type IDENT
         ;
+
 type
         : ARRAY
         | BOOLEAN_TYPE
@@ -98,6 +113,7 @@ statements
         : statements statement
         |
         ;
+
 statement
         : LBRACE statements RBRACE
         | if_statement
@@ -106,31 +122,36 @@ statement
         | assign_statement
         | invoke_exp_statement
         ;
-        
+
 if_statement
         : IF LPAREN expression RPAREN statement ELSE statement
         ;
+
 while_statement
         : WHILE LPAREN expression RPAREN statement
         ;
+
 print_statement
         : PRINT LPAREN expression RPAREN SEMCOL
         ;
+
 assign_statement
         : IDENT EQ expression SEMCOL
         ;
+
 invoke_exp_statement
         : IDENT LBRACK expression RBRACK EQ expression SEMCOL
         ;
+
 binop
-    : expression PLUS expression { }
-    | expression MINUS expression { }
-    | expression MULT expression { }
-    | expression AND expression {  }
-    | expression DIV expression
-    | PLUS expression %prec UPLUS {}
-    | MINUS expression %prec UMINUS
-    ;
+        : expression PLUS expression { }
+        | expression MINUS expression { }
+        | expression MULT expression { }
+        | expression AND expression {  }
+        | expression DIV expression
+        | PLUS expression %prec UPLUS {}
+        | MINUS expression %prec UMINUS
+        ;
 
 
 expression
@@ -146,10 +167,13 @@ expression
         | LPAREN expression RPAREN
         | binop
         ;
+
 invoke_expression
         : expression LBRACK expression RBRACK
         ;
+
 length_expression
         : expression DOT LENGTH
         ;
+
 %%
