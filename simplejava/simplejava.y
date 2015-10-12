@@ -6,7 +6,7 @@
 #include "simplejava.tab.hpp"
 extern FILE * yyin;
 int yylex();
-void yyerror(const char *){};
+void yyerror(const char * s){ std::cout << s;};
 
 %}
 
@@ -34,14 +34,14 @@ void yyerror(const char *){};
 
 
 program
-        : main_class declarations
+        : main_class declarations 
         ;
 
 main_class
         : CLASS IDENT LBRACE PUBLIC STATIC VOID MAIN LPAREN STRING LBRACK RBRACK IDENT RPAREN LBRACE statement RBRACE RBRACE
         ;
 declarations
-        : declarations class_declaration
+        : declarations class_declaration 
         | 
         ;
 class_declaration
@@ -111,7 +111,7 @@ if_statement
         : IF LPAREN expression RPAREN statement ELSE statement
         ;
 while_statement
-        : WHILE LPAREN expression RPAREN statement
+        : WHILE LPAREN expression RPAREN statement {std:: cerr << "dsfsdf";}
         ;
 print_statement
         : PRINT LPAREN expression RPAREN SEMCOL
@@ -145,7 +145,11 @@ expression
         | BANG expression
         | LPAREN expression RPAREN
         | binop
+        | expression DOT IDENT LPAREN expressions RPAREN
         ;
+expressions
+        : expression
+        | expressions COMMA expression
 invoke_expression
         : expression LBRACK expression RBRACK
         ;
@@ -153,3 +157,5 @@ length_expression
         : expression DOT LENGTH
         ;
 %%
+
+
