@@ -20,7 +20,6 @@ void incrCurPos() {
 }
 
 %}
-%option noyywrap
 
 IDENT   [A-Za-z_][A-Za-z0-9_]*
 INT     ([1-9]([0-9])*)|0
@@ -115,6 +114,12 @@ boolean     {
                 return BOOLEAN_TYPE;
                 //std::cout << "BOOLEAN "; 
             }
+
+extends     {
+                incrCurPos();
+                return EXTENDS;
+            }
+
 "{"         {   
                 incrCurPos();
                 return LBRACE;
@@ -175,6 +180,10 @@ boolean     {
                 return MULT;
                 //std::cout << "MULT "; 
             }
+"/"         {
+                incrCurPos();
+                return DIV;
+            }
 ";"         {   
                 incrCurPos();
                 return SEMCOL;
@@ -205,6 +214,7 @@ boolean     {
 {INT}       {
                 incrCurPos();
                 yylval.intValue = atoi(yytext);
+                //yyloc.last_column = 5;
                 return INT;
                 //std::cout << "INT(" << atoi(yytext) << ") ";
             }
@@ -212,6 +222,7 @@ boolean     {
 {IDENT}     {   
                 incrCurPos();
                 strcpy(yylval.identName, yytext);
+                //yyloc.first_line = 5;
                 return IDENT;
                 //curPosInLine += yyleng;
                 //std::cout << "IDENT(" << yytext << ") ";
@@ -228,11 +239,5 @@ boolean     {
             }       
 
 %%
-/*
-int main(int argc, char** argv) {
-    filebuf fb;
-    istream is(fb.open(argv[1], ios::in));
-    lexer->yylex(&is, &cout);
-    std::cout << "EOF" << std::endl;
-}*/
+
 
