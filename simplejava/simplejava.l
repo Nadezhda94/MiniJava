@@ -20,6 +20,7 @@ void incrCurPos() {
 }
 
 %}
+%option noyywrap
 
 IDENT   [A-Za-z_][A-Za-z0-9_]*
 INT     ([1-9]([0-9])*)|0

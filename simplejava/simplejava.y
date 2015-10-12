@@ -152,13 +152,4 @@ invoke_expression
 length_expression
         : expression DOT LENGTH
         ;
-
-
-
-
-
-
-
-
-
 %%
