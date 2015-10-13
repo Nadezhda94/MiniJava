@@ -1,162 +1,265 @@
 %{
-    
+
 #include <iostream>
 #include <string>
 #include <stdio.h>
+#include <iostream>
+#include <cstdlib>
+#include <cstring>
 #include "simplejava.tab.hpp"
+using std::cout;
+using std::endl;
+using std::to_string;
+using std::strcpy;
 extern FILE * yyin;
 int yylex();
-void yyerror(const char * s){ std::cout << s;};
+void yyerror(const char * s){ 
+    std::cout << s << std::endl; 
+    std::cout << "line number: " << yylloc.first_line << std::endl;
+    std:: cout << "position in line: " << yylloc.last_column << std::endl;
+};
 
 %}
+%locations
 
-%union { 
-    int intValue; 
+%union {
+    int intValue;
     bool boolValue;
-    char identName[256];
-    char str[256];
+    char str[4096];
 };
 
 %token <intValue> INT
 %token <boolValue> BOOLEAN
-%token <identName> IDENT 
-%token <str> INT_TYPE BOOLEAN_TYPE EXTENDS EQ PLUS IF ELSE WHILE  RETURN  PUBLIC CLASS STATIC  VOID MAIN STRING PRINT  THIS NEW LENGTH ARRAY LBRACE  RBRACE  LPAREN RPAREN LBRACK RBRACK LEQ AND MINUS MULT DIV SEMCOL COMMA BANG DOT 
+%token <str> IDENT INT_TYPE BOOLEAN_TYPE EXTENDS EQ PLUS IF ELSE WHILE  RETURN  PUBLIC CLASS STATIC  VOID MAIN STRING PRINT  THIS NEW LENGTH ARRAY LBRACE  RBRACE  LPAREN RPAREN LBRACK RBRACK LEQ AND MINUS MULT DIV SEMCOL COMMA BANG DOT
 
-%left EQ LEQ
-%left PLUS MINUS 
-%left MULT DIV
-%left AND
+%left LEQ EQ
+%left DOT
+%left PLUS MINUS
+%left MULT DIV AND 
 
-%nonassoc BANG DOT
-%nonassoc LBRACK RBRACK 
+%nonassoc BANG  IF ELSE
+%nonassoc LBRACK RBRACK
 %nonassoc UMINUS UPLUS
+
+%type <str> expression binop invoke_expression length_expression statement if_statement while_statement print_statement assign_statement invoke_exp_statement extend_declaration param_arg
+%type <str> expressions statements type param params method_body vars_dec stats method_declarations method_declaration var_declaration var_declarations class_declaration exp_arg
 
 %%
 
 
 program
-        : main_class declarations 
+        : main_class declarations {cout<<"End"<<endl;}
         ;
 
 main_class
-        : CLASS IDENT LBRACE PUBLIC STATIC VOID MAIN LPAREN STRING LBRACK RBRACK IDENT RPAREN LBRACE statement RBRACE RBRACE
+        : CLASS IDENT LBRACE PUBLIC STATIC VOID MAIN LPAREN STRING LBRACK RBRACK IDENT RPAREN LBRACE statement RBRACE RBRACE {
+          cout<<"Main class "<< $2 << " with arg " << $12 << " do"<<endl<<"\t"<<  $15<<endl;
+        }
         ;
+
 declarations
-        : declarations class_declaration 
-        | 
+        : declarations class_declaration {cout<<$2<<endl;}
+        | {cout<<endl;}
         ;
+
 class_declaration
-        : CLASS IDENT extend_declaration LBRACE var_declarations method_declarations RBRACE
+        : CLASS IDENT extend_declaration LBRACE var_declarations method_declarations RBRACE {
+          strcpy($$, "Class declaration");
+          strcat($$, $3);
+          strcat($$, ": ");
+          strcat($$, $5);
+          strcat($$, $6);
+        }
         ;
+
 extend_declaration
-        : EXTENDS IDENT
-        | 
+        : EXTENDS IDENT { strcpy($$, " extends "); strcat($$, $2); }
+        |  { strcpy($$, ""); }
         ;
-        
+
 var_declarations
-        : var_declarations var_declaration
-        | 
+        : var_declarations var_declaration  {
+            strcpy($$, $1);
+            strcat($$, "\n\t\t");
+            strcat($$, $2);
+          }
+        | { strcpy($$, "\n\tVar declarations: "); }
         ;
+
 method_declarations
-        : method_declarations method_declaration
-        |
+        : method_declarations method_declaration { strcpy($$, $1); strcat($$, $2); }
+        | { strcpy($$, "\n\tMethod declarations: "); }
         ;
+
 var_declaration
-        : type IDENT SEMCOL
+        : type IDENT SEMCOL { strcpy($$, $1); strcat($$, $2); strcat($$, ";");}
         ;
+
 method_declaration
-        : PUBLIC type IDENT LPAREN params RPAREN LBRACE method_body RETURN expression SEMCOL RBRACE
+        : PUBLIC type IDENT LPAREN param_arg RPAREN LBRACE method_body RETURN expression SEMCOL RBRACE {
+                strcpy($$, "\n\t\tMethod ");
+                strcat($$, $3);
+                strcat($$, " declaration{ ");
+                strcat($$, "\n\t\t\tType: ");
+                strcat($$, $2);
+                strcat($$, "\n\t\t\tParams: ");
+                strcat($$, $5);
+                strcat($$, "\n\t\t\tMethod body[ ");
+                strcat($$, $8);
+                strcat($$, "\n\t\t\t]");
+                strcat($$, "\n\t\t\tReturn: ");
+                strcat($$, $10);
+                strcat($$, "\n\t\t}");
+                }
         ;
+
 vars_dec
-: vars_dec var_declaration
-| var_declaration
-;
+        : vars_dec var_declaration  { strcpy($$, $1); strcat($$, " "); strcat($$, $2);}
+        | var_declaration { strcpy($$, $1); }
+        ;
+
 stats
-: stats statement
-| statement
-;
+        : stats statement { strcpy($$, $1); strcat($$, " ; "); strcat($$, $2);}
+        | statement { strcpy($$, $1); }
+        ;
+
 method_body
-        : vars_dec
-        | stats
-        | vars_dec stats
-        |
+        : vars_dec { strcpy($$, "\n\t\t\t\tVars declaration: ");  strcat($$, $1);}
+        | stats { strcpy($$, "\n\t\t\t\tStatements: "); strcat($$, $1);}
+        | vars_dec stats {  strcpy($$, "\n\t\t\t\tVars declaration: ");  strcat($$, $1); strcat($$, "\n\t\t\t\tStatements: "); strcat($$, $2);}
+        | {  strcpy($$, " No "); }
         ;
+
+param_arg
+        : params { strcpy($$, $1); }
+        | { strcpy($$, ""); }
+        ;
+
 params
-        : param
-        | params COMMA param
+        : param { strcpy($$, $1);}
+        | params COMMA param { strcpy($$, $1); strcat($$, " , "); strcat($$, $2); }
         ;
+
 param
-        : type IDENT {std::cerr << "ooooo";}
+
+        : type IDENT { strcpy($$, $1);  strcat($$, $2); }
         ;
+
 type
-        : ARRAY
-        | BOOLEAN_TYPE
-        | INT_TYPE
-        | IDENT
+        : ARRAY { strcpy($$, "int[] "); }
+        | BOOLEAN_TYPE { strcpy($$, "bool "); }
+        | INT_TYPE { strcpy($$, "int "); }
+        | IDENT { strcpy($$, $1); }
         ;
 
 statements
-        : statements statement
-        |
+        : statements statement { strcpy($$, $1); strcat($$, " ; "); strcat($$, $2);}
+        | { strcpy($$, "Statements: ");}
         ;
+
 statement
-        : LBRACE statements RBRACE
-        | if_statement
-        | while_statement
-        | print_statement {std::cerr << "sdfsdf";}
-        | assign_statement
-        | invoke_exp_statement
+        : LBRACE statements RBRACE { strcpy($$, "{"); strcat($$, $2); strcat($$, "}"); }
+        | if_statement { strcpy($$, $1);}
+        | while_statement { strcpy($$, $1);}
+        | print_statement { strcpy($$, $1);}
+        | assign_statement { strcpy($$, $1);}
+        | invoke_exp_statement { strcpy($$, $1);}
         ;
-        
 if_statement
-        : IF LPAREN expression RPAREN statement ELSE statement
+        : IF LPAREN expression RPAREN statement ELSE statement {
+            strcpy($$, "If "); strcat($$, $3);
+            strcat($$, " then {"); strcat($$, $5); strcat($$, "}");
+            strcat($$, " else {"); strcat($$, $7); strcat($$, "}");
+          }
         ;
+
 while_statement
-        : WHILE LPAREN expression RPAREN statement {std:: cerr << "dsfsdf";}
+        : WHILE LPAREN expression RPAREN statement {strcpy($$, "While "); strcat($$, $3); strcat($$, " do "); strcat($$, $5);}
         ;
+
 print_statement
-        : PRINT LPAREN expression RPAREN SEMCOL
+        : PRINT LPAREN expression RPAREN SEMCOL {strcpy($$, "Print "); strcat($$, $3);}
         ;
+
 assign_statement
-        : IDENT EQ expression SEMCOL
+        : IDENT EQ expression SEMCOL { strcpy($$, "Assign "); strcat($$, $3); strcat($$, " to "); strcat($$, $1);}
         ;
+
 invoke_exp_statement
-        : IDENT LBRACK expression RBRACK EQ expression SEMCOL
+        : IDENT LBRACK expression RBRACK EQ expression SEMCOL { strcpy($$, "Invoke "); strcat($$, $3); strcat($$, " and "); strcat($$, $6);}
         ;
+
 binop
-    : expression PLUS expression { }
-    | expression MINUS expression { }
-    | expression MULT expression { }
-    | expression AND expression {  }
-    | expression DIV expression
-    | PLUS expression %prec UPLUS {}
-    | MINUS expression %prec UMINUS
-    ;
+        : expression PLUS expression { strcpy($$, $1); strcat($$, "+"); strcat($$, $3); }
+        | expression MINUS expression { strcpy($$, $1); strcat($$, "-"); strcat($$, $3); }
+        | expression MULT expression { strcpy($$, $1); strcat($$, "*"); strcat($$, $3); }
+        | expression AND expression { strcpy($$, $1); strcat($$, "&&"); strcat($$, $3); }
+        | expression DIV expression { strcpy($$, $1); strcat($$, "/"); strcat($$, $3); }
+        | expression LEQ expression { strcpy($$, $1); strcat($$, "<"); strcat($$, $3); }
+        | PLUS expression %prec UPLUS { strcpy($$, "+"); strcat($$, $2); }
+        | MINUS expression %prec UMINUS { strcpy($$, "-"); strcat($$, $2); }
+        ;
 
 
 expression
-        : invoke_expression
-        | length_expression
-        | INT
-        | BOOLEAN
-        | IDENT
-        | THIS
-        | NEW INT_TYPE LBRACK expression RBRACK
-        | NEW IDENT LPAREN RPAREN
-        | BANG expression
-        | LPAREN expression RPAREN
-        | binop
-        | expression DOT IDENT LPAREN expressions RPAREN
+        : invoke_expression { strcpy($$, $1); }
+        | length_expression { strcpy($$, $1); }
+        | INT {  strcpy($$, to_string(yylval.intValue).c_str()); }
+        | BOOLEAN { strcpy($$, to_string(yylval.boolValue).c_str()); }
+        | IDENT { strcpy($$, yylval.str); }
+        | THIS { strcpy($$, "this"); }
+        | NEW INT_TYPE LBRACK expression RBRACK {
+            strcpy($$, "new int [");
+            strcat($$, $4);
+            strcat($$, "]");
+          }
+        | NEW IDENT LPAREN RPAREN {
+            strcpy($$, "new ");
+            strcat($$, $2);
+            strcat($$, "(");
+            strcat($$, ")");
+          }
+        | BANG expression %prec BANG { strcpy($$, "!"); strcat($$, $2); }
+        | LPAREN expression RPAREN {
+            strcpy($$, "(");
+            strcat($$, $2);
+            strcat($$, ")");
+          }
+        | binop { strcpy($$, $1); }
+        | expression DOT IDENT LPAREN exp_arg RPAREN {
+            strcpy($$, $1);
+            strcat($$, ".");
+            strcat($$, $3);
+            strcat($$, "(");
+            strcat($$, $5);
+            strcat($$, ")");
+          }
+        ;
+
+exp_arg
+        : expressions { strcpy($$, $1); }
+        | { strcpy($$, ""); }
         ;
 expressions
-        : expression
-        | expressions COMMA expression
+        : expression  { strcpy($$, $1); }
+        | expressions COMMA expression {
+            strcpy($$, $1);
+            strcat($$, " , ");
+            strcat($$, $3);
+          }
+        ;
+
 invoke_expression
-        : expression LBRACK expression RBRACK
+        : expression LBRACK expression RBRACK {
+            strcpy($$, $1);
+            strcat($$, "(");
+            strcat($$, $3);
+            strcat($$, ")");
+          }
         ;
+
 length_expression
-        : expression DOT LENGTH
+        : expression DOT LENGTH { strcpy($$, $1); strcat($$, ".length");}
         ;
+
 %%
-
-

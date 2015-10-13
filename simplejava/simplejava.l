@@ -4,23 +4,35 @@
 #include <iostream>
 #include <fstream>
 #include <cstdlib>
-//#include "simplejava.h"
+
+
+
 #include "simplejava.tab.hpp"
+
+
+
 
 using namespace std;
 
 //FlexLexer* lexer = new yyFlexLexer();
-int curLineNum = 0;
-int curPosInLine = 0;
+int curLineNum = 1;
+int curPosInLine = 1;
 
 void yyerror(const char *);
+int yy_line = 1;
+    int yy_column = 1;
 
 void incrCurPos() {
+    yylloc.first_line = yylloc.last_line;
+    yylloc.first_column = yylloc.last_column;
+    yylloc.last_line = curLineNum;
+    yylloc.last_column = curPosInLine;
     curPosInLine += yyleng;
 }
 
 %}
 
+COMMENT [/][/].*[\n]
 IDENT   [A-Za-z_][A-Za-z0-9_]*
 INT     ([1-9]([0-9])*)|0
 BOOLEAN ("true"|"false")
@@ -29,90 +41,95 @@ LINE_SEPARATOR [\n]+
 
 
 %%
-if          {  
+{COMMENT}   {
+                incrCurPos();
+                ++curLineNum;
+                //std::cerr << "comment";
+            }
+if          {
                 incrCurPos();
                 return IF;
-                //std::cout << "IF "; 
+                //std::cout << "IF ";
             }
-else        {  
+else        {
                 incrCurPos();
                 return ELSE;
-                //std::cout << "ELSE "; 
+                //std::cout << "ELSE ";
             }
-while       {   
+while       {
                 incrCurPos();
                 return WHILE;
-                //std::cout << "WHILE "; 
+                //std::cout << "WHILE ";
             }
-return      {   
+return      {
                 incrCurPos();
                 return RETURN;
-                //std::cout << "RETURN "; 
+                //std::cout << "RETURN ";
             }
-public      {   
+public      {
                 incrCurPos();
                 return PUBLIC;
-                //std::cout << "PUBLIC "; 
+                //std::cout << "PUBLIC ";
             }
-class       {   
+class       {
                 incrCurPos();
                 return CLASS;
-                //std::cout << "CLASS "; 
+                //std::cout << "CLASS ";
             }
-static      {   
+static      {
                 incrCurPos();
                 return STATIC;
-                //std::cout << "STATIC "; 
+                //std::cout << "STATIC ";
             }
-void        {   
+void        {
                 incrCurPos();
                 return VOID;
-                //std::cout << "VOID "; 
+                //std::cout << "VOID ";
             }
-main        {  
+main        {
                 incrCurPos();
                 return MAIN;
-                //std::cout << "MAIN "; 
+                //std::cout << "MAIN ";
             }
-String      {   
+String      {
                 incrCurPos();
                 return STRING;
-                //std::cout << "STRING "; 
+                //std::cout << "STRING ";
             }
-System.out.println  { 
+System.out.println  {
                         incrCurPos();
                         return PRINT;
-                        //std::cout << "PRINT "; 
+                        //std::cout << "PRINT ";
                     }
-this        {   
+this        {
                 incrCurPos();
                 return THIS;
-                //std::cout << "THIS ";  
+                //std::cout << "THIS ";
             }
-new         {   
+new         {
                 incrCurPos();
                 return NEW;
-                //std::cout << "NEW ";  
+                //std::cout << "NEW ";
             }
-length      {   
+length      {
                 incrCurPos();
                 return LENGTH;
-                //std::cout << "LENGTH ";  
+                //std::cout << "LENGTH ";
             }
-"int[]"     {   
+"int[]"     {
                 incrCurPos();
                 return ARRAY;
-                //std::cout << "ARRAY ";  
+                //std::cout << "ARRAY ";
             }
-int         {   
+int         {
                 incrCurPos();
                 return INT_TYPE;
-                //std::cout << "INT"; 
+                //std::cout << "INT";
             }
-boolean     {   
+boolean     {
                 incrCurPos();
                 return BOOLEAN_TYPE;
-                //std::cout << "BOOLEAN "; 
+                //std::cout << "BOOLEAN ";
             }
 
 extends     {
@@ -120,95 +137,96 @@ extends     {
                 return EXTENDS;
             }
 
-"{"         {   
+"{"         {
                 incrCurPos();
                 return LBRACE;
-                //std::cout << "LBRACE "; 
+                //std::cout << "LBRACE ";
             }
-"}"         {   
+"}"         {
                 incrCurPos();
                 return RBRACE;
-                //std::cout << "RBRACE "; 
+                //std::cout << "RBRACE ";
             }
-"("         {   
+"("         {
                 incrCurPos();
                 return LPAREN;
-                //std::cout << "LPAREN "; 
+                //std::cout << "LPAREN ";
             }
-")"         {   
+")"         {
                 incrCurPos();
                 return RPAREN;
-                //std::cout << "RPAREN "; 
+                //std::cout << "RPAREN ";
             }
-"["         {   
+"["         {
                 incrCurPos();
                 return LBRACK;
-                //std::cout << "LBRACK "; 
+                //std::cout << "LBRACK ";
             }
-"]"         {   
+"]"         {
                 incrCurPos();
                 return RBRACK;
-                //std::cout << "RBRACK "; 
+                //std::cout << "RBRACK ";
             }
-"<"         {   
+"<"         {
                 incrCurPos();
                 return LEQ;
-                //std::cout << "LEQ "; 
+                //std::cout << "LEQ ";
             }
-"="         {   
+"="         {
                 incrCurPos();
                 return EQ;
-                //std::cout << "EQ "; 
+                //std::cout << "EQ ";
             }
-"&&"        {   
+"&&"        {
                 incrCurPos();
                 return AND;
-                //std::cout << "AND "; 
+                //std::cout << "AND ";
             }
-"+"         {   
+"+"         {
                 incrCurPos();
                 return PLUS;
-                //std::cout << "PLUS "; 
+                //std::cout << "PLUS ";
             }
-"-"         {   
+"-"         {
                 incrCurPos();
                 return MINUS;
-                //std::cout << "MINUS "; 
+                //std::cout << "MINUS ";
             }
-"*"         {   
+"*"         {
                 incrCurPos();
                 return MULT;
-                //std::cout << "MULT "; 
+                //std::cout << "MULT ";
             }
+
 "/"         {
                 incrCurPos();
                 return DIV;
             }
-";"         {   
+";"         {
                 incrCurPos();
                 return SEMCOL;
-                //std::cout << "SEMCOL "; 
+                //std::cout << "SEMCOL ";
             }
-","         {   
+","         {
                 incrCurPos();
                 return COMMA;
-                //std::cout << "COMMA "; 
+                //std::cout << "COMMA ";
             }
-"!"         {   
+"!"         {
                 incrCurPos();
                 return BANG;
-                //std::cout << "BANG "; 
+                //std::cout << "BANG ";
             }
-"."         {   
+"."         {
                 incrCurPos();
                 return DOT;
-                //std::cout << "DOT "; 
+                //std::cout << "DOT ";
             }
 {BOOLEAN}   {
                 incrCurPos();
                 yylval.boolValue = (yytext[0] == 't');
                 return BOOLEAN;
-                //std::cout << "BOOLEAN(" << yytext << ") "; 
+                //std::cout << "BOOLEAN(" << yytext << ") ";
             }
 
 {INT}       {
@@ -219,25 +237,28 @@ extends     {
                 //std::cout << "INT(" << atoi(yytext) << ") ";
             }
 
-{IDENT}     {   
+
+{IDENT}     {
                 incrCurPos();
-                strcpy(yylval.identName, yytext);
+                strcpy(yylval.str, yytext);
                 //yyloc.first_line = 5;
                 return IDENT;
                 //curPosInLine += yyleng;
                 //std::cout << "IDENT(" << yytext << ") ";
             }
 
-{SPACE}     {   ++curPosInLine;    }
+{SPACE}     {   
+                incrCurPos();
+                //++curPosInLine;    
+            }
 
-{LINE_SEPARATOR}    {   ++curLineNum; 
+{LINE_SEPARATOR}    {  
+                        //incrCurPos();
+                        curLineNum += strlen(yytext);
                         curPosInLine = 0;
             }
-.           { 
+.           {
                 std::cout << std::endl <<"UNKNOWN TOKEN(" << yytext << ") in line " << curLineNum << ": " /*<< curPosInLine*/ << std::endl;
                 exit(1);
-            }       
-
+            }
 %%
-
-
