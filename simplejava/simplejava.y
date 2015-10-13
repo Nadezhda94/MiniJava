@@ -13,8 +13,8 @@ using std::to_string;
 using std::strcpy;
 extern FILE * yyin;
 int yylex();
-void yyerror(const char * s){ 
-    std::cout << s << std::endl; 
+void yyerror(const char * s){
+    std::cout << s << std::endl;
     std::cout << "line number: " << yylloc.first_line << std::endl;
     std:: cout << "position in line: " << yylloc.last_column << std::endl;
 };
@@ -35,7 +35,7 @@ void yyerror(const char * s){
 %left LEQ EQ
 %left DOT
 %left PLUS MINUS
-%left MULT DIV AND 
+%left MULT DIV AND
 
 %nonassoc BANG  IF ELSE
 %nonassoc LBRACK RBRACK
