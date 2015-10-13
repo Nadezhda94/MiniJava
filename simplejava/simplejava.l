@@ -25,7 +25,6 @@ INT     ([1-9]([0-9])*)|0
 BOOLEAN ("true"|"false")
 SPACE   [ \t]+
 LINE_SEPARATOR [\n]+
-END_OF_FILE <<EOF>>
 
 
 %%
@@ -79,7 +78,7 @@ String      {
                 return STRING;
                 //std::cout << "STRING ";
             }
-print  {
+System.out.println  {
                         incrCurPos();
                         return PRINT;
                         //std::cout << "PRINT ";
@@ -222,7 +221,7 @@ extends     {
 
 {IDENT}     {
                 incrCurPos();
-                strcpy(yylval.identName, yytext);
+                strcpy(yylval.str, yytext);
                 //yyloc.first_line = 5;
                 return IDENT;
                 //curPosInLine += yyleng;
@@ -238,7 +237,4 @@ extends     {
                 std::cout << std::endl <<"UNKNOWN TOKEN(" << yytext << ") in line " << curLineNum << ": " /*<< curPosInLine*/ << std::endl;
                 exit(1);
             }
-
-<<EOF>>     { return END_OF_FILE;}
-
 %%
