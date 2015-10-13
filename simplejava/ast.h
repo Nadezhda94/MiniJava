@@ -130,7 +130,11 @@ private:
 
 class CInvokeMethodExpressionNode: public CExpressionNode {
 public:
-    CInvokeExpressionNode(CExpressionNode* _exp, const char* _name, CExpArgNode* _args): exp(_exp), name(_name), args(_args) {}
+    CInvokeExpressionNode(CExpressionNode* _exp, const char* _name, CExpArgNode* _args): 
+                                                    exp(_exp), name(_name), args(_args) {}
+    void accept(CVisitor* visitor) {
+        return visitor->visit(this);
+    }
 private:
     CExpressionNode exp;
     string name;
@@ -140,6 +144,9 @@ private:
 class CTailStatsNode: public CStatsNode {
 public:
     CTailStatsNode(CStatementNode* _stm) : stm(_stm) {}
+    void accept(CVisitor* visitor) {
+        return visitor->visit(this);
+    }
 private:
     CStatementNode* stm;
 };
@@ -147,10 +154,49 @@ private:
 class CFirstStatsNode: public CStatsNode {
 public:
     CFirstStatsNode(CStatsNode* _firstStats,  CStatementNode* _stm) : firstStats(_firstStats), stm(_stm) {}
+    void accept(CVisitor* visitor) {
+        return visitor->visit(this);
+    }
 private:
     CStatsNode* firstStats;
     CStatementNode* stm;
 };
 
+class CFewArgsExpressionNode: public CExpArgNode {
+public:
+    CFewArgsExpressionNode(CExpressionsNode* _exp) : exp(_exp) {}
+    void accept(CVisitor* visitor) {
+        return visitor->visit(this);
+    }
+private:
+    CExpressionNode* exp;
+};
+
+class CEmptyArgsExpression: public CExpArgNode {
+public:
+    CEmptyArgsExpression() {}
+    void accept(CVisitor* visitor) {
+        return visitor->visit(this);
+    }
+};
+
+class CListExpressionNode: public CExpressionsNode {
+public:
+    CListExpressionNode(CExpressionNode* _prevExps, CExpressionNode* _nextExp): 
+                                                            prevExps(_prevExps), nextExp(_nextExp) {}
+    void accept(CVisitor* visitor) {
+        return visitor->visit(this);
+    }
+private:
+    CExpressionNode* prevExps;
+    CExpressionNode* nextExp;
+};
+
+class CLastListExpressionNode: public CExpressionsNode {
+public:
+    CLastListExpressionNode(CExpressionNode* _exp) : exp(_exp) {}
+private:
+    CExpressionNode* exp;
+};
 
 
