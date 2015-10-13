@@ -22,6 +22,7 @@ void yyerror(const char * s){ std::cout << s;};
 %token <identName> IDENT 
 %token <str> INT_TYPE BOOLEAN_TYPE EXTENDS EQ PLUS IF ELSE WHILE  RETURN  PUBLIC CLASS STATIC  VOID MAIN STRING PRINT  THIS NEW LENGTH ARRAY LBRACE  RBRACE  LPAREN RPAREN LBRACK RBRACK LEQ AND MINUS MULT DIV SEMCOL COMMA BANG DOT 
 
+%left EQ LEQ
 %left PLUS MINUS 
 %left MULT DIV
 %left AND
@@ -48,8 +49,8 @@ class_declaration
         : CLASS IDENT extend_declaration LBRACE var_declarations method_declarations RBRACE
         ;
 extend_declaration
-        : extend_declaration EXTENDS IDENT
-        | EXTENDS IDENT
+        : EXTENDS IDENT
+        | 
         ;
         
 var_declarations
@@ -85,7 +86,7 @@ params
         | params COMMA param
         ;
 param
-        : type IDENT
+        : type IDENT {std::cerr << "ooooo";}
         ;
 type
         : ARRAY
@@ -102,7 +103,7 @@ statement
         : LBRACE statements RBRACE
         | if_statement
         | while_statement
-        | print_statement
+        | print_statement {std::cerr << "sdfsdf";}
         | assign_statement
         | invoke_exp_statement
         ;
