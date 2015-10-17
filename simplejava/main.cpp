@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdexcept>
 #include <iostream>
+#include "ast.h"
 using std::invalid_argument;
 using std::cout;
 using std::endl;

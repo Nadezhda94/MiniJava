@@ -41,8 +41,8 @@ void yyerror(const char * s){
 %nonassoc LBRACK RBRACK
 %nonassoc UMINUS UPLUS
 
-%type <str> expression binop invoke_expression length_expression statement if_statement while_statement print_statement assign_statement invoke_exp_statement extend_declaration param_arg
-%type <str> expressions statements type param params method_body vars_dec stats method_declarations method_declaration var_declaration var_declarations class_declaration exp_arg
+%type <str> expression statement extend_declaration param_arg var_declaration var_declarations class_declaration exp_arg
+%type <str> expressions statements type param params method_body vars_dec stats method_declarations method_declaration
 
 %%
 
