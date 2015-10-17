@@ -250,7 +250,7 @@ private:
 
 class CVarsDecListRuleNode{
 public:
-  CVarDeclarationRuleNode(CVarsDec* _list, CVarDeclarationNode* _next):
+  CVarsDecListRuleNode(CVarsDec* _list, CVarDeclarationNode* _next):
     list(_list), next(_next){}
   void accept( CVisitor* v ){
     v->visit(this);
@@ -262,7 +262,7 @@ private:
 
 class CVarsDecFirstRuleNode{
 public:
-  CVarDeclarationRuleNode(CVarDeclarationNode* _first):
+  CVarsDecFirstRuleNode(CVarDeclarationNode* _first):
     first(_first){}
   void accept( CVisitor* v ){
     v->visit(this);

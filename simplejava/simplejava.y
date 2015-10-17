@@ -159,51 +159,25 @@ statements
 
 statement
         : LBRACE statements RBRACE { strcpy($$, "{"); strcat($$, $2); strcat($$, "}"); }
-        | if_statement { strcpy($$, $1);}
-        | while_statement { strcpy($$, $1);}
-        | print_statement { strcpy($$, $1);}
-        | assign_statement { strcpy($$, $1);}
-        | invoke_exp_statement { strcpy($$, $1);}
-        ;
-if_statement
-        : IF LPAREN expression RPAREN statement ELSE statement {
+        | IF LPAREN expression RPAREN statement ELSE statement {
             strcpy($$, "If "); strcat($$, $3);
             strcat($$, " then {"); strcat($$, $5); strcat($$, "}");
             strcat($$, " else {"); strcat($$, $7); strcat($$, "}");
           }
+        | WHILE LPAREN expression RPAREN statement {strcpy($$, "While "); strcat($$, $3); strcat($$, " do "); strcat($$, $5);}
+        | PRINT LPAREN expression RPAREN SEMCOL {strcpy($$, "Print "); strcat($$, $3);}
+        | IDENT EQ expression SEMCOL { strcpy($$, "Assign "); strcat($$, $3); strcat($$, " to "); strcat($$, $1);}
+        | IDENT LBRACK expression RBRACK EQ expression SEMCOL { strcpy($$, "Invoke "); strcat($$, $3); strcat($$, " and "); strcat($$, $6);}
         ;
-
-while_statement
-        : WHILE LPAREN expression RPAREN statement {strcpy($$, "While "); strcat($$, $3); strcat($$, " do "); strcat($$, $5);}
-        ;
-
-print_statement
-        : PRINT LPAREN expression RPAREN SEMCOL {strcpy($$, "Print "); strcat($$, $3);}
-        ;
-
-assign_statement
-        : IDENT EQ expression SEMCOL { strcpy($$, "Assign "); strcat($$, $3); strcat($$, " to "); strcat($$, $1);}
-        ;
-
-invoke_exp_statement
-        : IDENT LBRACK expression RBRACK EQ expression SEMCOL { strcpy($$, "Invoke "); strcat($$, $3); strcat($$, " and "); strcat($$, $6);}
-        ;
-
-binop
-        : expression PLUS expression { strcpy($$, $1); strcat($$, "+"); strcat($$, $3); }
-        | expression MINUS expression { strcpy($$, $1); strcat($$, "-"); strcat($$, $3); }
-        | expression MULT expression { strcpy($$, $1); strcat($$, "*"); strcat($$, $3); }
-        | expression AND expression { strcpy($$, $1); strcat($$, "&&"); strcat($$, $3); }
-        | expression DIV expression { strcpy($$, $1); strcat($$, "/"); strcat($$, $3); }
-        | expression LEQ expression { strcpy($$, $1); strcat($$, "<"); strcat($$, $3); }
-        | PLUS expression %prec UPLUS { strcpy($$, "+"); strcat($$, $2); }
-        | MINUS expression %prec UMINUS { strcpy($$, "-"); strcat($$, $2); }
-        ;
-
 
 expression
-        : invoke_expression { strcpy($$, $1); }
-        | length_expression { strcpy($$, $1); }
+        :  expression LBRACK expression RBRACK {
+            strcpy($$, $1);
+            strcat($$, "(");
+            strcat($$, $3);
+            strcat($$, ")");
+          }
+        | expression DOT LENGTH { strcpy($$, $1); strcat($$, ".length");}
         | INT {  strcpy($$, to_string(yylval.intValue).c_str()); }
         | BOOLEAN { strcpy($$, to_string(yylval.boolValue).c_str()); }
         | IDENT { strcpy($$, yylval.str); }
@@ -225,7 +199,14 @@ expression
             strcat($$, $2);
             strcat($$, ")");
           }
-        | binop { strcpy($$, $1); }
+        | expression PLUS expression { strcpy($$, $1); strcat($$, "+"); strcat($$, $3); }
+        | expression MINUS expression { strcpy($$, $1); strcat($$, "-"); strcat($$, $3); }
+        | expression MULT expression { strcpy($$, $1); strcat($$, "*"); strcat($$, $3); }
+        | expression AND expression { strcpy($$, $1); strcat($$, "&&"); strcat($$, $3); }
+        | expression DIV expression { strcpy($$, $1); strcat($$, "/"); strcat($$, $3); }
+        | expression LEQ expression { strcpy($$, $1); strcat($$, "<"); strcat($$, $3); }
+        | PLUS expression %prec UPLUS { strcpy($$, "+"); strcat($$, $2); }
+        | MINUS expression %prec UMINUS { strcpy($$, "-"); strcat($$, $2); }
         | expression DOT IDENT LPAREN exp_arg RPAREN {
             strcpy($$, $1);
             strcat($$, ".");
@@ -247,19 +228,6 @@ expressions
             strcat($$, " , ");
             strcat($$, $3);
           }
-        ;
-
-invoke_expression
-        : expression LBRACK expression RBRACK {
-            strcpy($$, $1);
-            strcat($$, "(");
-            strcat($$, $3);
-            strcat($$, ")");
-          }
-        ;
-
-length_expression
-        : expression DOT LENGTH { strcpy($$, $1); strcat($$, ".length");}
         ;
 
 %%
