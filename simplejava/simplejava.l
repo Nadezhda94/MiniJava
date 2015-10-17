@@ -4,14 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <cstdlib>
-
-
-
 #include "simplejava.tab.hpp"
-
-
-
-
 using namespace std;
 
 //FlexLexer* lexer = new yyFlexLexer();
@@ -247,12 +240,12 @@ extends     {
                 //std::cout << "IDENT(" << yytext << ") ";
             }
 
-{SPACE}     {   
+{SPACE}     {
                 incrCurPos();
-                //++curPosInLine;    
+                //++curPosInLine;
             }
 
-{LINE_SEPARATOR}    {  
+{LINE_SEPARATOR}    {
                         //incrCurPos();
                         curLineNum += strlen(yytext);
                         curPosInLine = 0;

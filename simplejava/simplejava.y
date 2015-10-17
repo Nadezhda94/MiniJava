@@ -7,6 +7,7 @@
 #include <cstdlib>
 #include <cstring>
 #include "simplejava.tab.hpp"
+#include "ast.h"
 using std::cout;
 using std::endl;
 using std::to_string;
@@ -178,7 +179,7 @@ expression
             strcat($$, ")");
           }
         | expression DOT LENGTH { strcpy($$, $1); strcat($$, ".length");}
-        | INT {  strcpy($$, to_string(yylval.intValue).c_str()); }
+        | INT { strcpy($$, to_string(yylval.intValue).c_str()); }
         | BOOLEAN { strcpy($$, to_string(yylval.boolValue).c_str()); }
         | IDENT { strcpy($$, yylval.str); }
         | THIS { strcpy($$, "this"); }
