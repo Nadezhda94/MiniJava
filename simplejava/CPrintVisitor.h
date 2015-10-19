@@ -1,64 +1,26 @@
 #ifndef CPRINTVISITOR_H_INCLUDED
 #define CPRINTVISITOR_H_INCLUDED
+#include <iostream>
 #include "CVisitor.h"
 #include "ast.h"
-class CProgramRuleNode;
-class CMainClassDeclarationRuleNode;
-class CDeclarationsRuleNode;
-class CClassDeclarationRuleNode;
-class CExtendDeclarationRuleNode;
-class CVarDeclarationsListNode;
-class CVarDeclarationsEmptyNode;
-class CMethodDeclarationsListNode;
-class CMethodDeclarationsEmptyNode;
-class CVarDeclarationRuleNode;
-class CMethodDeclarationRuleNode;
-class CVarsDecListNode;
-class CVarsDecFirstNode;
-class CStatsTailNode;
-class CStatsFirstNode;
-class CMethodBodyVarsNode;
-class CMethodBodyStatsNode;
-class CMethodBodyAllNode;
-class CParamArgListNode;
-class CParamArgEmptyNode;
-class CParamsOneNode;
-class CParamsTwoNode;
-class CParamRuleNode;
-class CTypeRuleNode;
-class CNumerousStatementsNode;
-class CEmptyStatementsNode;
-class CBracedStatementNode;
-class CIfStatementNode;
-class CWhileStatementNode;
-class CPrintStatementNode;
-class CAssignStatementNode;
-class CInvokeExpressionStatementNode;
-class CInvokeExpressionNode;
-class CLengthExpressionNode;
-class CArithmeticExpressionNode;
-class CCompareExpressionNode;
-class CNotExpressionNode;
-class CNewArrayExpressionNode;
-class CNewObjectExpressionNode;
-class CIntExpressionNode;
-class CBooleanExpressionNode;
-class CIdentExpressionNode;
-class CThisExpressionNode;
-class CParenExpressionNode;
-class CInvokeMethodExpressionNode;
-class CFewArgsExpressionNode;
-class CEmptyArgsExpression;
-class CListExpressionNode;
-class CLastListExpressionNode;
+using namespace std;
 
 class CPrintVisitor : public CVisitor{
 public:
-  void visit(const CProgramRuleNode* node) const {}
-  void visit(const CMainClassDeclarationRuleNode* node) const {}
-  void visit(const CDeclarationsRuleNode* node) const {}
+  void visit(const CProgramRuleNode* node) const {
+      const CPrintVisitor* const self = this;
+      cout<<"ProgramNode"<<endl<<"\t";
+      node->mainClass->accept(dynamic_cast<const CVisitor* const>(self));
+      cout<<endl<<"\t";
+      node->decl->accept(dynamic_cast<const CVisitor* const>(self));
+      cout<<endl;
+  }
+  void visit(const CMainClassDeclarationRuleNode* node) const {cout<<"MainClassNode";}
+  void visit(const CDeclarationsListNode* node) const {cout<<"DeclarationsNode";}
+  void visit(const CDeclarationsEmptyNode* node) const {}
   void visit(const CClassDeclarationRuleNode* node) const {}
   void visit(const CExtendDeclarationRuleNode* node) const {}
+  void visit(const CExtendDeclarationEmptyNode* node) const {}
   void visit(const CVarDeclarationsListNode* node) const {}
   void visit(const CVarDeclarationsEmptyNode* node) const {}
   void visit(const CMethodDeclarationsListNode* node) const {}
@@ -67,11 +29,12 @@ public:
   void visit(const CMethodDeclarationRuleNode* node) const {}
   void visit(const CVarsDecListNode* node) const {}
   void visit(const CVarsDecFirstNode* node) const {}
-  void visit(const CStatsTailNode* node) const {}
   void visit(const CStatsFirstNode* node) const {}
+  void visit(const CStatsListNode* node) const {}
   void visit(const CMethodBodyVarsNode* node) const {}
   void visit(const CMethodBodyStatsNode* node) const {}
   void visit(const CMethodBodyAllNode* node) const {}
+  void visit(const CMethodBodyEmptyNode* node) const {}
   void visit(const CParamArgListNode* node) const {}
   void visit(const CParamArgEmptyNode* node) const {}
   void visit(const CParamsOneNode* node) const {}
@@ -91,6 +54,7 @@ public:
   void visit(const CInvokeExpressionNode* node) const {}
   void visit(const CLengthExpressionNode* node) const {}
   void visit(const CArithmeticExpressionNode* node) const {}
+  void visit(const CUnaryExpressionNode* node) const {}
   void visit(const CCompareExpressionNode* node) const {}
   void visit(const CNotExpressionNode* node) const {}
   void visit(const CNewArrayExpressionNode* node) const {}

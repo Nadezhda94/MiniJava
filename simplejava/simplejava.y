@@ -8,6 +8,7 @@
 #include <cstring>
 #include "simplejava.tab.hpp"
 #include "ast.h"
+#include "CPrintVisitor.h"
 using std::cout;
 using std::endl;
 using std::to_string;
@@ -27,6 +28,7 @@ void yyerror(const char * s){
     int intValue;
     bool boolValue;
     char str[4096];
+    struct CNode* node;
 };
 
 %token <intValue> INT
@@ -42,192 +44,197 @@ void yyerror(const char * s){
 %nonassoc LBRACK RBRACK
 %nonassoc UMINUS UPLUS
 
-%type <str> expression statement extend_declaration param_arg var_declaration var_declarations class_declaration exp_arg
-%type <str> expressions statements type param params method_body vars_dec stats method_declarations method_declaration
+%type <node> expression statement extend_declaration param_arg var_declaration var_declarations class_declaration exp_arg program main_class
+%type <node> expressions statements type param params method_body vars_dec stats method_declarations method_declaration declarations
 
 %%
 
 
 program
-        : main_class declarations {cout<<"End"<<endl;}
+        : main_class declarations {
+            CPrintVisitor print_vis;
+            CProgramRuleNode* ptr = new CProgramRuleNode(dynamic_cast<CMainClassNode*>($1), dynamic_cast<CDeclarationsNode*>($2));
+            $$ = ptr;
+            ptr->accept(&print_vis);
+            delete ptr;
+          }
         ;
 
 main_class
         : CLASS IDENT LBRACE PUBLIC STATIC VOID MAIN LPAREN STRING LBRACK RBRACK IDENT RPAREN LBRACE statement RBRACE RBRACE {
-          cout<<"Main class "<< $2 << " with arg " << $12 << " do"<<endl<<"\t"<<  $15<<endl;
-        }
+            $$ = new CMainClassDeclarationRuleNode($2, $12, dynamic_cast<CStatementNode*>($15));
+          }
         ;
 
 declarations
-        : declarations class_declaration {cout<<$2<<endl;}
-        | {cout<<endl;}
+        : declarations class_declaration {
+            $$ = new CDeclarationsListNode(dynamic_cast<CDeclarationsNode*>($1), dynamic_cast<CClassDeclarationNode*>($2));
+          }
+        | {$$ = new CDeclarationsEmptyNode();}
         ;
 
 class_declaration
         : CLASS IDENT extend_declaration LBRACE var_declarations method_declarations RBRACE {
-          strcpy($$, "Class declaration");
-          strcat($$, $3);
-          strcat($$, ": ");
-          strcat($$, $5);
-          strcat($$, $6);
-        }
+            $$ = new CClassDeclarationRuleNode($2, dynamic_cast<CExtendDeclarationNode*>($3),
+                                               dynamic_cast<CVarDeclarationsNode*>($5),
+                                               dynamic_cast<CMethodDeclarationsNode*>($6));
+          }
         ;
 
 extend_declaration
-        : EXTENDS IDENT { strcpy($$, " extends "); strcat($$, $2); }
-        |  { strcpy($$, ""); }
+        : EXTENDS IDENT {$$ = new CExtendDeclarationRuleNode($2);}
+        | {$$ = new CExtendDeclarationEmptyNode();}
         ;
 
 var_declarations
         : var_declarations var_declaration  {
-            strcpy($$, $1);
-            strcat($$, "\n\t\t");
-            strcat($$, $2);
+            $$ = new CVarDeclarationsListNode(dynamic_cast<CVarDeclarationsNode*>($1), dynamic_cast<CVarDeclarationNode*>($2));
           }
-        | { strcpy($$, "\n\tVar declarations: "); }
+        | {$$ = new CVarDeclarationsEmptyNode();}
         ;
 
 method_declarations
-        : method_declarations method_declaration { strcpy($$, $1); strcat($$, $2); }
-        | { strcpy($$, "\n\tMethod declarations: "); }
+        : method_declarations method_declaration {
+            $$ = new CMethodDeclarationsListNode(dynamic_cast<CMethodDeclarationsNode*>($1), dynamic_cast<CMethodDeclarationNode*>($2));
+          }
+        | {$$ = new CMethodDeclarationsEmptyNode();}
         ;
 
 var_declaration
-        : type IDENT SEMCOL { strcpy($$, $1); strcat($$, $2); strcat($$, ";");}
+        : type IDENT SEMCOL {$$ = new CVarDeclarationRuleNode(dynamic_cast<CTypeNode*>($1), $2);}
         ;
 
 method_declaration
         : PUBLIC type IDENT LPAREN param_arg RPAREN LBRACE method_body RETURN expression SEMCOL RBRACE {
-                strcpy($$, "\n\t\tMethod ");
-                strcat($$, $3);
-                strcat($$, " declaration{ ");
-                strcat($$, "\n\t\t\tType: ");
-                strcat($$, $2);
-                strcat($$, "\n\t\t\tParams: ");
-                strcat($$, $5);
-                strcat($$, "\n\t\t\tMethod body[ ");
-                strcat($$, $8);
-                strcat($$, "\n\t\t\t]");
-                strcat($$, "\n\t\t\tReturn: ");
-                strcat($$, $10);
-                strcat($$, "\n\t\t}");
-                }
+            $$ = new CMethodDeclarationRuleNode(dynamic_cast<CTypeNode*>($2), $3,
+                                                dynamic_cast<CParamArgNode*>($5),
+                                                dynamic_cast<CMethodBodyNode*>($8),
+                                                dynamic_cast<CExpressionNode*>($10));
+          }
         ;
 
 vars_dec
-        : vars_dec var_declaration  { strcpy($$, $1); strcat($$, " "); strcat($$, $2);}
-        | var_declaration { strcpy($$, $1); }
+        : vars_dec var_declaration {
+            $$ = new CVarsDecListNode(dynamic_cast<CVarsDecNode*>($1), dynamic_cast<CVarDeclarationNode*>($2));
+          }
+        | var_declaration {$$ = new CVarsDecFirstNode(dynamic_cast<CVarDeclarationNode*>($1));}
         ;
 
 stats
-        : stats statement { strcpy($$, $1); strcat($$, " ; "); strcat($$, $2);}
-        | statement { strcpy($$, $1); }
+        : stats statement {
+            $$ = new CStatsListNode(dynamic_cast<CStatsNode*>($1), dynamic_cast<CStatementNode*>($2));
+          }
+        | statement {$$ = new CStatsFirstNode(dynamic_cast<CStatementNode*>($1));}
         ;
 
 method_body
-        : vars_dec { strcpy($$, "\n\t\t\t\tVars declaration: ");  strcat($$, $1);}
-        | stats { strcpy($$, "\n\t\t\t\tStatements: "); strcat($$, $1);}
-        | vars_dec stats {  strcpy($$, "\n\t\t\t\tVars declaration: ");  strcat($$, $1); strcat($$, "\n\t\t\t\tStatements: "); strcat($$, $2);}
-        | {  strcpy($$, " No "); }
+        : vars_dec {$$ = new CMethodBodyVarsNode(dynamic_cast<CVarsDecNode*>($1));}
+        | stats {$$ = new CMethodBodyStatsNode(dynamic_cast<CStatsNode*>($1));}
+        | vars_dec stats {
+            $$ = new CMethodBodyAllNode(dynamic_cast<CVarsDecNode*>($1), dynamic_cast<CStatsNode*>($2));
+          }
+        | {$$ = new CMethodBodyEmptyNode();}
         ;
 
 param_arg
-        : params { strcpy($$, $1); }
-        | { strcpy($$, ""); }
+        : params {$$ = new CParamArgListNode(dynamic_cast<CParamsNode*>($1));}
+        | {$$ = new CParamArgEmptyNode();}
         ;
 
 params
-        : param { strcpy($$, $1);}
-        | params COMMA param { strcpy($$, $1); strcat($$, " , "); strcat($$, $2); }
+        : param {$$ = new CParamsOneNode(dynamic_cast<CParamNode*>($1));}
+        | params COMMA param {
+            $$ = new CParamsTwoNode(dynamic_cast<CParamsNode*>($1), dynamic_cast<CParamNode*>($3));
+          }
         ;
 
 param
-
-        : type IDENT { strcpy($$, $1);  strcat($$, $2); }
+        : type IDENT {$$ = new CParamRuleNode(dynamic_cast<CTypeNode*>($1), $2);}
         ;
 
 type
-        : ARRAY { strcpy($$, "int[] "); }
-        | BOOLEAN_TYPE { strcpy($$, "bool "); }
-        | INT_TYPE { strcpy($$, "int "); }
-        | IDENT { strcpy($$, $1); }
+        : ARRAY {$$ = new CTypeRuleNode("int[]");}
+        | BOOLEAN_TYPE {$$ = new CTypeRuleNode("bool");}
+        | INT_TYPE {$$ = new CTypeRuleNode("int");}
+        | IDENT {$$ = new CTypeRuleNode($1);}
         ;
 
 statements
-        : statements statement { strcpy($$, $1); strcat($$, " ; "); strcat($$, $2);}
-        | { strcpy($$, "Statements: ");}
+        : statements statement {
+            $$ = new CNumerousStatementsNode(dynamic_cast<CStatementsNode*>($1), dynamic_cast<CStatementNode*>($2));
+          }
+        | {$$ = new CEmptyStatementsNode();}
         ;
 
 statement
-        : LBRACE statements RBRACE { strcpy($$, "{"); strcat($$, $2); strcat($$, "}"); }
+        : LBRACE statements RBRACE {$$ = new CBracedStatementNode(dynamic_cast<CStatementsNode*>($2));}
         | IF LPAREN expression RPAREN statement ELSE statement {
-            strcpy($$, "If "); strcat($$, $3);
-            strcat($$, " then {"); strcat($$, $5); strcat($$, "}");
-            strcat($$, " else {"); strcat($$, $7); strcat($$, "}");
+            $$ = new CIfStatementNode(dynamic_cast<CExpressionNode*>($3), dynamic_cast<CStatementNode*>($5), dynamic_cast<CStatementNode*>($7));
           }
-        | WHILE LPAREN expression RPAREN statement {strcpy($$, "While "); strcat($$, $3); strcat($$, " do "); strcat($$, $5);}
-        | PRINT LPAREN expression RPAREN SEMCOL {strcpy($$, "Print "); strcat($$, $3);}
-        | IDENT EQ expression SEMCOL { strcpy($$, "Assign "); strcat($$, $3); strcat($$, " to "); strcat($$, $1);}
-        | IDENT LBRACK expression RBRACK EQ expression SEMCOL { strcpy($$, "Invoke "); strcat($$, $3); strcat($$, " and "); strcat($$, $6);}
+        | WHILE LPAREN expression RPAREN statement {
+            $$ = new CWhileStatementNode(dynamic_cast<CExpressionNode*>($3), dynamic_cast<CStatementNode*>($5));
+          }
+        | PRINT LPAREN expression RPAREN SEMCOL {$$ = new CPrintStatementNode(dynamic_cast<CExpressionNode*>($3));}
+        | IDENT EQ expression SEMCOL {$$ = new CAssignStatementNode(dynamic_cast<CExpressionNode*>($3), $1);}
+        | IDENT LBRACK expression RBRACK EQ expression SEMCOL {
+            $$ = new CInvokeExpressionStatementNode(dynamic_cast<CExpressionNode*>($3), dynamic_cast<CExpressionNode*>($6), $1);
+          }
         ;
 
 expression
-        :  expression LBRACK expression RBRACK {
-            strcpy($$, $1);
-            strcat($$, "(");
-            strcat($$, $3);
-            strcat($$, ")");
+        : expression LBRACK expression RBRACK {
+            $$ = new CInvokeExpressionNode(dynamic_cast<CExpressionNode*>($1), dynamic_cast<CExpressionNode*>($3));
           }
-        | expression DOT LENGTH { strcpy($$, $1); strcat($$, ".length");}
-        | INT { strcpy($$, to_string(yylval.intValue).c_str()); }
-        | BOOLEAN { strcpy($$, to_string(yylval.boolValue).c_str()); }
-        | IDENT { strcpy($$, yylval.str); }
-        | THIS { strcpy($$, "this"); }
+        | expression DOT LENGTH {$$ = new CLengthExpressionNode(dynamic_cast<CExpressionNode*>($1));}
+        | INT {$$ = new CIntExpressionNode(yylval.intValue);}
+        | BOOLEAN {$$ = new CBooleanExpressionNode(yylval.boolValue);}
+        | IDENT {$$ = new CIdentExpressionNode(yylval.str);}
+        | THIS {$$ = new CThisExpressionNode("this");}
         | NEW INT_TYPE LBRACK expression RBRACK {
-            strcpy($$, "new int [");
-            strcat($$, $4);
-            strcat($$, "]");
+            $$ = new CNewArrayExpressionNode(dynamic_cast<CExpressionNode*>($4));
           }
         | NEW IDENT LPAREN RPAREN {
-            strcpy($$, "new ");
-            strcat($$, $2);
-            strcat($$, "(");
-            strcat($$, ")");
+            $$ = new CNewObjectExpressionNode($2);
           }
-        | BANG expression %prec BANG { strcpy($$, "!"); strcat($$, $2); }
+        | BANG expression %prec BANG {
+            $$ = new CNotExpressionNode(dynamic_cast<CExpressionNode*>($2));
+          }
         | LPAREN expression RPAREN {
-            strcpy($$, "(");
-            strcat($$, $2);
-            strcat($$, ")");
+            $$ = new CParenExpressionNode(dynamic_cast<CExpressionNode*>($2));
           }
-        | expression PLUS expression { strcpy($$, $1); strcat($$, "+"); strcat($$, $3); }
-        | expression MINUS expression { strcpy($$, $1); strcat($$, "-"); strcat($$, $3); }
-        | expression MULT expression { strcpy($$, $1); strcat($$, "*"); strcat($$, $3); }
-        | expression AND expression { strcpy($$, $1); strcat($$, "&&"); strcat($$, $3); }
-        | expression DIV expression { strcpy($$, $1); strcat($$, "/"); strcat($$, $3); }
-        | expression LEQ expression { strcpy($$, $1); strcat($$, "<"); strcat($$, $3); }
-        | PLUS expression %prec UPLUS { strcpy($$, "+"); strcat($$, $2); }
-        | MINUS expression %prec UMINUS { strcpy($$, "-"); strcat($$, $2); }
+        | expression PLUS expression {
+            $$ = new CArithmeticExpressionNode(dynamic_cast<CExpressionNode*>($1), dynamic_cast<CExpressionNode*>($3), PLUS_OP);
+          }
+        | expression MINUS expression {
+            $$ = new CArithmeticExpressionNode(dynamic_cast<CExpressionNode*>($1), dynamic_cast<CExpressionNode*>($3), MINUS_OP);
+          }
+        | expression MULT expression {
+            $$ = new CArithmeticExpressionNode(dynamic_cast<CExpressionNode*>($1), dynamic_cast<CExpressionNode*>($3), MULT_OP);
+          }
+        | expression AND expression {
+            $$ = new CArithmeticExpressionNode(dynamic_cast<CExpressionNode*>($1), dynamic_cast<CExpressionNode*>($3), AND_OP);
+          }
+        | expression DIV expression {
+            $$ = new CArithmeticExpressionNode(dynamic_cast<CExpressionNode*>($1), dynamic_cast<CExpressionNode*>($3), DIV_OP);
+          }
+        | expression LEQ expression {
+            $$ = new CCompareExpressionNode(dynamic_cast<CExpressionNode*>($1), dynamic_cast<CExpressionNode*>($3));
+          }
+        | PLUS expression %prec UPLUS {$$ = new CUnaryExpressionNode(dynamic_cast<CExpressionNode*>($2), UPLUS_OP);}
+        | MINUS expression %prec UMINUS {$$ = new CUnaryExpressionNode(dynamic_cast<CExpressionNode*>($2), UMINUS_OP);}
         | expression DOT IDENT LPAREN exp_arg RPAREN {
-            strcpy($$, $1);
-            strcat($$, ".");
-            strcat($$, $3);
-            strcat($$, "(");
-            strcat($$, $5);
-            strcat($$, ")");
+            $$ = new CInvokeMethodExpressionNode(dynamic_cast<CExpressionNode*>($1), $3, dynamic_cast<CExpArgNode*>($5));
           }
         ;
 
 exp_arg
-        : expressions { strcpy($$, $1); }
-        | { strcpy($$, ""); }
+        : expressions {$$ = new CFewArgsExpressionNode(dynamic_cast<CExpressionsNode*>($1));}
+        | {$$ = new CEmptyArgsExpression();}
         ;
 expressions
-        : expression  { strcpy($$, $1); }
+        : expression  {$$ = new CLastListExpressionNode(dynamic_cast<CExpressionNode*>($1));}
         | expressions COMMA expression {
-            strcpy($$, $1);
-            strcat($$, " , ");
-            strcat($$, $3);
+            $$ = new CListExpressionNode(dynamic_cast<CExpressionsNode*>($1), dynamic_cast<CExpressionNode*>($3));
           }
         ;
 

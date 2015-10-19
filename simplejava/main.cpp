@@ -14,7 +14,6 @@ int main(int argc, char** argv) {
     if (progrFile == NULL)
       throw new invalid_argument("File not found");
     yyin = progrFile;
-    cout<<"Begin"<<endl;
     yyparse();
     return 0;
 }
