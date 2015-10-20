@@ -5,7 +5,7 @@
 using std::string;
 
 struct CNode{
-  virtual void accept(const CVisitor* const) const = 0;
+  virtual void accept(CVisitor*)= 0;
 };
 
 struct CProgramNode : public CNode {};
@@ -33,86 +33,86 @@ struct CExpressionsNode : public CNode {};
 
 class CProgramRuleNode: public CProgramNode {
 public:
-	CProgramRuleNode( const CMainClassNode* _mainClass, const CDeclarationsNode* _decl) :
+	CProgramRuleNode( CMainClassNode* _mainClass, CDeclarationsNode* _decl) :
 		mainClass(_mainClass), decl(_decl) {}
   ~CProgramRuleNode(){
     delete mainClass;
     delete decl;
   }
-	void accept( const CVisitor* const v ) const {
+	void accept( CVisitor* v ){
 		v->visit( this );
 	}
 
-	const CMainClassNode* mainClass;
-	const CDeclarationsNode* decl;
+	CMainClassNode* mainClass;
+	CDeclarationsNode* decl;
 };
 
 class CMainClassDeclarationRuleNode: public CMainClassNode {
 public:
-	CMainClassDeclarationRuleNode( const char* _className, const char* _argNames, const CStatementNode* _stmt ) :
+	CMainClassDeclarationRuleNode( const char* _className, const char* _argNames, CStatementNode* _stmt ) :
 		className(_className), argNames(_argNames), stmt(_stmt) {}
   ~CMainClassDeclarationRuleNode(){
     delete stmt;
   }
-	void accept( const CVisitor* const v ) const {
+	void accept( CVisitor* v ){
 		v->visit( this );
 	}
 
 	string className;
 	string argNames;
-	const CStatementNode* stmt;
+	CStatementNode* stmt;
 };
 
 class CDeclarationsListNode: public CDeclarationsNode {
 public:
-	CDeclarationsListNode( const CDeclarationsNode* _decl, const CClassDeclarationNode* _cl ) :
+	CDeclarationsListNode( CDeclarationsNode* _decl, CClassDeclarationNode* _cl ) :
 		decl(_decl), cl(_cl) {}
   ~CDeclarationsListNode(){
     delete decl;
     delete cl;
   }
-	void accept( const CVisitor* const v ) const {
+	void accept( CVisitor* v ){
 		v->visit( this );
 	}
 
-	const CDeclarationsNode* decl;
-	const CClassDeclarationNode* cl;
+	CDeclarationsNode* decl;
+	CClassDeclarationNode* cl;
 };
 
 class CDeclarationsEmptyNode: public CDeclarationsNode {
 public:
 	CDeclarationsEmptyNode(){}
-	void accept( const CVisitor* const v ) const {
+	void accept( CVisitor* v ){
 		v->visit( this );
 	}
 };
 
 class CClassDeclarationRuleNode: public CClassDeclarationNode {
 public:
-	CClassDeclarationRuleNode( const char* _ident, const CExtendDeclarationNode* _extDecl,
-    const CVarDeclarationsNode* _vars, const CMethodDeclarationsNode* _method ) :
+	CClassDeclarationRuleNode( const char* _ident, CExtendDeclarationNode* _extDecl,
+    CVarDeclarationsNode* _vars, CMethodDeclarationsNode* _method ) :
 		ident(_ident), extDecl(_extDecl), vars(_vars), method(_method) {}
   ~CClassDeclarationRuleNode(){
     delete extDecl;
     delete vars;
     delete method;
   }
-	void accept( const CVisitor* const v ) const {
+	void accept( CVisitor* v ){
 		v->visit( this );
 	}
 
 
 	string ident;
-	const CExtendDeclarationNode *extDecl;
-	const CVarDeclarationsNode *vars;
-	const CMethodDeclarationsNode *method;
+	CExtendDeclarationNode *extDecl;
+	CVarDeclarationsNode *vars;
+	CMethodDeclarationsNode *method;
 };
 
 class CExtendDeclarationRuleNode: public CExtendDeclarationNode {
 public:
 	CExtendDeclarationRuleNode( const char* _ident ) : ident(_ident) {}
 
-	void accept( const CVisitor* const v ) const {
+	void accept( CVisitor* v ){
 		v->visit( this );
 	}
 
@@ -122,7 +122,7 @@ public:
 class CExtendDeclarationEmptyNode: public CExtendDeclarationNode {
 public:
   CExtendDeclarationEmptyNode(){}
-  void accept( const CVisitor* const v ) const{
+  void accept( CVisitor* v ){
      v->visit(this);
   }
 };
@@ -135,18 +135,18 @@ public:
     delete list;
     delete item;
   }
-  void accept( const CVisitor* const v ) const{
+  void accept( CVisitor* v ){
     v->visit(this);
   }
 
-  const CVarDeclarationsNode* list;
-  const CVarDeclarationNode* item;
+  CVarDeclarationsNode* list;
+  CVarDeclarationNode* item;
 };
 
 class CVarDeclarationsEmptyNode : public CVarDeclarationsNode{
 public:
   CVarDeclarationsEmptyNode(){}
-  void accept( const CVisitor* const v ) const{
+  void accept( CVisitor* v ){
     v->visit(this);
   }
 };
@@ -159,18 +159,18 @@ public:
     delete list;
     delete item;
   }
-  void accept( const CVisitor* const v ) const{
+  void accept( CVisitor* v ){
     v->visit(this);
   }
 
-  const CMethodDeclarationsNode* list;
-  const CMethodDeclarationNode* item;
+  CMethodDeclarationsNode* list;
+  CMethodDeclarationNode* item;
 };
 
 class CMethodDeclarationsEmptyNode : public CMethodDeclarationsNode{
 public:
   CMethodDeclarationsEmptyNode(){}
-  void accept( const CVisitor* const v ) const{
+  void accept( CVisitor* v ){
     v->visit(this);
   }
 };
@@ -181,11 +181,11 @@ public:
   ~CVarDeclarationRuleNode(){
     delete type;
   }
-  void accept( const CVisitor* const v ) const{
+  void accept( CVisitor* v ){
     v->visit(this);
   }
 
-  const CTypeNode* type;
+  CTypeNode* type;
   string ident;
 };
 
@@ -202,15 +202,15 @@ public:
     delete method_body;
     delete return_exp;
   }
-  void accept( const CVisitor* const v ) const{
+  void accept( CVisitor* v ){
     v->visit(this);
   }
 
-  const CTypeNode* type;
+  CTypeNode* type;
   string ident;
-  const CParamArgNode* param_arg;
-  const CMethodBodyNode* method_body;
-  const CExpressionNode* return_exp;
+  CParamArgNode* param_arg;
+  CMethodBodyNode* method_body;
+  CExpressionNode* return_exp;
 };
 
 class CVarsDecListNode : public CVarsDecNode{
@@ -221,12 +221,12 @@ public:
     delete list;
     delete next;
   }
-  void accept( const CVisitor* const v ) const{
+  void accept( CVisitor* v ){
     v->visit(this);
   }
 
-  const CVarsDecNode* list;
-  const CVarDeclarationNode* next;
+  CVarsDecNode* list;
+  CVarDeclarationNode* next;
 };
 
 class CVarsDecFirstNode : public CVarsDecNode{
@@ -236,11 +236,11 @@ public:
   ~CVarsDecFirstNode(){
     delete first;
   }
-  void accept( const CVisitor* const v ) const{
+  void accept( CVisitor* v ){
     v->visit(this);
   }
 
-  const CVarDeclarationNode* first;
+  CVarDeclarationNode* first;
 };
 
 class CStatsFirstNode: public CStatsNode {
@@ -249,11 +249,11 @@ public:
     ~CStatsFirstNode(){
       delete stm;
     }
-    void accept( const CVisitor* const visitor ) const {
-        visitor->visit(this);
+    void accept( CVisitor* v){
+        v->visit(this);
     }
 
-    const CStatementNode* stm;
+    CStatementNode* stm;
 };
 
 class CStatsListNode: public CStatsNode {
@@ -263,12 +263,12 @@ public:
       delete stm;
       delete list;
     }
-    void accept( const CVisitor* const visitor ) const {
-        visitor->visit(this);
+    void accept( CVisitor* v){
+        v->visit(this);
     }
 
-    const CStatsNode* list;
-    const CStatementNode* stm;
+    CStatsNode* list;
+    CStatementNode* stm;
 };
 
 class CMethodBodyVarsNode: public CMethodBodyNode {
@@ -277,11 +277,11 @@ public:
     ~CMethodBodyVarsNode(){
       delete vars;
     }
-    void accept( const CVisitor* const visitor ) const {
-        visitor->visit(this);
+    void accept( CVisitor* v){
+        v->visit(this);
     }
 
-    const CVarsDecNode* vars;
+    CVarsDecNode* vars;
 };
 
 class CMethodBodyStatsNode: public CMethodBodyNode {
@@ -290,11 +290,11 @@ public:
     ~CMethodBodyStatsNode(){
       delete stats;
     }
-    void accept( const CVisitor* const visitor ) const {
-        visitor->visit(this);
+    void accept( CVisitor* v){
+        v->visit(this);
     }
 
-    const CStatsNode* stats;
+    CStatsNode* stats;
 };
 
 class CMethodBodyAllNode: public CMethodBodyNode {
@@ -305,19 +305,19 @@ public:
       delete vars;
       delete stats;
     }
-    void accept( const CVisitor* const visitor ) const {
-        visitor->visit(this);
+    void accept( CVisitor* v){
+        v->visit(this);
     }
 
-    const CVarsDecNode* vars;
-    const CStatsNode* stats;
+    CVarsDecNode* vars;
+    CStatsNode* stats;
 };
 
 class CMethodBodyEmptyNode: public CMethodBodyNode {
 public:
     CMethodBodyEmptyNode(){}
-    void accept( const CVisitor* const visitor ) const {
-        visitor->visit(this);
+    void accept( CVisitor* v){
+        v->visit(this);
     }
 };
 
@@ -327,18 +327,18 @@ public:
     ~CParamArgListNode(){
       delete params;
     }
-    void accept( const CVisitor* const visitor ) const {
-        visitor->visit(this);
+    void accept( CVisitor* v){
+        v->visit(this);
     }
 
-    const CParamsNode* params;
+    CParamsNode* params;
 };
 
 class CParamArgEmptyNode: public CParamArgNode {
 public:
     CParamArgEmptyNode(){}
-    void accept( const CVisitor* const visitor ) const {
-        visitor->visit(this);
+    void accept( CVisitor* v){
+        v->visit(this);
     }
 };
 
@@ -348,11 +348,11 @@ public:
     ~CParamsOneNode(){
       delete param;
     }
-    void accept( const CVisitor* const visitor ) const {
-        visitor->visit(this);
+    void accept( CVisitor* v){
+        v->visit(this);
     }
 
-    const CParamNode* param;
+    CParamNode* param;
 };
 
 class CParamsTwoNode: public CParamsNode {
@@ -363,34 +363,34 @@ public:
       delete first;
       delete second;
     }
-    void accept( const CVisitor* const visitor ) const {
-        visitor->visit(this);
+    void accept( CVisitor* v){
+        v->visit(this);
     }
 
-    const CParamsNode* first;
-    const CParamNode* second;
+    CParamsNode* first;
+    CParamNode* second;
 };
 
 class CParamRuleNode: public CParamNode {
 public:
-    CParamRuleNode(CTypeNode* _type, char* _ident) :
+    CParamRuleNode(CTypeNode* _type, const char* _ident) :
         type(_type), ident(string(_ident)){}
     ~CParamRuleNode(){
       delete type;
     }
-    void accept( const CVisitor* const visitor ) const {
-        visitor->visit(this);
+    void accept( CVisitor* v){
+        v->visit(this);
     }
 
-    const CTypeNode* type;
+    CTypeNode* type;
     string ident;
 };
 
 class CTypeRuleNode: public CTypeNode {
 public:
     CTypeRuleNode(const char* _type): type(_type){}
-    void accept( const CVisitor* const visitor ) const {
-        visitor->visit(this);
+    void accept( CVisitor* v){
+        v->visit(this);
     }
 
     string type;
@@ -399,7 +399,7 @@ public:
 /// Statements begin
 class CNumerousStatementsNode : public CStatementsNode{
 public:
-		void accept( const CVisitor* const v ) const{
+		void accept( CVisitor* v ){
 			v->visit(this);
 		}
 		CNumerousStatementsNode(CStatementsNode* _statements, CStatementNode* _statement):
@@ -410,20 +410,20 @@ public:
     }
 
 
-		const CStatementsNode* statements;
-		const CStatementNode* statement;
+		CStatementsNode* statements;
+		CStatementNode* statement;
 };
 
 class CEmptyStatementsNode : public CStatementsNode{
 public:
-		void accept( const CVisitor* const v ) const{
+		void accept( CVisitor* v ){
 			v->visit(this);
 		}
 };
 
 class CBracedStatementNode : public CStatementNode{
 public:
-		void accept( const CVisitor* const v ) const{
+		void accept( CVisitor* v ){
 			v->visit(this);
 		}
 		CBracedStatementNode(CStatementsNode* _statements):statements(_statements){}
@@ -432,12 +432,12 @@ public:
     }
 
 
-		const CStatementsNode* statements;
+		CStatementsNode* statements;
 };
 
 class CIfStatementNode : public CStatementNode{
 public:
-		void accept( const CVisitor* const v ) const{
+		void accept( CVisitor* v ){
 			v->visit(this);
 		}
 		CIfStatementNode(CExpressionNode* _expression, CStatementNode* _thenStatement, CStatementNode* _elseStatement):
@@ -448,15 +448,15 @@ public:
       delete elseStatement;
     }
 
-		const CExpressionNode* expression;
-		const CStatementNode* thenStatement;
-		const CStatementNode* elseStatement;
+		CExpressionNode* expression;
+		CStatementNode* thenStatement;
+		CStatementNode* elseStatement;
 
 };
 
 class CWhileStatementNode : public CStatementNode{
 public:
-		void accept( const CVisitor* const v ) const{
+		void accept( CVisitor* v ){
 			v->visit(this);
 		}
 		CWhileStatementNode(CExpressionNode* _expression, CStatementNode* _statement):expression(_expression), statement(_statement){}
@@ -465,14 +465,14 @@ public:
       delete statement;
     }
 
-		const CExpressionNode* expression;
-		const CStatementNode* statement;
+		CExpressionNode* expression;
+		CStatementNode* statement;
 
 };
 
 class CPrintStatementNode : public CStatementNode{
 public:
-		void accept( const CVisitor* const v ) const{
+		void accept( CVisitor* v ){
 			v->visit(this);
 		}
 		CPrintStatementNode(CExpressionNode* _expression):expression(_expression){}
@@ -480,13 +480,13 @@ public:
       delete expression;
     }
 
-		const CExpressionNode* expression;
+		CExpressionNode* expression;
 
 };
 
 class CAssignStatementNode : public CStatementNode{
 public:
-		void accept( const CVisitor* const v ) const{
+		void accept( CVisitor* v ){
 			v->visit(this);
 		}
 
@@ -495,13 +495,13 @@ public:
       delete expression;
     }
 
-		const CExpressionNode* expression;
+		CExpressionNode* expression;
 		string identifier;
 };
 
 class CInvokeExpressionStatementNode : public CStatementNode{
 public:
-		void accept( const CVisitor* const v ) const{
+		void accept( CVisitor* v ){
 			v->visit(this);
 		}
 
@@ -512,8 +512,8 @@ public:
       delete secondexpression;
     }
 
-		const CExpressionNode* firstexpression;
-		const CExpressionNode* secondexpression;
+		CExpressionNode* firstexpression;
+		CExpressionNode* secondexpression;
 		string identifier;
 
 };
@@ -528,12 +528,12 @@ public:
         delete firstExp;
         delete secondExp;
     }
-    void accept( const CVisitor* const v ) const{
+    void accept( CVisitor* v ){
         v->visit(this);
     }
 
-    const CExpressionNode* firstExp;
-    const CExpressionNode* secondExp;
+    CExpressionNode* firstExp;
+    CExpressionNode* secondExp;
 };
 
 class CLengthExpressionNode: public CExpressionNode {
@@ -542,11 +542,11 @@ public:
     ~CLengthExpressionNode(){
         delete expr;
     }
-    void accept( const CVisitor* const v ) const{
+    void accept( CVisitor* v ){
         v->visit(this);
     }
 
-    const CExpressionNode* expr;
+    CExpressionNode* expr;
 };
 
 enum ArithmeticOpType {
@@ -561,13 +561,13 @@ public:
         delete firstExp;
         delete secondExp;
     }
-    void accept( const CVisitor* const v ) const{
+    void accept( CVisitor* v ){
         v->visit(this);
     }
 
-    const CExpressionNode* firstExp;
-    const CExpressionNode* secondExp;
-    const ArithmeticOpType opType;
+    CExpressionNode* firstExp;
+    CExpressionNode* secondExp;
+    ArithmeticOpType opType;
 };
 
 enum UnaryOpType {
@@ -580,12 +580,12 @@ public:
     ~CUnaryExpressionNode(){
         delete expr;
     }
-    void accept( const CVisitor* const v ) const{
+    void accept( CVisitor* v ){
         v->visit(this);
     }
 
-    const CExpressionNode* expr;
-    const UnaryOpType op;
+    CExpressionNode* expr;
+    UnaryOpType op;
 };
 
 class CCompareExpressionNode: public CExpressionNode {
@@ -595,12 +595,12 @@ public:
         delete firstExp;
         delete secondExp;
     }
-    void accept( const CVisitor* const v ) const{
+    void accept( CVisitor* v ){
         v->visit(this);
     }
 
-    const CExpressionNode* firstExp;
-    const CExpressionNode* secondExp;
+    CExpressionNode* firstExp;
+    CExpressionNode* secondExp;
 };
 
 class CNotExpressionNode: public CExpressionNode {
@@ -609,11 +609,11 @@ public:
     ~CNotExpressionNode(){
         delete expr;
     }
-    void accept( const CVisitor* const v ) const{
+    void accept( CVisitor* v ){
         v->visit(this);
     }
 
-    const CExpressionNode* expr;
+    CExpressionNode* expr;
 };
 
 class CNewArrayExpressionNode: public CExpressionNode {
@@ -622,17 +622,17 @@ public:
     ~CNewArrayExpressionNode(){
         delete expr;
     }
-    void accept( const CVisitor* const v ) const{
+    void accept( CVisitor* v ){
         v->visit(this);
     }
 
-    const CExpressionNode* expr;
+    CExpressionNode* expr;
 };
 
 class CNewObjectExpressionNode: public CExpressionNode {
 public:
     CNewObjectExpressionNode(const char* _objType) : objType(_objType) {}
-    void accept( const CVisitor* const v ) const{
+    void accept( CVisitor* v ){
         v->visit(this);
     }
 
@@ -642,8 +642,8 @@ public:
 class CIntExpressionNode: public CExpressionNode {
 public:
     CIntExpressionNode(int _value) : value(_value) {}
-    void accept( const CVisitor* const visitor ) const {
-        visitor->visit(this);
+    void accept( CVisitor* v){
+        v->visit(this);
     }
 
     int value;
@@ -652,8 +652,8 @@ public:
 class CBooleanExpressionNode: public CExpressionNode {
 public:
     CBooleanExpressionNode(bool _value) : value(_value) {}
-    void accept( const CVisitor* const visitor ) const {
-        visitor->visit(this);
+    void accept( CVisitor* v){
+        v->visit(this);
     }
 
     bool value;
@@ -661,9 +661,9 @@ public:
 
 class CIdentExpressionNode: public CExpressionNode {
 public:
-    CIdentExpressionNode(char* _name) : name(_name) {}
-    void accept( const CVisitor* const visitor ) const {
-        visitor->visit(this);
+    CIdentExpressionNode(const char* _name) : name(_name) {}
+    void accept( CVisitor* v){
+        v->visit(this);
     }
 
     string name;
@@ -672,8 +672,8 @@ public:
 class CThisExpressionNode: public CExpressionNode {
 public:
     CThisExpressionNode(const char* _name) : name(_name) {}
-    void accept( const CVisitor* const visitor ) const {
-        visitor->visit(this);
+    void accept( CVisitor* v){
+        v->visit(this);
     }
 
     string name;
@@ -685,11 +685,11 @@ public:
     ~CParenExpressionNode(){
         delete expr;
     }
-    void accept( const CVisitor* const visitor ) const {
-        visitor->visit(this);
+    void accept( CVisitor* v){
+        v->visit(this);
     }
 
-    const CExpressionNode* expr;
+    CExpressionNode* expr;
 };
 
 class CInvokeMethodExpressionNode: public CExpressionNode {
@@ -700,13 +700,13 @@ public:
         delete expr;
         delete args;
     }
-    void accept( const CVisitor* const visitor ) const {
-        visitor->visit(this);
+    void accept( CVisitor* v){
+        v->visit(this);
     }
 
-    const CExpressionNode* expr;
+    CExpressionNode* expr;
     string name;
-    const CExpArgNode* args;
+    CExpArgNode* args;
 };
 
 
@@ -716,18 +716,18 @@ public:
     ~CFewArgsExpressionNode(){
         delete expr;
     }
-    void accept( const CVisitor* const visitor ) const {
-       visitor->visit(this);
+    void accept( CVisitor* v){
+       v->visit(this);
     }
 
-    const CExpressionsNode* expr;
+    CExpressionsNode* expr;
 };
 
 class CEmptyArgsExpression: public CExpArgNode {
 public:
     CEmptyArgsExpression() {}
-    void accept( const CVisitor* const visitor ) const {
-      visitor->visit(this);
+    void accept( CVisitor* v){
+      v->visit(this);
     }
 };
 
@@ -739,12 +739,12 @@ public:
         delete prevExps;
         delete nextExp;
     }
-    void accept( const CVisitor* const visitor ) const {
-      visitor->visit(this);
+    void accept( CVisitor* v){
+      v->visit(this);
     }
 
-    const CExpressionsNode* prevExps;
-    const CExpressionNode* nextExp;
+    CExpressionsNode* prevExps;
+    CExpressionNode* nextExp;
 };
 
 class CLastListExpressionNode: public CExpressionsNode {
@@ -753,11 +753,11 @@ public:
     ~CLastListExpressionNode(){
         delete expr;
     }
-    void accept( const CVisitor* const visitor ) const {
-        visitor->visit(this);
+    void accept( CVisitor* v){
+        v->visit(this);
     }
 
-    const CExpressionNode* expr;
+    CExpressionNode* expr;
 };
 
 #endif
