@@ -9,6 +9,8 @@
 #include "simplejava.tab.hpp"
 #include "ast.h"
 #include "CPrintVisitor.h"
+#include "CSymbolTableBuilder.h"
+#include "CTypeChecker.h"
 using std::cout;
 using std::endl;
 using std::to_string;
@@ -53,9 +55,14 @@ void yyerror(const char * s){
 program
         : main_class declarations {
             CPrintVisitor print_vis;
+            CSymbolTableBuilder table_vis;
+            CTypeChecker checker_vis;
             CProgramRuleNode* ptr = new CProgramRuleNode(dynamic_cast<CMainClassNode*>($1), dynamic_cast<CDeclarationsNode*>($2));
             $$ = ptr;
             ptr->accept(&print_vis);
+            ptr->accept(&table_vis);
+            checker_vis.table = table_vis.table;
+            ptr->accept(&checker_vis);
             delete ptr;
           }
         ;
