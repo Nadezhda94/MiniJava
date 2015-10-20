@@ -13,7 +13,6 @@
 #include "CTypeChecker.h"
 using std::cout;
 using std::endl;
-using std::to_string;
 using std::strcpy;
 extern FILE * yyin;
 int yylex();
