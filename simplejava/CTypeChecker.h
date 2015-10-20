@@ -13,6 +13,7 @@ using std::string;
 class CTypeChecker : public CVisitor{
 public:
   CTable table;
+  string lastTypeValue;
   void visit(const CProgramRuleNode* node){}
   void visit(const CMainClassDeclarationRuleNode* node){}
   void visit(const CDeclarationsListNode* node){}
@@ -44,26 +45,87 @@ public:
   void visit(const CNumerousStatementsNode* node){}
   void visit(const CEmptyStatementsNode* node){}
   void visit(const CBracedStatementNode* node){}
-  void visit(const CIfStatementNode* node){}
-  void visit(const CWhileStatementNode* node){}
-  void visit(const CPrintStatementNode* node){}
+  
+  void visit(const CIfStatementNode* node){
+	  node->expression->accept(this);
+	  if (lastTypeValue != "bool")
+		  cout << "Error in if/else statement expression";
+  }
+  
+  void visit(const CWhileStatementNode* node){
+	  node->expression->accept(this);
+	  if (lastTypeValue != "bool")
+		  cout << "Error in while statement expression";
+  }
+  
+  void visit(const CPrintStatementNode* node){
+	  node->expression->accept(this);
+	  if (lastTypeValue != "int")
+		  cout << "Error in print expression";  
+  }
+  
   void visit(const CAssignStatementNode* node){}
   void visit(const CInvokeExpressionStatementNode* node){}
 
   void visit(const CInvokeExpressionNode* node){}
   void visit(const CLengthExpressionNode* node){}
-  void visit(const CArithmeticExpressionNode* node){}
-  void visit(const CUnaryExpressionNode* node){}
-  void visit(const CCompareExpressionNode* node){}
-  void visit(const CNotExpressionNode* node){}
+  
+  void visit(const CArithmeticExpressionNode* node){
+	  node->firstExp->accept(this);
+	  if ((lastTypeValue != "int") || (lastTypeValue != "bool"))
+		  cout << "Error in arithmetic expression";
+	  
+	  node->secondExp->accept(this);
+	  if ((lastTypeValue != "int") || (lastTypeValue != "bool"))
+		  cout << "Error in arithmetic expression";
+	  
+	  lastTypeValue = "int";
+  }
+  void visit(const CUnaryExpressionNode* node){
+	  node->expr->accept(this);
+	  
+	  if (lastTypeValue != "int")
+		  cout << "Error in unary expression";
+		  
+	lastTypeValue = "int";
+  }
+  void visit(const CCompareExpressionNode* node){
+	  node->firstExp->accept(this);
+	  if ((lastTypeValue != "int") || (lastTypeValue != "bool"))
+		  cout << "Error in compare expression";
+	  
+	  node->secondExp->accept(this);
+	  if ((lastTypeValue != "int") || (lastTypeValue != "bool"))
+		  cout << "Error in compare expression";
+	  
+	  lastTypeValue = "bool";
+  }
+  void visit(const CNotExpressionNode* node){ 
+	  node->expr->accept(this);
+	  
+	  if (lastTypeValue != "int")
+		  cout << "Error in NOT expression";
+		  
+	lastTypeValue = "bool";
+  }
+  
   void visit(const CNewArrayExpressionNode* node){}
   void visit(const CNewObjectExpressionNode* node){}
-  void visit(const CIntExpressionNode* node){}
-  void visit(const CBooleanExpressionNode* node){}
+  
+  void visit(const CIntExpressionNode* node){
+	  lastTypeValue = "int";
+  
+  }
+  void visit(const CBooleanExpressionNode* node){
+	  lastTypeValue = "bool";
+  }
+  
   void visit(const CIdentExpressionNode* node){}
   void visit(const CThisExpressionNode* node){}
   void visit(const CParenExpressionNode* node){}
-  void visit(const CInvokeMethodExpressionNode* node){}
+  void visit(const CInvokeMethodExpressionNode* node){
+	  
+  }
   void visit(const CFewArgsExpressionNode* node){}
 
   void visit(const CEmptyArgsExpression* node){}
