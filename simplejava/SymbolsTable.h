@@ -9,7 +9,7 @@ namespace SymbolsTable{
   struct CVarInfo{
       string name;
       string type;
-      CVarInfo(const char* _name, const char* _type):
+      CVarInfo(const string& _name, const string& _type):
         name(_name), type(_type){}
   };
 
@@ -17,21 +17,22 @@ namespace SymbolsTable{
       string name;
       vector<CVarInfo> vars;
       vector<CVarInfo> params;
-      CMethodInfo(const char* _name):
-        name(_name), vars(), params(){}
+      string returnType;
+      CMethodInfo(const string& _name, const string& _returnType):
+        name(_name), returnType(_returnType), vars(), params(){}
   };
 
   struct CClassInfo{
       string name;
       vector<CVarInfo> vars;
       vector<CMethodInfo> methods;
-      CClassInfo(const char* _name):
+      CClassInfo(const string& _name):
         name(_name), vars(), methods(){}
   };
 
   struct CTable{
-      vector<CClassInfo> class_info;
-      CTable(): class_info(){}
+      vector<CClassInfo> classInfo;
+      CTable(): classInfo(){}
   };
 }
 
