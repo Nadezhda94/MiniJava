@@ -13,27 +13,83 @@ using std::string;
 class CSymbolTableBuilder : public CVisitor{
 public:
   CTable table;
-  void visit(const CProgramRuleNode* node){}
-  void visit(const CMainClassDeclarationRuleNode* node){}
-  void visit(const CDeclarationsListNode* node){}
-  void visit(const CClassDeclarationRuleNode* node){}
+  bool inMethod;
+  string lastTypeValue;
+  CSymbolTableBuilder(): inMethod(0) {}
+  void visit(const CProgramRuleNode* node){
+    node->mainClass->accept(this);
+    node->decl->accept(this);
+  }
+  void visit(const CMainClassDeclarationRuleNode* node){
+    node->stmt->accept(this);
+  }
+  void visit(const CDeclarationsListNode* node){
+    node->decl->accept(this);
+    node->cl->accept(this);
+  }
+  void visit(const CClassDeclarationRuleNode* node){
+    inMethod = 0;
+    table.classInfo.push_back(CClassInfo(node->ident));
+  }
   void visit(const CExtendDeclarationRuleNode* node){}
-  void visit(const CVarDeclarationsListNode* node){}
-  void visit(const CMethodDeclarationsListNode* node){}
-  void visit(const CVarDeclarationRuleNode* node){}
-  void visit(const CMethodDeclarationRuleNode* node){}
-  void visit(const CVarsDecListNode* node){}
-  void visit(const CVarsDecFirstNode* node){}
-  void visit(const CStatsFirstNode* node){}
+  void visit(const CVarDeclarationsListNode* node){
+    node->list->accept(this);
+    node->item->accept(this);
+  }
+  void visit(const CMethodDeclarationsListNode* node){
+    node->list->accept(this);
+    node->item->accept(this);
+  }
+  void visit(const CVarDeclarationRuleNode* node){
+    node->type->accept(this);
+    if (inMethod) {
+      table.classInfo.back().methods.back().vars.push_back(CVarInfo(node->ident, lastTypeValue));
+    } else {
+      table.classInfo.back().vars.push_back(CVarInfo(node->ident, lastTypeValue));
+    }
+  }
+  void visit(const CMethodDeclarationRuleNode* node){
+    node->type->accept(this);
+    table.classInfo.back().methods.push_back(CMethodInfo(node->ident, lastTypeValue));
+  }
+  void visit(const CVarsDecListNode* node){
+    inMethod = 1;
+    node->list->accept(this);
+    inMethod = 0;
+  }
+  void visit(const CVarsDecFirstNode* node){
+    node->first->accept(this);
+  }
+  void visit(const CStatsFirstNode* node){
+
+  }
   void visit(const CStatsListNode* node){}
-  void visit(const CMethodBodyVarsNode* node){}
-  void visit(const CMethodBodyStatsNode* node){}
-  void visit(const CMethodBodyAllNode* node){}
-  void visit(const CParamArgListNode* node){}
-  void visit(const CParamsOneNode* node){}
-  void visit(const CParamsTwoNode* node){}
-  void visit(const CParamRuleNode* node){}
-  void visit(const CTypeRuleNode* node){}
+  void visit(const CMethodBodyVarsNode* node){
+    node->vars->accept(this);
+  }
+  void visit(const CMethodBodyStatsNode* node){
+
+  }
+  void visit(const CMethodBodyAllNode* node){
+    node->vars->accept(this);
+  }
+  void visit(const CParamArgListNode* node){
+    node->params->accept(this);
+  }
+  void visit(const CParamsOneNode* node){
+    node->param->accept(this);
+  }
+  void visit(const CParamsTwoNode* node){
+    node->first->accept(this);
+    node->second->accept(this);
+  }
+  void visit(const CParamRuleNode* node){
+    node->type->accept(this);
+    table.classInfo.back().methods.back().params.push_back(CVarInfo(node->ident, lastTypeValue));
+  }
+  void visit(const CTypeRuleNode* node){
+    lastTypeValue = node->type;
+  }
 
   void visit(const CNumerousStatementsNode* node){}
   void visit(const CBracedStatementNode* node){}
