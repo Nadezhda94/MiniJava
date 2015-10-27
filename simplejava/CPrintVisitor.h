@@ -17,7 +17,8 @@ public:
       print_tabs(counter++);
   		cout << "Program" << endl;
   		node->mainClass->accept(this);
-  		node->decl->accept(this);
+      if (node->decl != 0)
+  		  node->decl->accept(this);
       --counter;
     }
 
@@ -29,20 +30,20 @@ public:
     }
 
     void visit(const CDeclarationsListNode* node){
-  		node->decl->accept(this);
-  		node->cl->accept(this);
-    }
-
-    void visit(const CDeclarationsEmptyNode* node){
-  		//cout << "CDeclarationsEmptyNode\n\t";
+      if (node->decl != 0)
+  		  node->decl->accept(this);
+      if (node->cl != 0)
+  		  node->cl->accept(this);
     }
 
     void visit(const CClassDeclarationRuleNode* node){
       print_tabs(counter++);
   		cout << "Class(" << node->ident << ")" << endl;
-  		node->extDecl->accept(this);
-  		node->vars->accept(this);
-  		node->method->accept(this);
+      if (node->extDecl != 0)
+  		  node->extDecl->accept(this);
+      if (node->vars != 0)
+  		  node->vars->accept(this);
+		  node->method->accept(this);
       --counter;
     }
 
@@ -50,29 +51,21 @@ public:
   		cout << "CExtendDeclarationRuleNode" << endl;
     }
 
-    void visit(const CExtendDeclarationEmptyNode* node){
-  		//cout << "CExtendDeclarationEmptyNode\n\t\t";
-    }
-
     void visit(const CVarDeclarationsListNode* node){
   		//cout << "CVarDeclarationsListNode\n\t\t";
-  		node->list->accept(this);
-  		node->item->accept(this);
+      if (node->list != 0)
+  		  node->list->accept(this);
+		  node->item->accept(this);
     }
 
-    void visit(const CVarDeclarationsEmptyNode* node){
-  		//cout << "CVarDeclarationsEmptyNode\n\t";
-    }
 
     void visit(const CMethodDeclarationsListNode* node){
   		//cout << "CMethodDeclarationsListNode\n\t";
-  		node->list->accept(this);
+      if (node->list != 0)
+  		  node->list->accept(this);
   		node->item->accept(this);
     }
 
-    void visit(const CMethodDeclarationsEmptyNode* node){
-  		//cout << "CMethodDeclarationsEmptyNode\n\t";
-   	}
 
     void visit(const CVarDeclarationRuleNode* node){
     	node->type->accept(this);
@@ -85,8 +78,10 @@ public:
     	node->type->accept(this);
   		cout << "function(" << node->ident << ")" << endl;
       counter++;
-  		node->param_arg->accept(this);
-  		node->method_body->accept(this);
+      if (node->param_arg != 0)
+  		  node->param_arg->accept(this);
+      if (node->method_body != 0)
+  		  node->method_body->accept(this);
   		node->return_exp->accept(this);
       --counter;
     }
@@ -126,14 +121,8 @@ public:
       cout << typeid(*node).name() << endl;
   	}
 
-  	void visit(const CMethodBodyEmptyNode* node){
-  	}
-
   	void visit(const CParamArgListNode* node){
   		node->params->accept(this);
-  	}
-
-  	void visit(const CParamArgEmptyNode* node){
   	}
 
   	void visit(const CParamsOneNode* node){
@@ -156,10 +145,6 @@ public:
   	void visit(const CNumerousStatementsNode* node){
       print_tabs(counter);
   		cout << "CNumerousStatementsNode" << endl;
-  	}
-
-  	void visit(const CEmptyStatementsNode* node){
-  		//cout << "CEmptyStatementsNode\n\t";
   	}
 
   	void visit(const CBracedStatementNode* node){
@@ -215,7 +200,6 @@ public:
   	}
   	void visit(const CFewArgsExpressionNode* node){}
 
-  	void visit(const CEmptyArgsExpression* node){}
   	void visit(const CListExpressionNode* node){}
   	void visit(const CLastListExpressionNode* node){}
 };

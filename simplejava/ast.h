@@ -79,14 +79,6 @@ public:
 	CClassDeclarationNode* cl;
 };
 
-class CDeclarationsEmptyNode: public CDeclarationsNode {
-public:
-	CDeclarationsEmptyNode(){}
-	void accept( CVisitor* v ){
-		v->visit( this );
-	}
-};
-
 class CClassDeclarationRuleNode: public CClassDeclarationNode {
 public:
 	CClassDeclarationRuleNode( const char* _ident, CExtendDeclarationNode* _extDecl,
@@ -119,14 +111,6 @@ public:
 	string ident;
 };
 
-class CExtendDeclarationEmptyNode: public CExtendDeclarationNode {
-public:
-  CExtendDeclarationEmptyNode(){}
-  void accept( CVisitor* v ){
-     v->visit(this);
-  }
-};
-
 class CVarDeclarationsListNode : public CVarDeclarationsNode{
 public:
   CVarDeclarationsListNode(CVarDeclarationsNode* _first, CVarDeclarationNode* _second):
@@ -143,14 +127,6 @@ public:
   CVarDeclarationNode* item;
 };
 
-class CVarDeclarationsEmptyNode : public CVarDeclarationsNode{
-public:
-  CVarDeclarationsEmptyNode(){}
-  void accept( CVisitor* v ){
-    v->visit(this);
-  }
-};
-
 class CMethodDeclarationsListNode : public CMethodDeclarationsNode{
 public:
   CMethodDeclarationsListNode(CMethodDeclarationsNode* _first, CMethodDeclarationNode* _second):
@@ -165,14 +141,6 @@ public:
 
   CMethodDeclarationsNode* list;
   CMethodDeclarationNode* item;
-};
-
-class CMethodDeclarationsEmptyNode : public CMethodDeclarationsNode{
-public:
-  CMethodDeclarationsEmptyNode(){}
-  void accept( CVisitor* v ){
-    v->visit(this);
-  }
 };
 
 class CVarDeclarationRuleNode : public CVarDeclarationNode{
@@ -313,14 +281,6 @@ public:
     CStatsNode* stats;
 };
 
-class CMethodBodyEmptyNode: public CMethodBodyNode {
-public:
-    CMethodBodyEmptyNode(){}
-    void accept( CVisitor* v){
-        v->visit(this);
-    }
-};
-
 class CParamArgListNode: public CParamArgNode {
 public:
     CParamArgListNode(CParamsNode* _params) : params(_params){}
@@ -332,14 +292,6 @@ public:
     }
 
     CParamsNode* params;
-};
-
-class CParamArgEmptyNode: public CParamArgNode {
-public:
-    CParamArgEmptyNode(){}
-    void accept( CVisitor* v){
-        v->visit(this);
-    }
 };
 
 class CParamsOneNode: public CParamsNode {
@@ -412,13 +364,6 @@ public:
 
 		CStatementsNode* statements;
 		CStatementNode* statement;
-};
-
-class CEmptyStatementsNode : public CStatementsNode{
-public:
-		void accept( CVisitor* v ){
-			v->visit(this);
-		}
 };
 
 class CBracedStatementNode : public CStatementNode{
@@ -721,14 +666,6 @@ public:
     }
 
     CExpressionsNode* expr;
-};
-
-class CEmptyArgsExpression: public CExpArgNode {
-public:
-    CEmptyArgsExpression() {}
-    void accept( CVisitor* v){
-      v->visit(this);
-    }
 };
 
 class CListExpressionNode: public CExpressionsNode {

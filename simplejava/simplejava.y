@@ -77,7 +77,7 @@ declarations
         : declarations class_declaration {
             $$ = new CDeclarationsListNode(dynamic_cast<CDeclarationsNode*>($1), dynamic_cast<CClassDeclarationNode*>($2));
           }
-        | {$$ = new CDeclarationsEmptyNode();}
+        | {$$ = 0;}
         ;
 
 class_declaration
@@ -90,21 +90,21 @@ class_declaration
 
 extend_declaration
         : EXTENDS IDENT {$$ = new CExtendDeclarationRuleNode($2);}
-        | {$$ = new CExtendDeclarationEmptyNode();}
+        | {$$ = 0;}
         ;
 
 var_declarations
         : var_declarations var_declaration  {
             $$ = new CVarDeclarationsListNode(dynamic_cast<CVarDeclarationsNode*>($1), dynamic_cast<CVarDeclarationNode*>($2));
           }
-        | {$$ = new CVarDeclarationsEmptyNode();}
+        | {$$ = 0;}
         ;
 
 method_declarations
         : method_declarations method_declaration {
             $$ = new CMethodDeclarationsListNode(dynamic_cast<CMethodDeclarationsNode*>($1), dynamic_cast<CMethodDeclarationNode*>($2));
           }
-        | {$$ = new CMethodDeclarationsEmptyNode();}
+        | {$$ = 0;}
         ;
 
 var_declaration
@@ -140,12 +140,12 @@ method_body
         | vars_dec stats {
             $$ = new CMethodBodyAllNode(dynamic_cast<CVarsDecNode*>($1), dynamic_cast<CStatsNode*>($2));
           }
-        | {$$ = new CMethodBodyEmptyNode();}
+        | {$$ = 0;}
         ;
 
 param_arg
         : params {$$ = new CParamArgListNode(dynamic_cast<CParamsNode*>($1));}
-        | {$$ = new CParamArgEmptyNode();}
+        | {$$ = 0;}
         ;
 
 params
@@ -170,7 +170,7 @@ statements
         : statements statement {
             $$ = new CNumerousStatementsNode(dynamic_cast<CStatementsNode*>($1), dynamic_cast<CStatementNode*>($2));
           }
-        | {$$ = new CEmptyStatementsNode();}
+        | {$$ = 0;}
         ;
 
 statement
@@ -236,7 +236,7 @@ expression
 
 exp_arg
         : expressions {$$ = new CFewArgsExpressionNode(dynamic_cast<CExpressionsNode*>($1));}
-        | {$$ = new CEmptyArgsExpression();}
+        | {$$ = 0;}
         ;
 expressions
         : expression  {$$ = new CLastListExpressionNode(dynamic_cast<CExpressionNode*>($1));}
