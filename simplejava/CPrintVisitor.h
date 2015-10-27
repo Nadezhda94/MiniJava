@@ -83,7 +83,10 @@ public:
   		  node->param_arg->accept(this);
       if (node->method_body != 0)
   		  node->method_body->accept(this);
+      print_tabs(counter++);
+      cout<<"RETURN"<<endl;
   		node->return_exp->accept(this);
+      --counter;
       --counter;
     }
 
