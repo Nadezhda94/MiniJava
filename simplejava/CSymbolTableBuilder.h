@@ -18,7 +18,9 @@ public:
   CSymbolTableBuilder(): inMethod(0) {}
   void visit(const CProgramRuleNode* node){
     node->mainClass->accept(this);
-    node->decl->accept(this);
+    if (node->decl != 0) {
+       node->decl->accept(this);
+    } 
   }
   void visit(const CMainClassDeclarationRuleNode* node){
     inMethod = 0;
@@ -26,29 +28,44 @@ public:
     CMethodInfo mainMthd("main", "void");
     mainMthd.params.push_back(CVarInfo(node->argNames, "String[]"));
     table.classInfo.back().methods.push_back(mainMthd);
-    node->stmt->accept(this);
+    if (node->stmt != 0) {
+      node->stmt->accept(this);
+    }
   }
   void visit(const CDeclarationsListNode* node){
-    node->decl->accept(this);
+    if (node->decl != 0) {
+      node->decl->accept(this);
+    }
     node->cl->accept(this);
   }
   void visit(const CClassDeclarationRuleNode* node){
     inMethod = 0;
     table.classInfo.push_back(CClassInfo(node->ident));
-    node->extDecl->accept(this);
-    node->method->accept(this);
-    node->vars->accept(this);
+    if (node->extDecl != 0) {
+      node->extDecl->accept(this);
+    }
+    if (node->method != 0) {
+      node->method->accept(this);
+    }
+    if (node->vars != 0) {
+      node->vars->accept(this);
+    }
   }
   void visit(const CExtendDeclarationRuleNode* node){
     table.classInfo.back().parent = node->ident;
   }
 
   void visit(const CVarDeclarationsListNode* node){
-    node->list->accept(this);
+    if (node->list != 0) {
+      node->list->accept(this);
+    }
     node->item->accept(this);
   }
+
   void visit(const CMethodDeclarationsListNode* node){
-    node->list->accept(this);
+    if (node->list != 0) {
+      node->list->accept(this);
+    }
     node->item->accept(this);
   }
   void visit(const CVarDeclarationRuleNode* node){
@@ -62,10 +79,14 @@ public:
   void visit(const CMethodDeclarationRuleNode* node){
     node->type->accept(this);
     table.classInfo.back().methods.push_back(CMethodInfo(node->ident, lastTypeValue));
-    node->param_arg->accept(this);
-    inMethod = 1;
-    node->method_body->accept(this);
-    inMethod = 0;
+    if (node->param_arg != 0) {
+      node->param_arg->accept(this);
+    }
+    if (node->method_body != 0) {
+      inMethod = 1;
+      node->method_body->accept(this);
+      inMethod = 0;
+    }
   }
   void visit(const CVarsDecListNode* node){
     
@@ -90,7 +111,9 @@ public:
     node->vars->accept(this);
   }
   void visit(const CParamArgListNode* node){
-    node->params->accept(this);
+    if (node->params != 0) {
+      node->params->accept(this);
+    }
   }
   void visit(const CParamsOneNode* node){
     node->param->accept(this);
