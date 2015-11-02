@@ -14,18 +14,28 @@ class CTypeChecker : public CVisitor{
 public:
   CTable table;
   string lastTypeValue;
+  bool inMethod;
   void visit(const CProgramRuleNode* node){}
   void visit(const CMainClassDeclarationRuleNode* node){}
   void visit(const CDeclarationsListNode* node){}
-  void visit(const CDeclarationsEmptyNode* node){}
   void visit(const CClassDeclarationRuleNode* node){}
   void visit(const CExtendDeclarationRuleNode* node){}
-  void visit(const CExtendDeclarationEmptyNode* node){}
   void visit(const CVarDeclarationsListNode* node){}
-  void visit(const CVarDeclarationsEmptyNode* node){}
   void visit(const CMethodDeclarationsListNode* node){}
-  void visit(const CMethodDeclarationsEmptyNode* node){}
-  void visit(const CVarDeclarationRuleNode* node){}
+  void visit(const CVarDeclarationRuleNode* node){
+	  CTypeRuleNode* tmp = dynamic_cast<CTypeRuleNode*>(node->type);
+	  if ((tmp->type != "bool" ) && (tmp->type != "int") && (tmp->type != "int[]")) {
+		bool flag = false;
+		for (int i = 0; i < table.classInfo.size(); i++){
+		  flag = flag || (table.classInfo[i].name == tmp->type);
+		}
+	  
+		if (!flag)
+		  cout << "No such type: " << tmp->type << endl;
+	 }
+	 
+	 delete tmp;
+  }
   void visit(const CMethodDeclarationRuleNode* node){}
   void visit(const CVarsDecListNode* node){}
   void visit(const CVarsDecFirstNode* node){}
@@ -34,16 +44,13 @@ public:
   void visit(const CMethodBodyVarsNode* node){}
   void visit(const CMethodBodyStatsNode* node){}
   void visit(const CMethodBodyAllNode* node){}
-  void visit(const CMethodBodyEmptyNode* node){}
   void visit(const CParamArgListNode* node){}
-  void visit(const CParamArgEmptyNode* node){}
   void visit(const CParamsOneNode* node){}
   void visit(const CParamsTwoNode* node){}
   void visit(const CParamRuleNode* node){}
   void visit(const CTypeRuleNode* node){}
 
   void visit(const CNumerousStatementsNode* node){}
-  void visit(const CEmptyStatementsNode* node){}
   void visit(const CBracedStatementNode* node){}
   
   void visit(const CIfStatementNode* node){
@@ -127,8 +134,6 @@ public:
 	  
   }
   void visit(const CFewArgsExpressionNode* node){}
-
-  void visit(const CEmptyArgsExpression* node){}
   void visit(const CListExpressionNode* node){}
   void visit(const CLastListExpressionNode* node){}
 };

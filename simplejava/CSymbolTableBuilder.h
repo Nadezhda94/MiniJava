@@ -32,9 +32,6 @@ public:
     node->decl->accept(this);
     node->cl->accept(this);
   }
-  void visit(const CDeclarationsEmptyNode* node){
-
-  }
   void visit(const CClassDeclarationRuleNode* node){
     inMethod = 0;
     table.classInfo.push_back(CClassInfo(node->ident));
@@ -46,17 +43,14 @@ public:
     table.classInfo.back().parent = node->ident;
   }
 
-  void visit(const CExtendDeclarationEmptyNode* node){}
   void visit(const CVarDeclarationsListNode* node){
     node->list->accept(this);
     node->item->accept(this);
   }
-  void visit(const CVarDeclarationsEmptyNode* node){}
   void visit(const CMethodDeclarationsListNode* node){
     node->list->accept(this);
     node->item->accept(this);
   }
-  void visit(const CMethodDeclarationsEmptyNode* node){}
   void visit(const CVarDeclarationRuleNode* node){
     node->type->accept(this);
     if (inMethod) {
@@ -95,12 +89,8 @@ public:
   void visit(const CMethodBodyAllNode* node){
     node->vars->accept(this);
   }
-  void visit(const CMethodBodyEmptyNode* node){}
   void visit(const CParamArgListNode* node){
     node->params->accept(this);
-  }
-  void visit(const CParamArgEmptyNode* node){
-
   }
   void visit(const CParamsOneNode* node){
     node->param->accept(this);
@@ -118,7 +108,6 @@ public:
   }
 
   void visit(const CNumerousStatementsNode* node){}
-  void visit(const CEmptyStatementsNode* node){}
   void visit(const CBracedStatementNode* node){}
   void visit(const CIfStatementNode* node){}
   void visit(const CWhileStatementNode* node){}
@@ -142,7 +131,6 @@ public:
   void visit(const CInvokeMethodExpressionNode* node){}
   void visit(const CFewArgsExpressionNode* node){}
 
-  void visit(const CEmptyArgsExpression* node){}
   void visit(const CListExpressionNode* node){}
   void visit(const CLastListExpressionNode* node){}
 };

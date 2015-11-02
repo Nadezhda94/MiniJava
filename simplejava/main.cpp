@@ -2,6 +2,8 @@
 #include <stdexcept>
 #include <iostream>
 #include "ast.h"
+#include "CSymbolTableBuilder.h"
+#include "CTypeChecker.h"
 using std::invalid_argument;
 using std::cout;
 using std::endl;
