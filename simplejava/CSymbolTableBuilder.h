@@ -21,6 +21,11 @@ public:
     node->decl->accept(this);
   }
   void visit(const CMainClassDeclarationRuleNode* node){
+    inMethod = 0;
+    table.classInfo.push_back(CClassInfo(node->className));
+    CMethodInfo mainMthd("main", "void");
+    mainMthd.params.push_back(CVarInfo(node->argNames, "String[]"));
+    table.classInfo.back().methods.push_back(mainMthd);
     node->stmt->accept(this);
   }
   void visit(const CDeclarationsListNode* node){
@@ -33,8 +38,14 @@ public:
   void visit(const CClassDeclarationRuleNode* node){
     inMethod = 0;
     table.classInfo.push_back(CClassInfo(node->ident));
+    node->extDecl->accept(this);
+    node->method->accept(this);
+    node->vars->accept(this);
   }
-  void visit(const CExtendDeclarationRuleNode* node){}
+  void visit(const CExtendDeclarationRuleNode* node){
+    table.classInfo.back().parent = node->ident;
+  }
+
   void visit(const CExtendDeclarationEmptyNode* node){}
   void visit(const CVarDeclarationsListNode* node){
     node->list->accept(this);
@@ -57,11 +68,16 @@ public:
   void visit(const CMethodDeclarationRuleNode* node){
     node->type->accept(this);
     table.classInfo.back().methods.push_back(CMethodInfo(node->ident, lastTypeValue));
+    node->param_arg->accept(this);
+    inMethod = 1;
+    node->method_body->accept(this);
+    inMethod = 0;
   }
   void visit(const CVarsDecListNode* node){
-    inMethod = 1;
+    
     node->list->accept(this);
-    inMethod = 0;
+    node->next->accept(this);
+
   }
   void visit(const CVarsDecFirstNode* node){
     node->first->accept(this);

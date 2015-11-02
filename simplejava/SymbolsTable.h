@@ -24,6 +24,7 @@ namespace SymbolsTable{
 
   struct CClassInfo{
       string name;
+      string parent;
       vector<CVarInfo> vars;
       vector<CMethodInfo> methods;
       CClassInfo(const string& _name):

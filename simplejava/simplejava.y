@@ -62,6 +62,18 @@ program
             ptr->accept(&table_vis);
             checker_vis.table = table_vis.table;
             ptr->accept(&checker_vis);
+            /*auto it = table_vis.table.classInfo[1].methods.begin();
+            auto itEnd = table_vis.table.classInfo[1].methods.end();
+            for ( ; it != itEnd; ++it) {
+                std::cout << it->name << std::endl;
+                auto innerIt = it->vars.begin();
+                auto innerItEnd = it->vars.end();
+                for (;innerIt != innerItEnd; ++innerIt) {
+                    std::cerr << innerIt -> name << " " << innerIt->type << std::endl;
+                }
+                
+            }
+            std::cout << table_vis.table.classInfo[1].name << std::endl;*/
             delete ptr;
           }
         ;
