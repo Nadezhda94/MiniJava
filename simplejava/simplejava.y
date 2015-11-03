@@ -22,6 +22,21 @@ void yyerror(const char * s){
     std:: cout << "position in line: " << yylloc.last_column << std::endl;
 };
 
+void testBuilder(CSymbolTableBuilder& table_vis){
+    auto it = table_vis.table.classInfo[1].methods.begin();
+    auto itEnd = table_vis.table.classInfo[1].methods.end();
+    for ( ; it != itEnd; ++it) {
+        std::cout << it->name << std::endl;
+        auto innerIt = it->vars.begin();
+        auto innerItEnd = it->vars.end();
+        for (;innerIt != innerItEnd; ++innerIt) {
+            std::cerr << innerIt -> name << " " << innerIt->type << std::endl;
+        }
+    }
+    std::cout << table_vis.table.classInfo[1].name << std::endl;
+}
+
+
 %}
 %locations
 
@@ -59,21 +74,11 @@ program
             CProgramRuleNode* ptr = new CProgramRuleNode(dynamic_cast<CMainClassNode*>($1), dynamic_cast<CDeclarationsNode*>($2));
             $$ = ptr;
             ptr->accept(&print_vis);
+            cout<<endl;
             ptr->accept(&table_vis);
             checker_vis.table = table_vis.table;
             ptr->accept(&checker_vis);
-            /*auto it = table_vis.table.classInfo[1].methods.begin();
-            auto itEnd = table_vis.table.classInfo[1].methods.end();
-            for ( ; it != itEnd; ++it) {
-                std::cout << it->name << std::endl;
-                auto innerIt = it->vars.begin();
-                auto innerItEnd = it->vars.end();
-                for (;innerIt != innerItEnd; ++innerIt) {
-                    std::cerr << innerIt -> name << " " << innerIt->type << std::endl;
-                }
-                
-            }
-            std::cout << table_vis.table.classInfo[1].name << std::endl;*/
+//            testBuilder(table_vis);
             delete ptr;
           }
         ;
