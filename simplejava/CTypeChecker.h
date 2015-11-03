@@ -10,11 +10,62 @@ using std::cout;
 using std::endl;
 using std::string;
 
+
 class CTypeChecker : public CVisitor{
 public:
   CTable table;
   string lastTypeValue;
+  int classPos = 0;
+  int methodPos = -1;
+  
   bool inMethod;
+  bool checkClassExistence(string name){
+	bool flag = false;
+	int i = 0;
+	while (!flag && (i < table.classInfo.size())){
+		flag = flag || (table.classInfo[i].name == name);
+		i++;
+	}
+	  
+	if (!flag)
+		return false;
+	else
+		return true;
+	
+  }
+  
+  void checkAssignment(string name){
+	bool flagDec = false;
+	string type;
+	for (int i = 0; i < table.classInfo[this->classPos].methods[this->methodPos].vars.size(); i++){
+		flagDec = flagDec || (name == table.classInfo[this->classPos].methods[this->methodPos].vars[i].name);
+		if (flagDec)
+		{
+			type = table.classInfo[this->classPos].methods[this->methodPos].vars[i].type;
+			break;
+		}
+	}
+	
+	if (!flagDec){
+		for (int i = 0; i < table.classInfo[this->classPos].vars.size(); i++){
+			flagDec = flagDec || (name == table.classInfo[this->classPos].vars[i].name);
+			if (flagDec){
+				type = table.classInfo[this->classPos].vars[i].type;
+				break;
+			}
+		}
+	}
+	
+	
+	if (!flagDec){
+		cout << "Variable not declared " << name << endl;
+		return;
+	}
+	
+	if (type != lastTypeValue)
+		cout << "Cannot assign " << type << " to " << lastTypeValue << name << endl;
+  }
+  
   void visit(const CProgramRuleNode* node){
 	  if (node->mainClass != NULL)
 		node->mainClass->accept(this);
@@ -34,6 +85,7 @@ public:
   }
   
   void visit(const CClassDeclarationRuleNode* node){
+	  this->classPos++;
 	  if (node->extDecl != NULL)
 		  node->extDecl->accept(this);
 	  
@@ -78,19 +130,16 @@ public:
   
   void visit(const CVarDeclarationRuleNode* node){
 	  CTypeRuleNode* tmp = dynamic_cast<CTypeRuleNode*>(node->type);
-	  if ((tmp->type != "bool" ) && (tmp->type != "int") && (tmp->type != "int[]")) {
-		bool flag = false;
-		for (int i = 0; i < table.classInfo.size(); i++){
-		  flag = flag || (table.classInfo[i].name == tmp->type);
-		}
-	  
-		if (!flag)
+	  if ((tmp->type != "bool" ) && (tmp->type != "int") && (tmp->type != "int[]")) 
+		if (!checkClassExistence(tmp->type))
 		  cout << "No such type: " << tmp->type << endl;
-	 }
+	 
 	 
 	 delete tmp;
   }
+  
   void visit(const CMethodDeclarationRuleNode* node){
+	this->methodPos++;
 	CTypeRuleNode* tmp = dynamic_cast<CTypeRuleNode*>(node->type);
 	if ((tmp->type != "bool" ) && (tmp->type != "int") && (tmp->type != "int[]")) {
 		bool flag = false;
@@ -101,6 +150,12 @@ public:
 		if (!flag)
 		cout << "No such type: " << tmp->type << endl;
 	}
+	 if (node->param_arg != NULL)
+		 node->param_arg->accept(this);
+	 if (node->method_body != NULL)
+		 node->method_body->accept(this);
+	 if (node->return_exp != NULL)
+		 node->return_exp->accept(this);
 	 
 	 delete tmp;
   }
@@ -188,25 +243,26 @@ public:
   void visit(const CIfStatementNode* node){
 	  node->expression->accept(this);
 	  if (lastTypeValue != "bool")
-		  cout << "Error in if/else statement expression";
+		  cout << "Error in if/else statement expression" << endl;
   }
   
   void visit(const CWhileStatementNode* node){
 	  node->expression->accept(this);
 	  if (lastTypeValue != "bool")
-		  cout << "Error in while statement expression";
+		  cout << "Error in while statement expression" << endl;
   }
   
   void visit(const CPrintStatementNode* node){
 	  node->expression->accept(this);
 	  if (lastTypeValue != "int")
-		  cout << "Error in print expression";  
+		  cout << "Error in print expression" << endl;
   }
   
   void visit(const CAssignStatementNode* node){
-	  //сложновато
-	  if (node->expression != NULL)
-		  node->expression->accept(this);
+	if (node->expression != NULL)
+		node->expression->accept(this);
+	  
+	checkAssignment(node->identifier);
   }
   
   void visit(const CInvokeExpressionStatementNode* node){
@@ -215,11 +271,13 @@ public:
 	  if (lastTypeValue != "int")
 		  cout << "Array index is not int in " << node->identifier << endl;
 	  
-	  
 	  if (node->secondexpression != NULL)
 		  node->secondexpression->accept(this);
 	  
-	  //тут тоже присваивание проверить
+	  bool flagDec = false;
+
+	  checkAssignment(node->identifier);
+	
   }
 
   void visit(const CInvokeExpressionNode* node){
@@ -236,35 +294,36 @@ public:
 	  
 	if (node->expr != NULL)
 		node->expr->accept(this);
+	lastTypeValue = "int";
 	}
   
   void visit(const CArithmeticExpressionNode* node){
 	  node->firstExp->accept(this);
-	  if ((lastTypeValue != "int") || (lastTypeValue != "bool"))
-		  cout << "Error in arithmetic expression";
+	  if ((lastTypeValue != "int") && (lastTypeValue != "bool"))
+		  cout << "Error in arithmetic expression" << endl;
 	  
 	  node->secondExp->accept(this);
-	  if ((lastTypeValue != "int") || (lastTypeValue != "bool"))
-		  cout << "Error in arithmetic expression";
-	  
+	  if ((lastTypeValue != "int") && (lastTypeValue != "bool"))
+		  cout << "Error in arithmetic expression" << endl;
+	 
 	  lastTypeValue = "int";
   }
   void visit(const CUnaryExpressionNode* node){
 	  node->expr->accept(this);
 	  
 	  if (lastTypeValue != "int")
-		  cout << "Error in unary expression";
+		  cout << "Error in unary expression" << endl;
 		  
 	lastTypeValue = "int";
   }
   void visit(const CCompareExpressionNode* node){
 	  node->firstExp->accept(this);
-	  if ((lastTypeValue != "int") || (lastTypeValue != "bool"))
-		  cout << "Error in compare expression";
+	  if ((lastTypeValue != "int") && (lastTypeValue != "bool"))
+		  cout << "Error in compare expression" << endl;
 	  
 	  node->secondExp->accept(this);
-	  if ((lastTypeValue != "int") || (lastTypeValue != "bool"))
-		  cout << "Error in compare expression";
+	  if ((lastTypeValue != "int") && (lastTypeValue != "bool"))
+		  cout << "Error in compare expression" << endl;
 	  
 	  lastTypeValue = "bool";
   }
@@ -285,7 +344,9 @@ public:
 		  cout << "Array index is not int in new array" << endl;
   }
   void visit(const CNewObjectExpressionNode* node){
-	  //и тут тоже
+	  if ((node->objType != "int") && (node->objType != "bool"))
+		  if (!checkClassExistence(node->objType))
+			  cout << "No such type: " << node->objType << endl;
   }
   
   void visit(const CIntExpressionNode* node){
@@ -306,11 +367,19 @@ public:
 	  if (node->expr != NULL)
 		  node->expr->accept(this);
 	  
-	  if ((lastTypeValue != "int") || (lastTypeValue != "bool"))
+	  if ((lastTypeValue != "int") && (lastTypeValue != "bool"))
 		  cout << "Expression in brackets is not valid" << endl;
   }
   void visit(const CInvokeMethodExpressionNode* node){
-	  //сложновато
+	  if (node->args != NULL)
+		  node->args->accept(this);
+	  if (node->expr != NULL)
+		  node->expr->accept(this);
+	  
+	  for (int i = 0; i < table.classInfo[this->classPos].methods.size(); i++)
+		  if (table.classInfo[this->classPos].methods[i].name == node->name){
+			  lastTypeValue = table.classInfo[this->classPos].methods[i].returnType;
+		  }
   }
   void visit(const CFewArgsExpressionNode* node){
 	  if (node->expr != NULL)
