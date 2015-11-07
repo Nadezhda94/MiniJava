@@ -78,7 +78,7 @@ public:
 	}
 	
 	if (type != lastTypeValue)
-		cout << "Cannot assign " << lastTypeValue << " to " << type << name << endl;
+		cout << "Cannot assign " << lastTypeValue << " to " << type << endl;
 	
 	return type;
   }
