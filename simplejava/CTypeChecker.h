@@ -19,6 +19,7 @@ public:
   int methodPos = -1;
   
   bool inMethod;
+  
   bool checkClassExistence(string name){
 	bool flag = false;
 	int i = 0;
@@ -34,36 +35,52 @@ public:
 	
   }
   
-  void checkAssignment(string name){
+  bool assignType(string name, string& type){
 	bool flagDec = false;
-	string type;
 	for (int i = 0; i < table.classInfo[this->classPos].methods[this->methodPos].vars.size(); i++){
 		flagDec = flagDec || (name == table.classInfo[this->classPos].methods[this->methodPos].vars[i].name);
 		if (flagDec)
 		{
 			type = table.classInfo[this->classPos].methods[this->methodPos].vars[i].type;
-			break;
+			return true;
 		}
 	}
 	
-	if (!flagDec){
-		for (int i = 0; i < table.classInfo[this->classPos].vars.size(); i++){
-			flagDec = flagDec || (name == table.classInfo[this->classPos].vars[i].name);
+	if (!flagDec){	  
+		for (int i = 0; i < table.classInfo[this->classPos].methods[this->methodPos].params.size(); i++){
+			flagDec = flagDec || (name == table.classInfo[this->classPos].methods[this->methodPos].params[i].name);
 			if (flagDec){
-				type = table.classInfo[this->classPos].vars[i].type;
-				break;
+				type = table.classInfo[this->classPos].methods[this->methodPos].params[i].type;
+				return true;
 			}
 		}
 	}
 	
+	if (!flagDec){	  
+		for (int i = 0; i < table.classInfo[this->classPos].vars.size(); i++){
+			flagDec = flagDec || (name == table.classInfo[this->classPos].vars[i].name);
+			if (flagDec){
+				type = table.classInfo[this->classPos].vars[i].type;
+				return true;
+			}
+		}
+	}
+  }
+  
+  string checkAssignment(string name){
+	string type;
+	bool declared = assignType(name, type);
 	
-	if (!flagDec){
+	
+	if (!declared){
 		cout << "Variable not declared " << name << endl;
-		return;
+		return "";
 	}
 	
 	if (type != lastTypeValue)
-		cout << "Cannot assign " << type << " to " << lastTypeValue << name << endl;
+		cout << "Cannot assign " << lastTypeValue << " to " << type << name << endl;
+	
+	return type;
   }
   
   void visit(const CProgramRuleNode* node){
@@ -268,26 +285,34 @@ public:
   void visit(const CInvokeExpressionStatementNode* node){
 	  if (node->firstexpression != NULL)
 		  node->firstexpression->accept(this);
+	  
 	  if (lastTypeValue != "int")
 		  cout << "Array index is not int in " << node->identifier << endl;
 	  
 	  if (node->secondexpression != NULL)
 		  node->secondexpression->accept(this);
 	  
-	  bool flagDec = false;
-
-	  checkAssignment(node->identifier);
+	  string type;
+	  assignType(node->identifier, type);
+	  if (!((type == "int[]") && (lastTypeValue == "int")))
+		  cout << "Cannot assign " << lastTypeValue << " to " << type << endl;
 	
   }
 
   void visit(const CInvokeExpressionNode* node){
-	  
 	  if (node->firstExp != NULL)
-		  node->firstExp->accept(this);;
+		  node->firstExp->accept(this);
 	  
+	  if (lastTypeValue != "int[]")
+		  cout << "Trying to access non-existent array" << endl;
 	  
 	  if (node->secondExp != NULL)
 		  node->secondExp->accept(this);
+
+	  if (lastTypeValue != "int")
+		  cout << "Array index is not int" << endl;
+	  
+	  lastTypeValue = "int";
   }
   
   void visit(const CLengthExpressionNode* node){
@@ -308,6 +333,7 @@ public:
 	 
 	  lastTypeValue = "int";
   }
+  
   void visit(const CUnaryExpressionNode* node){
 	  node->expr->accept(this);
 	  
@@ -316,6 +342,7 @@ public:
 		  
 	lastTypeValue = "int";
   }
+  
   void visit(const CCompareExpressionNode* node){
 	  node->firstExp->accept(this);
 	  if ((lastTypeValue != "int") && (lastTypeValue != "bool"))
@@ -327,6 +354,7 @@ public:
 	  
 	  lastTypeValue = "bool";
   }
+  
   void visit(const CNotExpressionNode* node){ 
 	  node->expr->accept(this);
 	  
@@ -341,8 +369,10 @@ public:
 		  node->expr->accept(this);
 	  
 	  if (lastTypeValue != "int")
-		  cout << "Array index is not int in new array" << endl;
+		  cout << "Array index is not int in new array" << lastTypeValue << endl;
+	  lastTypeValue = "int[]";
   }
+  
   void visit(const CNewObjectExpressionNode* node){
 	  if ((node->objType != "int") && (node->objType != "bool"))
 		  if (!checkClassExistence(node->objType))
@@ -358,11 +388,15 @@ public:
   }
   
   void visit(const CIdentExpressionNode* node){
-	  //nothing to do here
+	string tmp;
+	assignType(node->name, tmp);
+	if (tmp != "")
+		lastTypeValue = tmp;
   }
+  
   void visit(const CThisExpressionNode* node){
-	  //and here
   }
+  
   void visit(const CParenExpressionNode* node){
 	  if (node->expr != NULL)
 		  node->expr->accept(this);
