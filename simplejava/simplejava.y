@@ -11,6 +11,8 @@
 #include "CPrintVisitor.h"
 #include "CSymbolTableBuilder.h"
 #include "CTypeChecker.h"
+#include "Translator.h"
+
 using std::cout;
 using std::endl;
 using std::strcpy;
@@ -52,31 +54,31 @@ void yyerror(const char * s){
 
 
 program
-        : main_class declarations {
-            CPrintVisitor print_vis;
-            CSymbolTableBuilder table_vis;
-            CTypeChecker checker_vis;
-            CProgramRuleNode* ptr = new CProgramRuleNode(dynamic_cast<CMainClassNode*>($1), dynamic_cast<CDeclarationsNode*>($2));
-            $$ = ptr;
-            ptr->accept(&print_vis);
-            ptr->accept(&table_vis);
-            checker_vis.table = table_vis.table;
-            ptr->accept(&checker_vis);
-            /*auto it = table_vis.table.classInfo[1].methods.begin();
-            auto itEnd = table_vis.table.classInfo[1].methods.end();
-            for ( ; it != itEnd; ++it) {
-                std::cout << it->name << std::endl;
-                auto innerIt = it->vars.begin();
-                auto innerItEnd = it->vars.end();
-                for (;innerIt != innerItEnd; ++innerIt) {
-                    std::cerr << innerIt -> name << " " << innerIt->type << std::endl;
-                }
-                
+    : main_class declarations {
+        CPrintVisitor print_vis;
+        CSymbolTableBuilder table_vis;
+        CTypeChecker checker_vis;
+        CProgramRuleNode* ptr = new CProgramRuleNode(dynamic_cast<CMainClassNode*>($1), dynamic_cast<CDeclarationsNode*>($2));
+        $$ = ptr;
+        ptr->accept(&print_vis);
+        ptr->accept(&table_vis);
+        checker_vis.table = table_vis.table;
+        ptr->accept(&checker_vis);
+        auto it = table_vis.table.classInfo[0].methods.begin();
+        auto itEnd = table_vis.table.classInfo[0].methods.end();
+        for ( ; it != itEnd; ++it) {
+            std::cout << it->name << std::endl;
+            auto innerIt = it->vars.begin();
+            auto innerItEnd = it->vars.end();
+            for (;innerIt != innerItEnd; ++innerIt) {
+                std::cerr << innerIt -> name << " " << innerIt->type << std::endl;
             }
-            std::cout << table_vis.table.classInfo[1].name << std::endl;*/
-            delete ptr;
-          }
-        ;
+
+        }
+        std::cout << table_vis.table.classInfo[0].name << std::endl;
+        delete ptr;
+    }
+    ;
 
 main_class
         : CLASS IDENT LBRACE PUBLIC STATIC VOID MAIN LPAREN STRING LBRACK RBRACK IDENT RPAREN LBRACE statement RBRACE RBRACE {
