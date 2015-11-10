@@ -5,6 +5,7 @@
 #include "ast.h"
 #include "SymbolsTable.h"
 using namespace SymbolsTable;
+using namespace Symbol;
 using std::vector;
 using std::cout;
 using std::endl;
@@ -14,73 +15,76 @@ using std::string;
 class CTypeChecker : public CVisitor{
 public:
   CTable table;
-  string lastTypeValue;
+  const CSymbol* lastTypeValue;
+  CStorage* symbolsStorage;
   int classPos = 0;
   int methodPos = -1;
   
   bool inMethod;
+  CTypeChecker(CStorage* _symbols): symbolsStorage(_symbols) {}
   
-  bool checkClassExistence(string name){
-	bool flag = false;
-	int i = 0;
-	while (!flag && (i < table.classInfo.size())){
-		flag = flag || (table.classInfo[i].name == name);
-		i++;
-	}
-	  
-	if (!flag)
-		return false;
-	else
-		return true;
+  bool checkClassExistence(const CSymbol* name){
+  	bool flag = false;
+  	int i = 0;
+  	while (!flag && (i < table.classInfo.size())){
+  		flag = flag || (table.classInfo[i].name == name);
+  		i++;
+  	}
+  	  
+  	if (!flag)
+  		return false;
+  	else
+  		return true;
 	
   }
   
-  bool assignType(string name, string& type){
-	bool flagDec = false;
-	for (int i = 0; i < table.classInfo[this->classPos].methods[this->methodPos].vars.size(); i++){
-		flagDec = flagDec || (name == table.classInfo[this->classPos].methods[this->methodPos].vars[i].name);
-		if (flagDec)
-		{
-			type = table.classInfo[this->classPos].methods[this->methodPos].vars[i].type;
-			return true;
-		}
-	}
-	
-	if (!flagDec){	  
-		for (int i = 0; i < table.classInfo[this->classPos].methods[this->methodPos].params.size(); i++){
-			flagDec = flagDec || (name == table.classInfo[this->classPos].methods[this->methodPos].params[i].name);
-			if (flagDec){
-				type = table.classInfo[this->classPos].methods[this->methodPos].params[i].type;
-				return true;
-			}
-		}
-	}
-	
-	if (!flagDec){	  
-		for (int i = 0; i < table.classInfo[this->classPos].vars.size(); i++){
-			flagDec = flagDec || (name == table.classInfo[this->classPos].vars[i].name);
-			if (flagDec){
-				type = table.classInfo[this->classPos].vars[i].type;
-				return true;
-			}
-		}
-	}
+  bool assignType(const CSymbol* name, const CSymbol*& type){
+  	bool flagDec = false;
+  	for (int i = 0; i < table.classInfo[this->classPos].methods[this->methodPos].vars.size(); i++){
+  		flagDec = flagDec || (name == table.classInfo[this->classPos].methods[this->methodPos].vars[i].name);
+  		if (flagDec)
+  		{
+  			type = table.classInfo[this->classPos].methods[this->methodPos].vars[i].type;
+  			return true;
+  		}
+	  }
+  	
+  	if (!flagDec){	  
+  		for (int i = 0; i < table.classInfo[this->classPos].methods[this->methodPos].params.size(); i++){
+  	   	flagDec = flagDec || (name == table.classInfo[this->classPos].methods[this->methodPos].params[i].name);
+  			if (flagDec){
+  				type = table.classInfo[this->classPos].methods[this->methodPos].params[i].type;
+  				return true;
+  			}
+  		}
+  	}
+  	
+  	if (!flagDec){	  
+  		for (int i = 0; i < table.classInfo[this->classPos].vars.size(); i++){
+  			flagDec = flagDec || (name == table.classInfo[this->classPos].vars[i].name);
+  			if (flagDec){
+  				type = table.classInfo[this->classPos].vars[i].type;
+  				return true;
+  			}
+  		}
+  	}
   }
   
-  string checkAssignment(string name){
-	string type;
-	bool declared = assignType(name, type);
-	
-	
-	if (!declared){
-		cout << "Variable not declared " << name << endl;
-		return "";
-	}
-	
-	if (type != lastTypeValue)
-		cout << "Cannot assign " << lastTypeValue << " to " << type << endl;
-	
-	return type;
+  const CSymbol* checkAssignment(const CSymbol* name){
+  	const CSymbol* type;
+  	bool declared = assignType(name, type);
+  	
+  	
+  	if (!declared){
+  		cout << "Variable not declared " << name << endl;
+  		return symbolsStorage->get( "" );
+  	}
+  	
+  	if (type != lastTypeValue) {
+  		//cout << "Cannot assign " << lastTypeValue << " to " << type << endl;
+    }
+  	
+  	return type;
   }
   
   void visit(const CProgramRuleNode* node){
@@ -90,6 +94,7 @@ public:
 	  if (node->decl != NULL)
 		node->decl->accept(this);
   }
+
   void visit(const CMainClassDeclarationRuleNode* node){
 	  if (node->stmt != NULL)
 		node->stmt->accept(this);
@@ -114,19 +119,19 @@ public:
   }
   
   void visit(const CExtendDeclarationRuleNode* node){
-	  string parent = node->ident;
+	  const CSymbol* parent = node->ident;
 	  do{
 		  int i = 0;
 		  while ((table.classInfo[i].name != parent) && (i < table.classInfo.size()))
 			  i++;
 		  
 		  if (i == table.classInfo.size())
-			  parent = "";
+			  parent = symbolsStorage->get("");
 		  else
 			  parent = table.classInfo[i].parent;
-	  } while ((parent != "") || (parent != node->ident));
+	  } while ((parent != symbolsStorage->get("")) || (parent != node->ident));
 		  
-	  if (parent != "")
+	  if (parent != symbolsStorage->get(""))
 		  cout << "Cyclic inheritance with " << node->ident << endl;
   }
   
@@ -147,34 +152,38 @@ public:
   
   void visit(const CVarDeclarationRuleNode* node){
 	  CTypeRuleNode* tmp = dynamic_cast<CTypeRuleNode*>(node->type);
-	  if ((tmp->type != "bool" ) && (tmp->type != "int") && (tmp->type != "int[]")) 
-		if (!checkClassExistence(tmp->type))
-		  cout << "No such type: " << tmp->type << endl;
+	  if ((tmp->type != symbolsStorage->get("bool") ) && (tmp->type != symbolsStorage->get("int") 
+      && (tmp->type != symbolsStorage->get("int[]")))) { 
+  		if (!checkClassExistence(tmp->type)) {
+  		  cout << "No such type: " << tmp->type << endl;
+      }
+    }
 	 
 	 
-	 delete tmp;
+    delete tmp;
   }
   
   void visit(const CMethodDeclarationRuleNode* node){
-	this->methodPos++;
-	CTypeRuleNode* tmp = dynamic_cast<CTypeRuleNode*>(node->type);
-	if ((tmp->type != "bool" ) && (tmp->type != "int") && (tmp->type != "int[]")) {
-		bool flag = false;
-		for (int i = 0; i < table.classInfo.size(); i++){
-			flag = flag || (table.classInfo[i].name == tmp->type);
-		}
-	  
-		if (!flag)
-		cout << "No such type: " << tmp->type << endl;
-	}
-	 if (node->param_arg != NULL)
-		 node->param_arg->accept(this);
-	 if (node->method_body != NULL)
-		 node->method_body->accept(this);
-	 if (node->return_exp != NULL)
-		 node->return_exp->accept(this);
-	 
-	 delete tmp;
+  	this->methodPos++;
+  	CTypeRuleNode* tmp = dynamic_cast<CTypeRuleNode*>(node->type);
+  	if ((tmp->type != symbolsStorage->get("bool") ) && (tmp->type != symbolsStorage->get("int")) 
+      && (tmp->type != symbolsStorage->get("int[]"))) {
+  		bool flag = false;
+  		for (int i = 0; i < table.classInfo.size(); i++){
+  			flag = flag || (table.classInfo[i].name == tmp->type);
+  		}
+  	  
+  		if (!flag)
+  		cout << "No such type: " << tmp->type << endl;
+  	}
+  	 if (node->param_arg != NULL)
+  		 node->param_arg->accept(this);
+  	 if (node->method_body != NULL)
+  		 node->method_body->accept(this);
+  	 if (node->return_exp != NULL)
+  		 node->return_exp->accept(this);
+  	 
+  	 delete tmp;
   }
   void visit(const CVarsDecListNode* node){
 	  if (node->list != NULL)
@@ -259,19 +268,19 @@ public:
   
   void visit(const CIfStatementNode* node){
 	  node->expression->accept(this);
-	  if (lastTypeValue != "bool")
+	  if (lastTypeValue != symbolsStorage->get("bool"))
 		  cout << "Error in if/else statement expression" << endl;
   }
   
   void visit(const CWhileStatementNode* node){
 	  node->expression->accept(this);
-	  if (lastTypeValue != "bool")
+	  if (lastTypeValue != symbolsStorage->get("bool"))
 		  cout << "Error in while statement expression" << endl;
   }
   
   void visit(const CPrintStatementNode* node){
 	  node->expression->accept(this);
-	  if (lastTypeValue != "int")
+	  if (lastTypeValue != symbolsStorage->get("int"))
 		  cout << "Error in print expression" << endl;
   }
   
@@ -286,15 +295,15 @@ public:
 	  if (node->firstexpression != NULL)
 		  node->firstexpression->accept(this);
 	  
-	  if (lastTypeValue != "int")
+	  if (lastTypeValue != symbolsStorage->get("int"))
 		  cout << "Array index is not int in " << node->identifier << endl;
 	  
 	  if (node->secondexpression != NULL)
 		  node->secondexpression->accept(this);
 	  
-	  string type;
+	  const CSymbol* type;
 	  assignType(node->identifier, type);
-	  if (!((type == "int[]") && (lastTypeValue == "int")))
+	  if (!((type == symbolsStorage->get("int[]")) && (lastTypeValue == symbolsStorage->get("int"))))
 		  cout << "Cannot assign " << lastTypeValue << " to " << type << endl;
 	
   }
@@ -303,95 +312,95 @@ public:
 	  if (node->firstExp != NULL)
 		  node->firstExp->accept(this);
 	  
-	  if (lastTypeValue != "int[]")
+	  if (lastTypeValue != symbolsStorage->get("int[]"))
 		  cout << "Trying to access non-existent array" << endl;
 	  
 	  if (node->secondExp != NULL)
 		  node->secondExp->accept(this);
 
-	  if (lastTypeValue != "int")
+	  if (lastTypeValue != symbolsStorage->get("int"))
 		  cout << "Array index is not int" << endl;
 	  
-	  lastTypeValue = "int";
+	  lastTypeValue = symbolsStorage->get("int");
   }
   
   void visit(const CLengthExpressionNode* node){
 	  
 	if (node->expr != NULL)
 		node->expr->accept(this);
-	lastTypeValue = "int";
+	lastTypeValue = symbolsStorage->get("int");
 	}
   
   void visit(const CArithmeticExpressionNode* node){
 	  node->firstExp->accept(this);
-	  if (lastTypeValue != "int")
+
+	  if (lastTypeValue != symbolsStorage->get("int"))
 		  cout << "Error in arithmetic expression" << endl;
 	  
 	  node->secondExp->accept(this);
-	  if (lastTypeValue != "int")
+	  if (lastTypeValue != symbolsStorage->get("int"))
 		  cout << "Error in arithmetic expression" << endl;
 	 
-	  lastTypeValue = "int";
+	  lastTypeValue = symbolsStorage->get("int");
   }
   
   void visit(const CUnaryExpressionNode* node){
 	  node->expr->accept(this);
 	  
-	  if (lastTypeValue != "int")
+	  if (lastTypeValue != symbolsStorage->get("int"))
 		  cout << "Error in unary expression" << endl;
 		  
-	lastTypeValue = "int";
+	lastTypeValue = symbolsStorage->get("int");
   }
   
   void visit(const CCompareExpressionNode* node){
 	  node->firstExp->accept(this);
-	  if (lastTypeValue != "bool")
-		  cout << "Error in compare expression" << endl;
+	  if (lastTypeValue != symbolsStorage->get("bool"))
 	  
 	  node->secondExp->accept(this);
-	  if ((lastTypeValue != "bool")
+	  if (lastTypeValue != symbolsStorage->get("bool"))
 		  cout << "Error in compare expression" << endl;
 	  
-	  lastTypeValue = "bool";
+	  lastTypeValue = symbolsStorage->get("bool");
   }
   
   void visit(const CNotExpressionNode* node){ 
 	  node->expr->accept(this);
-	  
-	  if (lastTypeValue != "bool")
+	  if (lastTypeValue != symbolsStorage->get("bool"))
 		  cout << "Error in NOT expression";
 		  
-	lastTypeValue = "bool";
+	lastTypeValue = symbolsStorage->get("bool");
   }
   
   void visit(const CNewArrayExpressionNode* node){
 	  if (node->expr != NULL)
 		  node->expr->accept(this);
 	  
-	  if (lastTypeValue != "int")
+	  if (lastTypeValue != symbolsStorage->get("int"))
 		  cout << "Array index is not int in new array" << lastTypeValue << endl;
-	  lastTypeValue = "int[]";
+	  lastTypeValue = symbolsStorage->get("int[]");
   }
   
   void visit(const CNewObjectExpressionNode* node){
-	  if ((node->objType != "int") && (node->objType != "bool"))
+	  if ((node->objType != symbolsStorage->get("int")) && (node->objType != symbolsStorage->get("bool")))
 		  if (!checkClassExistence(node->objType))
 			  cout << "No such type: " << node->objType << endl;
   }
   
   void visit(const CIntExpressionNode* node){
-	  lastTypeValue = "int";
-  
+	  lastTypeValue = symbolsStorage->get("int");
   }
+
   void visit(const CBooleanExpressionNode* node){
-	  lastTypeValue = "bool";
+	  lastTypeValue = symbolsStorage->get("bool");
   }
   
   void visit(const CIdentExpressionNode* node){
-	string tmp;
-	assignType(node->name, tmp);
-	if (tmp != "")
-		lastTypeValue = tmp;
+  	const CSymbol* tmp;
+  	assignType(node->name, tmp);
+  	if (tmp != symbolsStorage->get("")) {
+  		lastTypeValue = tmp;
+    }
   }
   
   void visit(const CThisExpressionNode* node){
@@ -401,7 +410,7 @@ public:
 	  if (node->expr != NULL)
 		  node->expr->accept(this);
 	  
-	  if ((lastTypeValue != "int") && (lastTypeValue != "bool"))
+	  if ((lastTypeValue != symbolsStorage->get("int")) && (lastTypeValue != symbolsStorage->get("bool")))
 		  cout << "Expression in brackets is not valid" << endl;
   }
   void visit(const CInvokeMethodExpressionNode* node){

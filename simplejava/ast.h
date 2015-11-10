@@ -2,7 +2,10 @@
 #define AST_H_INCLUDED
 #include <string>
 #include "CVisitor.h"
+#include "CSymbol.h"
+
 using std::string;
+using namespace Symbol;
 
 struct CNode{
   virtual void accept(CVisitor*)= 0;
@@ -49,7 +52,7 @@ public:
 
 class CMainClassDeclarationRuleNode: public CMainClassNode {
 public:
-	CMainClassDeclarationRuleNode( const char* _className, const char* _argNames, CStatementNode* _stmt ) :
+	CMainClassDeclarationRuleNode( const CSymbol* _className, const CSymbol* _argNames, CStatementNode* _stmt ) :
 		className(_className), argNames(_argNames), stmt(_stmt) {}
   ~CMainClassDeclarationRuleNode(){
     delete stmt;
@@ -58,8 +61,8 @@ public:
 		v->visit( this );
 	}
 
-	string className;
-	string argNames;
+	const CSymbol* className;
+	const CSymbol* argNames;
 	CStatementNode* stmt;
 };
 
@@ -81,7 +84,7 @@ public:
 
 class CClassDeclarationRuleNode: public CClassDeclarationNode {
 public:
-	CClassDeclarationRuleNode( const char* _ident, CExtendDeclarationNode* _extDecl,
+	CClassDeclarationRuleNode( const CSymbol* _ident, CExtendDeclarationNode* _extDecl,
     CVarDeclarationsNode* _vars, CMethodDeclarationsNode* _method ) :
 		ident(_ident), extDecl(_extDecl), vars(_vars), method(_method) {}
   ~CClassDeclarationRuleNode(){
@@ -94,7 +97,7 @@ public:
 	}
 
 
-	string ident;
+	const CSymbol* ident;
 	CExtendDeclarationNode *extDecl;
 	CVarDeclarationsNode *vars;
 	CMethodDeclarationsNode *method;
@@ -102,13 +105,13 @@ public:
 
 class CExtendDeclarationRuleNode: public CExtendDeclarationNode {
 public:
-	CExtendDeclarationRuleNode( const char* _ident ) : ident(_ident) {}
+	CExtendDeclarationRuleNode( const CSymbol* _ident ) : ident(_ident) {}
 
 	void accept( CVisitor* v ){
 		v->visit( this );
 	}
 
-	string ident;
+	const CSymbol* ident;
 };
 
 class CVarDeclarationsListNode : public CVarDeclarationsNode{
@@ -145,7 +148,7 @@ public:
 
 class CVarDeclarationRuleNode : public CVarDeclarationNode{
 public:
-  CVarDeclarationRuleNode(CTypeNode* _type, const char* _ident): type(_type), ident(string(_ident)){}
+  CVarDeclarationRuleNode(CTypeNode* _type, const CSymbol* _ident): type(_type), ident(_ident){}
   ~CVarDeclarationRuleNode(){
     delete type;
   }
@@ -154,15 +157,15 @@ public:
   }
 
   CTypeNode* type;
-  string ident;
+  const CSymbol* ident;
 };
 
 class CMethodDeclarationRuleNode : public CMethodDeclarationNode{
 public:
-  CMethodDeclarationRuleNode(CTypeNode* _type, const char* _ident,
+  CMethodDeclarationRuleNode(CTypeNode* _type, const CSymbol* _ident,
     CParamArgNode* _param_arg, CMethodBodyNode* _method_body,
     CExpressionNode* _return_exp):
-    type(_type), ident(string(_ident)), param_arg(_param_arg),
+    type(_type), ident(_ident), param_arg(_param_arg),
     method_body(_method_body), return_exp(_return_exp){}
   ~CMethodDeclarationRuleNode(){
     delete type;
@@ -175,7 +178,7 @@ public:
   }
 
   CTypeNode* type;
-  string ident;
+  const CSymbol* ident;
   CParamArgNode* param_arg;
   CMethodBodyNode* method_body;
   CExpressionNode* return_exp;
@@ -325,8 +328,8 @@ public:
 
 class CParamRuleNode: public CParamNode {
 public:
-    CParamRuleNode(CTypeNode* _type, const char* _ident) :
-        type(_type), ident(string(_ident)){}
+    CParamRuleNode(CTypeNode* _type, const CSymbol* _ident) :
+        type(_type), ident(_ident){}
     ~CParamRuleNode(){
       delete type;
     }
@@ -335,17 +338,17 @@ public:
     }
 
     CTypeNode* type;
-    string ident;
+    const CSymbol* ident;
 };
 
 class CTypeRuleNode: public CTypeNode {
 public:
-    CTypeRuleNode(const char* _type): type(_type){}
+    CTypeRuleNode(const CSymbol* _type): type(_type){}
     void accept( CVisitor* v){
         v->visit(this);
     }
 
-    string type;
+    const CSymbol* type;
 };
 
 /// Statements begin
@@ -435,13 +438,13 @@ public:
 			v->visit(this);
 		}
 
-		CAssignStatementNode(CExpressionNode* _expression, const char* ident):expression(_expression), identifier(string(ident)){}
+		CAssignStatementNode(CExpressionNode* _expression, const CSymbol* ident):expression(_expression), identifier(ident){}
     ~CAssignStatementNode(){
       delete expression;
     }
 
 		CExpressionNode* expression;
-		string identifier;
+		const CSymbol* identifier;
 };
 
 class CInvokeExpressionStatementNode : public CStatementNode{
@@ -450,8 +453,8 @@ public:
 			v->visit(this);
 		}
 
-		CInvokeExpressionStatementNode(CExpressionNode* _firstexpression, CExpressionNode* _secondexpression, const char* ident):
-          firstexpression(_firstexpression), secondexpression(_secondexpression), identifier(string(ident)){}
+		CInvokeExpressionStatementNode(CExpressionNode* _firstexpression, CExpressionNode* _secondexpression, const CSymbol* ident):
+          firstexpression(_firstexpression), secondexpression(_secondexpression), identifier(ident){}
     ~CInvokeExpressionStatementNode(){
       delete firstexpression;
       delete secondexpression;
@@ -459,7 +462,7 @@ public:
 
 		CExpressionNode* firstexpression;
 		CExpressionNode* secondexpression;
-		string identifier;
+		const CSymbol* identifier;
 
 };
 
@@ -576,12 +579,12 @@ public:
 
 class CNewObjectExpressionNode: public CExpressionNode {
 public:
-    CNewObjectExpressionNode(const char* _objType) : objType(_objType) {}
+    CNewObjectExpressionNode(const CSymbol* _objType) : objType(_objType) {}
     void accept( CVisitor* v ){
         v->visit(this);
     }
 
-    string objType;
+    const CSymbol* objType;
 };
 
 class CIntExpressionNode: public CExpressionNode {
@@ -606,22 +609,22 @@ public:
 
 class CIdentExpressionNode: public CExpressionNode {
 public:
-    CIdentExpressionNode(const char* _name) : name(_name) {}
+    CIdentExpressionNode(const CSymbol* _name) : name(_name) {}
     void accept( CVisitor* v){
         v->visit(this);
     }
 
-    string name;
+    const CSymbol* name;
 };
 
 class CThisExpressionNode: public CExpressionNode {
 public:
-    CThisExpressionNode(const char* _name) : name(_name) {}
+    CThisExpressionNode(const CSymbol* _name) : name(_name) {}
     void accept( CVisitor* v){
         v->visit(this);
     }
 
-    string name;
+    const CSymbol* name;
 };
 
 class CParenExpressionNode: public CExpressionNode {
@@ -639,7 +642,7 @@ public:
 
 class CInvokeMethodExpressionNode: public CExpressionNode {
 public:
-    CInvokeMethodExpressionNode(CExpressionNode* _exp, const char* _name, CExpArgNode* _args):
+    CInvokeMethodExpressionNode(CExpressionNode* _exp, const CSymbol* _name, CExpArgNode* _args):
                                                     expr(_exp), name(_name), args(_args) {}
     ~CInvokeMethodExpressionNode(){
         delete expr;
@@ -650,7 +653,7 @@ public:
     }
 
     CExpressionNode* expr;
-    string name;
+    const CSymbol* name;
     CExpArgNode* args;
 };
 
