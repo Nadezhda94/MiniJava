@@ -324,11 +324,11 @@ public:
   
   void visit(const CArithmeticExpressionNode* node){
 	  node->firstExp->accept(this);
-	  if ((lastTypeValue != "int") && (lastTypeValue != "bool"))
+	  if (lastTypeValue != "int")
 		  cout << "Error in arithmetic expression" << endl;
 	  
 	  node->secondExp->accept(this);
-	  if ((lastTypeValue != "int") && (lastTypeValue != "bool"))
+	  if (lastTypeValue != "int")
 		  cout << "Error in arithmetic expression" << endl;
 	 
 	  lastTypeValue = "int";
@@ -345,11 +345,11 @@ public:
   
   void visit(const CCompareExpressionNode* node){
 	  node->firstExp->accept(this);
-	  if ((lastTypeValue != "int") && (lastTypeValue != "bool"))
+	  if (lastTypeValue != "bool")
 		  cout << "Error in compare expression" << endl;
 	  
 	  node->secondExp->accept(this);
-	  if ((lastTypeValue != "int") && (lastTypeValue != "bool"))
+	  if ((lastTypeValue != "bool")
 		  cout << "Error in compare expression" << endl;
 	  
 	  lastTypeValue = "bool";
@@ -358,7 +358,7 @@ public:
   void visit(const CNotExpressionNode* node){ 
 	  node->expr->accept(this);
 	  
-	  if (lastTypeValue != "int")
+	  if (lastTypeValue != "bool")
 		  cout << "Error in NOT expression";
 		  
 	lastTypeValue = "bool";
