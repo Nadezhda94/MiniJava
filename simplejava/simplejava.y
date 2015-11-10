@@ -12,11 +12,13 @@
 #include "CSymbolTableBuilder.h"
 #include "CTypeChecker.h"
 #include "Translator.h"
+#include "CSymbol.h"
 
 using std::cout;
 using std::endl;
 using std::strcpy;
 extern FILE * yyin;
+
 int yylex();
 void yyerror(const char * s){
     std::cout << s << std::endl;
@@ -24,18 +26,51 @@ void yyerror(const char * s){
     std:: cout << "position in line: " << yylloc.last_column << std::endl;
 };
 
+Symbol::CStorage symbolsStorage;
+
 void testBuilder(CSymbolTableBuilder& table_vis){
-    auto it = table_vis.table.classInfo[1].methods.begin();
-    auto itEnd = table_vis.table.classInfo[1].methods.end();
-    for ( ; it != itEnd; ++it) {
-        std::cout << it->name << std::endl;
-        auto innerIt = it->vars.begin();
-        auto innerItEnd = it->vars.end();
-        for (;innerIt != innerItEnd; ++innerIt) {
-            std::cerr << innerIt -> name << " " << innerIt->type << std::endl;
+    auto itClass = table_vis.table.classInfo.begin();
+    auto itClassEnd = table_vis.table.classInfo.end();
+    std::cout << "____________TABLE_BUILDER__________" << std::endl;
+    for (;itClass != itClassEnd; ++itClass) {
+        std::cout << itClass -> name << std::endl;
+        auto itVarsClass = itClass->vars.begin();
+        auto itVarsClassEnd = itClass->vars.end();
+        std::cout<< "\tvars:" << std::endl;
+        for (;itVarsClass != itVarsClassEnd; ++itVarsClass) {
+            std::cout << "\t\t" << itVarsClass->name << " " << itVarsClass->type << std::endl; 
+        }
+        auto itMthd = itClass->methods.begin();
+        auto itMthdEnd = itClass->methods.end();
+        std::cout << "\tmethods:" <<std::endl;
+        for (; itMthd != itMthdEnd; ++itMthd) {
+            std::cout << "\t\t" << itMthd->name << std::endl;
+            std::cout << "\t\t" << "params:" << std::endl;
+            auto itParams = itMthd->params.begin();
+            auto itParamsEnd = itMthd->params.end();
+            for (;itParams != itParamsEnd; ++itParams) {
+                std::cout << "\t\t\t" << itParams->name << " " << itParams->type << std::endl;
+            }
+            std::cout << "\t\tvars:" << std::endl;
+            auto itVars = itMthd->vars.begin();
+            auto itVarsEnd = itMthd->vars.end();
+            for (;itVars != itVarsEnd; ++itVars) {
+                std::cout << "\t\t\t" << itVars->name << " " << itVars->type << std::endl;
+            }
+            std::cout << "\t\treturnType: " << itMthd->returnType << std::endl; 
+            std::cout << "____________________________" << std::endl;
+
         }
     }
-    std::cout << table_vis.table.classInfo[1].name << std::endl;
+}
+
+void storagePrinter() {
+    std::cout << "________________Storage_____________" << std::endl;
+        auto it = symbolsStorage.symbols.begin();
+        auto itEnd = symbolsStorage.symbols.end();
+        for (;it !=itEnd; ++it) {
+            std:: cout << it->first << " " << it->second.get() << std::endl;
+        }
 }
 
 
@@ -72,23 +107,25 @@ program
 
         : main_class declarations {
             CPrintVisitor print_vis;
-            CSymbolTableBuilder table_vis;
-            CTypeChecker checker_vis;
-            CProgramRuleNode* ptr = new CProgramRuleNode(dynamic_cast<CMainClassNode*>($1), dynamic_cast<CDeclarationsNode*>($2));
+            CSymbolTableBuilder table_vis(&symbolsStorage);
+            CTypeChecker checker_vis(&symbolsStorage);
+            CProgramRuleNode* ptr = new CProgramRuleNode(dynamic_cast<CMainClassNode*>($1), 
+                                                    dynamic_cast<CDeclarationsNode*>($2));
             $$ = ptr;
             ptr->accept(&print_vis);
             cout<<endl;
             ptr->accept(&table_vis);
             checker_vis.table = table_vis.table;
             ptr->accept(&checker_vis);
-//            testBuilder(table_vis);
+            testBuilder(table_vis);
+            storagePrinter();
             delete ptr;
           }
         ;
 
 main_class
         : CLASS IDENT LBRACE PUBLIC STATIC VOID MAIN LPAREN STRING LBRACK RBRACK IDENT RPAREN LBRACE statement RBRACE RBRACE {
-            $$ = new CMainClassDeclarationRuleNode($2, $12, dynamic_cast<CStatementNode*>($15));
+            $$ = new CMainClassDeclarationRuleNode(symbolsStorage.get(std::string($2)), symbolsStorage.get(std::string($12)), dynamic_cast<CStatementNode*>($15));
           }
         ;
 
@@ -101,14 +138,15 @@ declarations
 
 class_declaration
         : CLASS IDENT extend_declaration LBRACE var_declarations method_declarations RBRACE {
-            $$ = new CClassDeclarationRuleNode($2, dynamic_cast<CExtendDeclarationNode*>($3),
-                                               dynamic_cast<CVarDeclarationsNode*>($5),
-                                               dynamic_cast<CMethodDeclarationsNode*>($6));
+            $$ = new CClassDeclarationRuleNode(symbolsStorage.get(std::string($2)), 
+                                                dynamic_cast<CExtendDeclarationNode*>($3),
+                                                dynamic_cast<CVarDeclarationsNode*>($5),
+                                                dynamic_cast<CMethodDeclarationsNode*>($6));
           }
         ;
 
 extend_declaration
-        : EXTENDS IDENT {$$ = new CExtendDeclarationRuleNode($2);}
+        : EXTENDS IDENT {$$ = new CExtendDeclarationRuleNode(symbolsStorage.get(std::string($2)));}
         | {$$ = 0;}
         ;
 
@@ -127,12 +165,13 @@ method_declarations
         ;
 
 var_declaration
-        : type IDENT SEMCOL {$$ = new CVarDeclarationRuleNode(dynamic_cast<CTypeNode*>($1), $2);}
+        : type IDENT SEMCOL {$$ = new CVarDeclarationRuleNode(dynamic_cast<CTypeNode*>($1), 
+        symbolsStorage.get(std::string($2)));}
         ;
 
 method_declaration
         : PUBLIC type IDENT LPAREN param_arg RPAREN LBRACE method_body RETURN expression SEMCOL RBRACE {
-            $$ = new CMethodDeclarationRuleNode(dynamic_cast<CTypeNode*>($2), $3,
+            $$ = new CMethodDeclarationRuleNode(dynamic_cast<CTypeNode*>($2), symbolsStorage.get(std::string($3)),
                                                 dynamic_cast<CParamArgNode*>($5),
                                                 dynamic_cast<CMethodBodyNode*>($8),
                                                 dynamic_cast<CExpressionNode*>($10));
@@ -175,14 +214,14 @@ params
         ;
 
 param
-        : type IDENT {$$ = new CParamRuleNode(dynamic_cast<CTypeNode*>($1), $2);}
+        : type IDENT {$$ = new CParamRuleNode(dynamic_cast<CTypeNode*>($1), symbolsStorage.get(std::string($2)));}
         ;
 
 type
-        : ARRAY {$$ = new CTypeRuleNode("int[]");}
-        | BOOLEAN_TYPE {$$ = new CTypeRuleNode("bool");}
-        | INT_TYPE {$$ = new CTypeRuleNode("int");}
-        | IDENT {$$ = new CTypeRuleNode($1);}
+        : ARRAY {$$ = new CTypeRuleNode(symbolsStorage.get("int[]"));}
+        | BOOLEAN_TYPE {$$ = new CTypeRuleNode(symbolsStorage.get("bool"));}
+        | INT_TYPE {$$ = new CTypeRuleNode(symbolsStorage.get("int"));}
+        | IDENT {$$ = new CTypeRuleNode(symbolsStorage.get(std::string($1)));}
         ;
 
 statements
@@ -201,9 +240,10 @@ statement
             $$ = new CWhileStatementNode(dynamic_cast<CExpressionNode*>($3), dynamic_cast<CStatementNode*>($5));
           }
         | PRINT LPAREN expression RPAREN SEMCOL {$$ = new CPrintStatementNode(dynamic_cast<CExpressionNode*>($3));}
-        | IDENT EQ expression SEMCOL {$$ = new CAssignStatementNode(dynamic_cast<CExpressionNode*>($3), $1);}
+        | IDENT EQ expression SEMCOL {$$ = new CAssignStatementNode(dynamic_cast<CExpressionNode*>($3),
+            symbolsStorage.get(std::string($1)));}
         | IDENT LBRACK expression RBRACK EQ expression SEMCOL {
-            $$ = new CInvokeExpressionStatementNode(dynamic_cast<CExpressionNode*>($3), dynamic_cast<CExpressionNode*>($6), $1);
+            $$ = new CInvokeExpressionStatementNode(dynamic_cast<CExpressionNode*>($3), dynamic_cast<CExpressionNode*>($6), symbolsStorage.get(std::string($1)));
           }
         ;
 
@@ -214,13 +254,13 @@ expression
         | expression DOT LENGTH {$$ = new CLengthExpressionNode(dynamic_cast<CExpressionNode*>($1));}
         | INT {$$ = new CIntExpressionNode(yylval.intValue);}
         | BOOLEAN {$$ = new CBooleanExpressionNode(yylval.boolValue);}
-        | IDENT {$$ = new CIdentExpressionNode(yylval.str);}
-        | THIS {$$ = new CThisExpressionNode("this");}
+        | IDENT {$$ = new CIdentExpressionNode(symbolsStorage.get(std::string(yylval.str)));}
+        | THIS {$$ = new CThisExpressionNode(symbolsStorage.get("this"));}
         | NEW INT_TYPE LBRACK expression RBRACK {
             $$ = new CNewArrayExpressionNode(dynamic_cast<CExpressionNode*>($4));
           }
         | NEW IDENT LPAREN RPAREN {
-            $$ = new CNewObjectExpressionNode($2);
+            $$ = new CNewObjectExpressionNode(symbolsStorage.get(std::string($2)));
           }
         | BANG expression %prec BANG {
             $$ = new CNotExpressionNode(dynamic_cast<CExpressionNode*>($2));
@@ -249,7 +289,8 @@ expression
         | PLUS expression %prec UPLUS {$$ = new CUnaryExpressionNode(dynamic_cast<CExpressionNode*>($2), UPLUS_OP);}
         | MINUS expression %prec UMINUS {$$ = new CUnaryExpressionNode(dynamic_cast<CExpressionNode*>($2), UMINUS_OP);}
         | expression DOT IDENT LPAREN exp_arg RPAREN {
-            $$ = new CInvokeMethodExpressionNode(dynamic_cast<CExpressionNode*>($1), $3, dynamic_cast<CExpArgNode*>($5));
+            $$ = new CInvokeMethodExpressionNode(dynamic_cast<CExpressionNode*>($1), 
+            symbolsStorage.get(std::string($3)), dynamic_cast<CExpArgNode*>($5));
           }
         ;
 

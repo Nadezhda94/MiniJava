@@ -2,32 +2,34 @@
 #define SYMBOLSTABLE_H_INCLUDED
 #include <string>
 #include <vector>
+#include "CSymbol.h"
 
 namespace SymbolsTable{
   using std::vector;
   using std::string;
+
   struct CVarInfo{
-      string name;
-      string type;
-      CVarInfo(const string& _name, const string& _type):
+      const CSymbol* name;
+      const CSymbol* type;
+      CVarInfo(const CSymbol* _name, const CSymbol* _type):
         name(_name), type(_type){}
   };
 
   struct CMethodInfo{
-      string name;
+      const CSymbol* name;
       vector<CVarInfo> vars;
       vector<CVarInfo> params;
-      string returnType;
-      CMethodInfo(const string& _name, const string& _returnType):
+      const CSymbol* returnType;
+      CMethodInfo(const CSymbol* _name, const CSymbol* _returnType):
         name(_name), returnType(_returnType), vars(), params(){}
   };
 
   struct CClassInfo{
-      string name;
-      string parent;
+      const CSymbol* name;
+      const CSymbol* parent;
       vector<CVarInfo> vars;
       vector<CMethodInfo> methods;
-      CClassInfo(const string& _name):
+      CClassInfo(const CSymbol* _name):
         name(_name), vars(), methods(){}
   };
 
