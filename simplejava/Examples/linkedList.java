@@ -63,7 +63,8 @@ class Element {
     int aux02 ;
     retval = false ;
     aux02 = num2 + 1 ;
-    if (num1 < num2) retval = false ;
+    if (num1 < num2)
+		retval = false ;
     else if (!(num1 < aux02)) retval = false ;
     else retval = true ;
     return retval ;
