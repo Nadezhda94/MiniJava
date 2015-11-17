@@ -2,10 +2,13 @@
 #include <iostream>
 #include "simplejava.tab.hpp"
 #include "ast.h"
+#include "CSymbol.h"
 using std::cout;
 using std::endl;
 extern FILE * yyin;
 CProgramRuleNode* root;
+Symbol::CStorage symbolsStorage;
+
 int yylex();
 void yyerror(const char * s){
     std::cout << s << std::endl;
@@ -48,14 +51,17 @@ void yyerror(const char * s){
 %token <boolValue> BOOLEAN
 %token <str> IDENT INT_TYPE BOOLEAN_TYPE EXTENDS EQ PLUS IF ELSE WHILE  RETURN  PUBLIC CLASS STATIC  VOID MAIN STRING PRINT  THIS NEW LENGTH ARRAY LBRACE  RBRACE  LPAREN RPAREN LBRACK RBRACK LEQ AND MINUS MULT DIV SEMCOL COMMA BANG DOT
 
-%left LEQ EQ
-%left DOT
-%left PLUS MINUS
-%left MULT DIV AND
+%right EQ
+%left AND
+%left LEQ
 
-%nonassoc BANG  IF ELSE
+%left PLUS MINUS
+%left MULT DIV
+%left BANG UMINUS UPLUS
+%left DOT
+
+%nonassoc  IF ELSE
 %nonassoc LBRACK RBRACK
-%nonassoc UMINUS UPLUS
 
 %type <programNode> program
 %type <mainClassNode> main_class
@@ -83,6 +89,7 @@ void yyerror(const char * s){
 
 
 program
+
         : main_class declarations {
             root = new CProgramRuleNode($1, $2);
             $$ = root;
@@ -91,7 +98,7 @@ program
 
 main_class
         : CLASS IDENT LBRACE PUBLIC STATIC VOID MAIN LPAREN STRING LBRACK RBRACK IDENT RPAREN LBRACE statement RBRACE RBRACE {
-            $$ = new CMainClassDeclarationRuleNode($2, $12, $15);
+            $$ = new CMainClassDeclarationRuleNode(symbolsStorage.get(std::string($2)), symbolsStorage.get(std::string($12)), $15);
           }
         ;
 
@@ -104,12 +111,12 @@ declarations
 
 class_declaration
         : CLASS IDENT extend_declaration LBRACE var_declarations method_declarations RBRACE {
-            $$ = new CClassDeclarationRuleNode($2, $3, $5, $6);
+            $$ = new CClassDeclarationRuleNode(symbolsStorage.get(std::string($2)), $3, $5, $6);
           }
         ;
 
 extend_declaration
-        : EXTENDS IDENT {$$ = new CExtendDeclarationRuleNode($2);}
+        : EXTENDS IDENT {$$ = new CExtendDeclarationRuleNode(symbolsStorage.get(std::string($2)));}
         | {$$ = 0;}
         ;
 
@@ -128,12 +135,12 @@ method_declarations
         ;
 
 var_declaration
-        : type IDENT SEMCOL {$$ = new CVarDeclarationRuleNode($1, $2);}
+        : type IDENT SEMCOL {$$ = new CVarDeclarationRuleNode($1, symbolsStorage.get(std::string($2)));}
         ;
 
 method_declaration
         : PUBLIC type IDENT LPAREN param_arg RPAREN LBRACE method_body RETURN expression SEMCOL RBRACE {
-            $$ = new CMethodDeclarationRuleNode($2, $3, $5, $8, $10);
+            $$ = new CMethodDeclarationRuleNode($2, symbolsStorage.get(std::string($3)), $5, $8, $10);
           }
         ;
 
@@ -173,14 +180,14 @@ params
         ;
 
 param
-        : type IDENT {$$ = new CParamRuleNode($1, $2);}
+        : type IDENT {$$ = new CParamRuleNode($1, symbolsStorage.get(std::string($2)));}
         ;
 
 type
-        : ARRAY {$$ = new CTypeRuleNode("int[]");}
-        | BOOLEAN_TYPE {$$ = new CTypeRuleNode("bool");}
-        | INT_TYPE {$$ = new CTypeRuleNode("int");}
-        | IDENT {$$ = new CTypeRuleNode($1);}
+        : ARRAY {$$ = new CTypeRuleNode(symbolsStorage.get("int[]"));}
+        | BOOLEAN_TYPE {$$ = new CTypeRuleNode(symbolsStorage.get("bool"));}
+        | INT_TYPE {$$ = new CTypeRuleNode(symbolsStorage.get("int"));}
+        | IDENT {$$ = new CTypeRuleNode(symbolsStorage.get(std::string($1)));}
         ;
 
 statements
@@ -199,9 +206,9 @@ statement
             $$ = new CWhileStatementNode($3, $5);
           }
         | PRINT LPAREN expression RPAREN SEMCOL {$$ = new CPrintStatementNode($3);}
-        | IDENT EQ expression SEMCOL {$$ = new CAssignStatementNode($3, $1);}
+        | IDENT EQ expression SEMCOL {$$ = new CAssignStatementNode($3, symbolsStorage.get(std::string($1)));}
         | IDENT LBRACK expression RBRACK EQ expression SEMCOL {
-            $$ = new CInvokeExpressionStatementNode($3, $6, $1);
+            $$ = new CInvokeExpressionStatementNode($3, $6, symbolsStorage.get(std::string($1)));
           }
         ;
 
@@ -212,13 +219,13 @@ expression
         | expression DOT LENGTH {$$ = new CLengthExpressionNode($1);}
         | INT {$$ = new CIntExpressionNode(yylval.intValue);}
         | BOOLEAN {$$ = new CBooleanExpressionNode(yylval.boolValue);}
-        | IDENT {$$ = new CIdentExpressionNode(yylval.str);}
-        | THIS {$$ = new CThisExpressionNode("this");}
+        | IDENT {$$ = new CIdentExpressionNode(symbolsStorage.get(std::string(yylval.str)));}
+        | THIS {$$ = new CThisExpressionNode(symbolsStorage.get("this"));}
         | NEW INT_TYPE LBRACK expression RBRACK {
             $$ = new CNewArrayExpressionNode($4);
           }
         | NEW IDENT LPAREN RPAREN {
-            $$ = new CNewObjectExpressionNode($2);
+            $$ = new CNewObjectExpressionNode(symbolsStorage.get(std::string($2)));
           }
         | BANG expression %prec BANG {
             $$ = new CNotExpressionNode($2);
@@ -247,7 +254,7 @@ expression
         | PLUS expression %prec UPLUS {$$ = new CUnaryExpressionNode($2, UPLUS_OP);}
         | MINUS expression %prec UMINUS {$$ = new CUnaryExpressionNode($2, UMINUS_OP);}
         | expression DOT IDENT LPAREN exp_arg RPAREN {
-            $$ = new CInvokeMethodExpressionNode($1, $3, $5);
+            $$ = new CInvokeMethodExpressionNode($1, symbolsStorage.get(std::string($3)), $5);
           }
         ;
 
