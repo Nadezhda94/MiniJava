@@ -88,14 +88,17 @@ void storagePrinter() {
 %token <boolValue> BOOLEAN
 %token <str> IDENT INT_TYPE BOOLEAN_TYPE EXTENDS EQ PLUS IF ELSE WHILE  RETURN  PUBLIC CLASS STATIC  VOID MAIN STRING PRINT  THIS NEW LENGTH ARRAY LBRACE  RBRACE  LPAREN RPAREN LBRACK RBRACK LEQ AND MINUS MULT DIV SEMCOL COMMA BANG DOT
 
-%left LEQ EQ
-%left DOT
-%left PLUS MINUS
-%left MULT DIV AND
+%right EQ
+%left AND
+%left LEQ 
 
-%nonassoc BANG  IF ELSE
+%left PLUS MINUS
+%left MULT DIV
+%left BANG UMINUS UPLUS
+%left DOT
+
+%nonassoc  IF ELSE
 %nonassoc LBRACK RBRACK
-%nonassoc UMINUS UPLUS
 
 %type <node> expression statement extend_declaration param_arg var_declaration var_declarations class_declaration exp_arg program main_class
 %type <node> expressions statements type param params method_body vars_dec stats method_declarations method_declaration declarations
@@ -117,6 +120,7 @@ program
             ptr->accept(&table_vis);
             checker_vis.table = table_vis.table;
             ptr->accept(&checker_vis);
+            
             testBuilder(table_vis);
             storagePrinter();
             delete ptr;
