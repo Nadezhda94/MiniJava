@@ -7,6 +7,13 @@
 using std::string;
 using namespace Symbol;
 
+struct Location
+{
+  int firstColumn;
+  int firstLine;
+};
+
+
 struct CNode{
   virtual void accept(CVisitor*)= 0;
 };

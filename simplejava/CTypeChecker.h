@@ -333,12 +333,11 @@ public:
   
   void visit(const CArithmeticExpressionNode* node){
 	  node->firstExp->accept(this);
-
-	  if (lastTypeValue != symbolsStorage->get("int"))
+	  if ((lastTypeValue != symbolsStorage->get("int")) && (lastTypeValue != symbolsStorage->get("bool")))
 		  cout << "Error in arithmetic expression" << endl;
 	  
 	  node->secondExp->accept(this);
-	  if (lastTypeValue != symbolsStorage->get("int"))
+	  if ((lastTypeValue != symbolsStorage->get("int")) && (lastTypeValue != symbolsStorage->get("bool")))
 		  cout << "Error in arithmetic expression" << endl;
 	 
 	  lastTypeValue = symbolsStorage->get("int");
@@ -355,10 +354,11 @@ public:
   
   void visit(const CCompareExpressionNode* node){
 	  node->firstExp->accept(this);
-	  if (lastTypeValue != symbolsStorage->get("bool"))
+
+	  if ((lastTypeValue != symbolsStorage->get("int")) && (lastTypeValue != symbolsStorage->get("bool")))
 	  
 	  node->secondExp->accept(this);
-	  if (lastTypeValue != symbolsStorage->get("bool"))
+	  if ((lastTypeValue != symbolsStorage->get("int")) && (lastTypeValue != symbolsStorage->get("bool")))
 		  cout << "Error in compare expression" << endl;
 	  
 	  lastTypeValue = symbolsStorage->get("bool");
@@ -366,7 +366,8 @@ public:
   
   void visit(const CNotExpressionNode* node){ 
 	  node->expr->accept(this);
-	  if (lastTypeValue != symbolsStorage->get("bool"))
+	  
+	  if (lastTypeValue != symbolsStorage->get("int"))
 		  cout << "Error in NOT expression";
 		  
 	lastTypeValue = symbolsStorage->get("bool");

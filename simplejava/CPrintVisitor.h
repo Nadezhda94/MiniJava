@@ -305,6 +305,7 @@ public:
 
   	void visit(const CIdentExpressionNode* node){
       print_tabs(counter++);
+      yyerror("blabla");
       cout << "id(" << node->name << ")" << endl;
       --counter;
     }
