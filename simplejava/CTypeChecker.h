@@ -355,10 +355,11 @@ public:
   void visit(const CCompareExpressionNode* node){
 	  node->firstExp->accept(this);
 
-	  if ((lastTypeValue != symbolsStorage->get("int")) && (lastTypeValue != symbolsStorage->get("bool")))
-	  
+	  if (lastTypeValue != symbolsStorage->get("int"))
+		  cout << "Error in compare expression" << endl;
+
 	  node->secondExp->accept(this);
-	  if ((lastTypeValue != symbolsStorage->get("int")) && (lastTypeValue != symbolsStorage->get("bool")))
+	  if (lastTypeValue != symbolsStorage->get("int"))
 		  cout << "Error in compare expression" << endl;
 	  
 	  lastTypeValue = symbolsStorage->get("bool");
@@ -366,9 +367,9 @@ public:
   
   void visit(const CNotExpressionNode* node){ 
 	  node->expr->accept(this);
-	  
-	  if (lastTypeValue != symbolsStorage->get("int"))
-		  cout << "Error in NOT expression";
+
+	  if (lastTypeValue != symbolsStorage->get("bool"))
+		  cout << "Error in NOT expression" << endl;
 		  
 	lastTypeValue = symbolsStorage->get("bool");
   }
@@ -386,6 +387,9 @@ public:
 	  if ((node->objType != symbolsStorage->get("int")) && (node->objType != symbolsStorage->get("bool")))
 		  if (!checkClassExistence(node->objType))
 			  cout << "No such type: " << node->objType << endl;
+		  else
+				lastTypeValue = node->objType;
+
   }
   
   void visit(const CIntExpressionNode* node){
@@ -405,6 +409,7 @@ public:
   }
   
   void visit(const CThisExpressionNode* node){
+     lastTypeValue = table.classInfo[this->classPos].name;
   }
   
   void visit(const CParenExpressionNode* node){
@@ -419,11 +424,26 @@ public:
 		  node->args->accept(this);
 	  if (node->expr != NULL)
 		  node->expr->accept(this);
-	  
-	  for (int i = 0; i < table.classInfo[this->classPos].methods.size(); i++)
-		  if (table.classInfo[this->classPos].methods[i].name == node->name){
-			  lastTypeValue = table.classInfo[this->classPos].methods[i].returnType;
+
+	  bool declaredClass = false;
+	  bool declaredMethod = false;
+	  for (int i = 0; i < table.classInfo.size(); i++){
+		  declaredClass = declaredClass || (table.classInfo[i].name == lastTypeValue);
+		  if (declaredClass) {
+			    for (int j = 0; j < table.classInfo[i].methods.size(); j++) {
+					declaredMethod = declaredMethod || (table.classInfo[i].methods[j].name == node->name);
+					if (declaredMethod) {
+						lastTypeValue = table.classInfo[i].methods[j].returnType;
+						break;
+					}
+				}
+				if (!declaredMethod)
+					cout << "Method not declared: " << node->name << endl;
+				break;
 		  }
+	  }
+	  if (!declaredClass) 
+		  cout << "Class not declared: " << lastTypeValue <<node->name << endl;
   }
   void visit(const CFewArgsExpressionNode* node){
 	  if (node->expr != NULL)
