@@ -6,16 +6,28 @@
 
 using std::string;
 using namespace Symbol;
+extern Symbol::CStorage symbolsStorage;
 
 struct Location
 {
   int firstColumn;
   int firstLine;
+  int lastColumn;
+  int lastLine;
 };
 
 
-struct CNode{
+struct CNode {
   virtual void accept(CVisitor*)= 0;
+
+  void setLocation(int _firstColumn, int _firstLine, int _lastColumn, int _lastLine) {
+    location.firstColumn = _firstColumn;
+    location.firstLine = _firstLine;
+    location.lastColumn = _lastColumn;
+    location.lastLine = _lastLine;
+  }
+
+  Location location;
 };
 
 template<class TARGET, class INTERFACE>
@@ -64,8 +76,8 @@ public:
 
 class CMainClassDeclarationRuleNode: public CAcceptsVisitor<CMainClassDeclarationRuleNode, CMainClassNode> {
 public:
-	CMainClassDeclarationRuleNode( const CSymbol* _className, const CSymbol* _argNames, CStatementNode* _stmt ) :
-		className(_className), argNames(_argNames), stmt(_stmt) {}
+	CMainClassDeclarationRuleNode( const char* _className, const char* _argNames, CStatementNode* _stmt ) :
+		className(symbolsStorage.get(_className)), argNames(symbolsStorage.get(_argNames)), stmt(_stmt) {}
     ~CMainClassDeclarationRuleNode(){
         delete stmt;
     }
@@ -89,9 +101,9 @@ public:
 
 class CClassDeclarationRuleNode: public CAcceptsVisitor<CClassDeclarationRuleNode, CClassDeclarationNode> {
 public:
-	CClassDeclarationRuleNode( const CSymbol* _ident, CExtendDeclarationNode* _extDecl,
+	CClassDeclarationRuleNode( const char* _ident, CExtendDeclarationNode* _extDecl,
     CVarDeclarationsNode* _vars, CMethodDeclarationsNode* _method ) :
-		ident(_ident), extDecl(_extDecl), vars(_vars), method(_method) {}
+		ident(symbolsStorage.get(_ident)), extDecl(_extDecl), vars(_vars), method(_method) {}
     ~CClassDeclarationRuleNode(){
         delete extDecl;
         delete vars;
@@ -106,7 +118,7 @@ public:
 
 class CExtendDeclarationRuleNode: public CAcceptsVisitor<CExtendDeclarationRuleNode, CExtendDeclarationNode> {
 public:
-	CExtendDeclarationRuleNode( const CSymbol* _ident ) : ident(_ident) {}
+	CExtendDeclarationRuleNode( const char* _ident ) : ident(symbolsStorage.get(_ident)) {}
 	const CSymbol* ident;
 };
 
@@ -138,7 +150,7 @@ public:
 
 class CVarDeclarationRuleNode : public CAcceptsVisitor<CVarDeclarationRuleNode, CVarDeclarationNode>{
 public:
-    CVarDeclarationRuleNode(CTypeNode* _type, const CSymbol* _ident): type(_type), ident(_ident){}
+    CVarDeclarationRuleNode(CTypeNode* _type, const char* _ident): type(_type), ident(symbolsStorage.get(_ident)){}
     ~CVarDeclarationRuleNode(){
         delete type;
     }
@@ -149,9 +161,9 @@ public:
 
 class CMethodDeclarationRuleNode : public CAcceptsVisitor<CMethodDeclarationRuleNode, CMethodDeclarationNode>{
 public:
-    CMethodDeclarationRuleNode(CTypeNode* _type, const CSymbol* _ident,
+    CMethodDeclarationRuleNode(CTypeNode* _type, const char* _ident,
     CParamArgNode* _param_arg, CMethodBodyNode* _method_body, CExpressionNode* _return_exp):
-        type(_type), ident(_ident), param_arg(_param_arg),
+        type(_type), ident(symbolsStorage.get(_ident)), param_arg(_param_arg),
         method_body(_method_body), return_exp(_return_exp){}
     ~CMethodDeclarationRuleNode(){
         delete type;
@@ -281,8 +293,8 @@ public:
 
 class CParamRuleNode: public CAcceptsVisitor<CParamRuleNode, CParamNode> {
 public:
-    CParamRuleNode(CTypeNode* _type, const CSymbol* _ident) :
-        type(_type), ident(_ident){}
+    CParamRuleNode(CTypeNode* _type, const char* _ident) :
+        type(_type), ident(symbolsStorage.get(_ident)){}
     ~CParamRuleNode(){
         delete type;
     }
@@ -293,7 +305,7 @@ public:
 
 class CTypeRuleNode: public CAcceptsVisitor<CTypeRuleNode, CTypeNode> {
 public:
-    CTypeRuleNode(const CSymbol* _type): type(_type){}
+    CTypeRuleNode(const char* _type): type(symbolsStorage.get(_type)){}
 
     const CSymbol* type;
 };
@@ -362,7 +374,8 @@ public:
 
 class CAssignStatementNode : public CAcceptsVisitor<CAssignStatementNode, CStatementNode>{
 public:
-    CAssignStatementNode(CExpressionNode* _expression, const CSymbol* ident):expression(_expression), identifier(ident){}
+    CAssignStatementNode(CExpressionNode* _expression, const char* ident):expression(_expression), 
+        identifier(symbolsStorage.get(ident)){}
     ~CAssignStatementNode(){
         delete expression;
     }
@@ -373,8 +386,9 @@ public:
 
 class CInvokeExpressionStatementNode : public CAcceptsVisitor<CInvokeExpressionStatementNode, CStatementNode>{
 public:
-    CInvokeExpressionStatementNode(CExpressionNode* _firstexpression, CExpressionNode* _secondexpression, const CSymbol* ident):
-        firstexpression(_firstexpression), secondexpression(_secondexpression), identifier(ident){}
+    CInvokeExpressionStatementNode(CExpressionNode* _firstexpression, CExpressionNode* _secondexpression, 
+        const char* ident): firstexpression(_firstexpression), secondexpression(_secondexpression), 
+        identifier(symbolsStorage.get(ident)){}
     ~CInvokeExpressionStatementNode(){
         delete firstexpression;
         delete secondexpression;
@@ -476,7 +490,7 @@ public:
 
 class CNewObjectExpressionNode: public CAcceptsVisitor<CNewObjectExpressionNode, CExpressionNode> {
 public:
-    CNewObjectExpressionNode(const CSymbol* _objType) : objType(_objType) {}
+    CNewObjectExpressionNode(const char* _objType) : objType(symbolsStorage.get(_objType)) {}
     const CSymbol* objType;
 };
 
@@ -494,13 +508,13 @@ public:
 
 class CIdentExpressionNode: public CAcceptsVisitor<CIdentExpressionNode, CExpressionNode> {
 public:
-    CIdentExpressionNode(const CSymbol* _name) : name(_name) {}
+    CIdentExpressionNode(const char* _name) : name(symbolsStorage.get(_name)) {}
     const CSymbol* name;
 };
 
 class CThisExpressionNode: public CAcceptsVisitor<CThisExpressionNode, CExpressionNode> {
 public:
-    CThisExpressionNode(const CSymbol* _name) : name(_name) {}
+    CThisExpressionNode(const char* _name) : name(symbolsStorage.get(_name)) {}
     const CSymbol* name;
 };
 
@@ -516,8 +530,8 @@ public:
 
 class CInvokeMethodExpressionNode: public CAcceptsVisitor<CInvokeMethodExpressionNode, CExpressionNode> {
 public:
-    CInvokeMethodExpressionNode(CExpressionNode* _exp, const CSymbol* _name, CExpArgNode* _args):
-        expr(_exp), name(_name), args(_args) {}
+    CInvokeMethodExpressionNode(CExpressionNode* _exp, const char* _name, CExpArgNode* _args):
+        expr(_exp), name(symbolsStorage.get(_name)), args(_args) {}
     ~CInvokeMethodExpressionNode(){
         delete expr;
         delete args;

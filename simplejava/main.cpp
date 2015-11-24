@@ -14,7 +14,7 @@ using std::endl;
 extern FILE * yyin;
 extern int yyparse();
 extern CProgramRuleNode* root;
-extern Symbol::CStorage symbolsStorage;
+Symbol::CStorage symbolsStorage;
 
 
 void testBuilder(CSymbolTableBuilder& table_vis){
