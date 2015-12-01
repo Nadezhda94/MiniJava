@@ -23,11 +23,11 @@ public:
 	}
 
 	const IRTree::IStm* ToStm() const { 
-		new IRTree::EXP(expr);
+		return new IRTree::EXP(expr);
 	}
 
 	const IRTree::IStm* ToConditional(Temp::CLabel* t, Temp::CLabel* f) const {
-		return new IRTree::CJUMP(IRTree::GT, expr, new IRTree::CONST(1), t, f);
+		return new IRTree::CJUMP(IRTree::EQ, expr, new IRTree::CONST(0), f, t);
 	}
 
 private:
@@ -55,11 +55,17 @@ private:
 };
 
 
-class CConditionalWrapper : public Translate:: ISubtreeWrapper {
+class CConditionalWrapper : public ISubtreeWrapper {
 public:
     virtual const IRTree::IExp* ToExp() const { /* return CONST(1) or CONST(0);*/ }
     virtual const IRTree::IStm* ToStm() const { /* return stm;*/ }
     virtual const IRTree::IStm* ToConditional(const Temp::CLabel* t, const Temp::CLabel* f) const = 0;
+};
+
+class CRelativeCmpWrapper : public CConditionalWrapper {
+public:
+	CRelativeCmpWrapper ( op, e1, e2 );
+	virtual const IRTree::IStm* ToConditional( t, f ) const { return new IRTree::CJUMP(...); }
 };
 
 class CTranslatorVisitor: public CVisitor {
