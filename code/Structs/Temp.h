@@ -1,7 +1,7 @@
 #ifndef TEMP_H_INCLUDED
 #define TEMP_H_INCLUDED
-#include <string>
-#include "CSymbol.h"
+#include "../common.h"
+#include "../Structs/Symbol.h"
 
 namespace Temp {
 // Метка - точка перехода в коде
@@ -14,8 +14,8 @@ public:
 	// Создать метку с заданным именем
 	explicit CLabel( ... );
 
-	const std::string& Name() const { 
-		return name; 
+	const std::string& Name() const {
+		return name;
 	}
 
 private:
@@ -37,8 +37,8 @@ public:
 	explicit CTemp(const Symbol::CSymbol* symbol );
 	~CTemp() {}
 
-	const std::string& Name() const { 
-		return name; 
+	const std::string& Name() const {
+		return name;
 	}
 
 private:
@@ -49,6 +49,6 @@ private:
 
 int CTemp::nextUniqueId = 0;
 
-} 
+}
 
 #endif

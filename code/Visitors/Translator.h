@@ -1,17 +1,19 @@
-#include "IRTree.h"
-#include "CVisitor.h"
-#include "Temp.h"
-#include <cassert>
+#ifndef TRANSLATOR_H_INCLUDED
+#define TRANSLATOR_H_INCLUDED
+#include "../common.h"
+#include "../Structs/IRTree.h"
+#include "../Visitors/Visitor.h"
+#include "../Structs/Temp.h"
+
 
 namespace Translate {
 
 class ISubtreeWrapper {
 public:
 	virtual ~ISubtreeWrapper() { }
-	virtual const IRTree::IExp* ToExp() const = 0; 
-	virtual const IRTree::IStm* ToStm() const = 0; 
-	virtual const IRTree::IStm* ToConditional(
-												 const Temp::CLabel* t, const Temp::CLabel* f) const = 0;
+	virtual const IRTree::IExp* ToExp() const = 0;
+	virtual const IRTree::IStm* ToStm() const = 0;
+	virtual const IRTree::IStm* ToConditional(const Temp::CLabel* t, const Temp::CLabel* f) const = 0;
 };
 
 class CExpConverter : public ISubtreeWrapper {
@@ -22,7 +24,7 @@ public:
 		return expr;
 	}
 
-	const IRTree::IStm* ToStm() const { 
+	const IRTree::IStm* ToStm() const {
 		return new IRTree::EXP(expr);
 	}
 
@@ -54,21 +56,22 @@ private:
 	const IRTree::IStm* stm;
 };
 
-
-class CConditionalWrapper : public ISubtreeWrapper {
-public:
-    virtual const IRTree::IExp* ToExp() const { /* return CONST(1) or CONST(0);*/ }
-    virtual const IRTree::IStm* ToStm() const { /* return stm;*/ }
-    virtual const IRTree::IStm* ToConditional(const Temp::CLabel* t, const Temp::CLabel* f) const = 0;
-};
-
-class CRelativeCmpWrapper : public CConditionalWrapper {
-public:
-	CRelativeCmpWrapper ( op, e1, e2 );
-	virtual const IRTree::IStm* ToConditional( t, f ) const { return new IRTree::CJUMP(...); }
-};
+//
+// class CConditionalWrapper : public ISubtreeWrapper {
+// public:
+//     virtual const IRTree::IExp* ToExp() const { /* return CONST(1) or CONST(0);*/ }
+//     virtual const IRTree::IStm* ToStm() const { /* return stm;*/ }
+//     virtual const IRTree::IStm* ToConditional(const Temp::CLabel* t, const Temp::CLabel* f) const = 0;
+// };
+//
+// class CRelativeCmpWrapper : public CConditionalWrapper {
+// public:
+// 	CRelativeCmpWrapper ( op, e1, e2 );
+// 	virtual const IRTree::IStm* ToConditional( t, f ) const { return new IRTree::CJUMP(...); }
+// };
 
 class CTranslatorVisitor: public CVisitor {
+	std::vector<IRTree::IStm*> trees;
 public:
 	virtual void visit(const CProgramRuleNode* node) {}
 	virtual void visit(const CMainClassDeclarationRuleNode* node) {}
@@ -118,3 +121,4 @@ public:
 };
 
 }
+#endif

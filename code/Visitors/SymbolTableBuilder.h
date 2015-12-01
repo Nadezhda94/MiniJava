@@ -1,14 +1,11 @@
-#ifndef CSYMBOLTABLEBUILDER_H_INCLUDED
-#define CSYMBOLTABLEBUILDER_H_INCLUDED
-#include <iostream>
-#include "CVisitor.h"
-#include "ast.h"
-#include "SymbolsTable.h"
+#ifndef SYMBOLTABLEBUILDER_H_INCLUDED
+#define SYMBOLTABLEBUILDER_H_INCLUDED
+#include "../common.h"
+#include "../Structs/Ast.h"
+#include "../Structs/SymbolsTable.h"
+#include "../Visitors/Visitor.h"
+
 using namespace SymbolsTable;
-using std::vector;
-using std::cout;
-using std::endl;
-using std::string;
 
 class CSymbolTableBuilder : public CVisitor{
 public:
@@ -34,7 +31,7 @@ public:
     node->mainClass->accept(this);
     if (node->decl != 0) {
        node->decl->accept(this);
-    } 
+    }
   }
 
   void visit(const CMainClassDeclarationRuleNode* node){
@@ -117,7 +114,7 @@ public:
   }
 
   void visit(const CVarsDecListNode* node){
-    
+
     node->list->accept(this);
     node->next->accept(this);
 

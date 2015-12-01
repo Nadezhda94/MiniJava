@@ -1,0 +1,2478 @@
+Грамматика
+
+    0 $accept: program $end
+
+    1 program: main_class declarations
+
+    2 main_class: CLASS IDENT LBRACE PUBLIC STATIC VOID MAIN LPAREN STRING LBRACK RBRACK IDENT RPAREN LBRACE statement RBRACE RBRACE
+
+    3 declarations: declarations class_declaration
+    4             | %empty
+
+    5 class_declaration: CLASS IDENT extend_declaration LBRACE var_declarations method_declarations RBRACE
+
+    6 extend_declaration: EXTENDS IDENT
+    7                   | %empty
+
+    8 var_declarations: var_declarations var_declaration
+    9                 | %empty
+
+   10 method_declarations: method_declarations method_declaration
+   11                    | %empty
+
+   12 var_declaration: type IDENT SEMCOL
+
+   13 method_declaration: PUBLIC type IDENT LPAREN param_arg RPAREN LBRACE method_body RETURN expression SEMCOL RBRACE
+
+   14 vars_dec: vars_dec var_declaration
+   15         | var_declaration
+
+   16 stats: stats statement
+   17      | statement
+
+   18 method_body: vars_dec
+   19            | stats
+   20            | vars_dec stats
+   21            | %empty
+
+   22 param_arg: params
+   23          | %empty
+
+   24 params: param
+   25       | params COMMA param
+
+   26 param: type IDENT
+
+   27 type: ARRAY
+   28     | BOOLEAN_TYPE
+   29     | INT_TYPE
+   30     | IDENT
+
+   31 statements: statements statement
+   32           | %empty
+
+   33 statement: LBRACE statements RBRACE
+   34          | IF LPAREN expression RPAREN statement ELSE statement
+   35          | WHILE LPAREN expression RPAREN statement
+   36          | PRINT LPAREN expression RPAREN SEMCOL
+   37          | IDENT EQ expression SEMCOL
+   38          | IDENT LBRACK expression RBRACK EQ expression SEMCOL
+
+   39 expression: expression LBRACK expression RBRACK
+   40           | expression DOT LENGTH
+   41           | INT
+   42           | BOOLEAN
+   43           | IDENT
+   44           | THIS
+   45           | NEW INT_TYPE LBRACK expression RBRACK
+   46           | NEW IDENT LPAREN RPAREN
+   47           | BANG expression
+   48           | LPAREN expression RPAREN
+   49           | expression PLUS expression
+   50           | expression MINUS expression
+   51           | expression MULT expression
+   52           | expression AND expression
+   53           | expression DIV expression
+   54           | expression LEQ expression
+   55           | PLUS expression
+   56           | MINUS expression
+   57           | expression DOT IDENT LPAREN exp_arg RPAREN
+
+   58 exp_arg: expressions
+   59        | %empty
+
+   60 expressions: expression
+   61            | expressions COMMA expression
+
+
+Терминальные символы с правилами, в которых они появляются
+
+$end (0) 0
+error (256)
+INT (258) 41
+BOOLEAN (259) 42
+IDENT (260) 2 5 6 12 13 26 30 37 38 43 46 57
+INT_TYPE (261) 29 45
+BOOLEAN_TYPE (262) 28
+EXTENDS (263) 6
+EQ (264) 37 38
+PLUS (265) 49 55
+IF (266) 34
+ELSE (267) 34
+WHILE (268) 35
+RETURN (269) 13
+PUBLIC (270) 2 13
+CLASS (271) 2 5
+STATIC (272) 2
+VOID (273) 2
+MAIN (274) 2
+STRING (275) 2
+PRINT (276) 36
+THIS (277) 44
+NEW (278) 45 46
+LENGTH (279) 40
+ARRAY (280) 27
+LBRACE (281) 2 5 13 33
+RBRACE (282) 2 5 13 33
+LPAREN (283) 2 13 34 35 36 46 48 57
+RPAREN (284) 2 13 34 35 36 46 48 57
+LBRACK (285) 2 38 39 45
+RBRACK (286) 2 38 39 45
+LEQ (287) 54
+AND (288) 52
+MINUS (289) 50 56
+MULT (290) 51
+DIV (291) 53
+SEMCOL (292) 12 13 36 37 38
+COMMA (293) 25 61
+BANG (294) 47
+DOT (295) 40 57
+UMINUS (296)
+UPLUS (297)
+
+
+Нетерминальные символы с правилами, в которых они появляются
+
+$accept (43)
+    налево: 0
+program (44)
+    налево: 1, направо: 0
+main_class (45)
+    налево: 2, направо: 1
+declarations (46)
+    налево: 3 4, направо: 1 3
+class_declaration (47)
+    налево: 5, направо: 3
+extend_declaration (48)
+    налево: 6 7, направо: 5
+var_declarations (49)
+    налево: 8 9, направо: 5 8
+method_declarations (50)
+    налево: 10 11, направо: 5 10
+var_declaration (51)
+    налево: 12, направо: 8 14 15
+method_declaration (52)
+    налево: 13, направо: 10
+vars_dec (53)
+    налево: 14 15, направо: 14 18 20
+stats (54)
+    налево: 16 17, направо: 16 19 20
+method_body (55)
+    налево: 18 19 20 21, направо: 13
+param_arg (56)
+    налево: 22 23, направо: 13
+params (57)
+    налево: 24 25, направо: 22 25
+param (58)
+    налево: 26, направо: 24 25
+type (59)
+    налево: 27 28 29 30, направо: 12 13 26
+statements (60)
+    налево: 31 32, направо: 31 33
+statement (61)
+    налево: 33 34 35 36 37 38, направо: 2 16 17 31 34
+    35
+expression (62)
+    налево: 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55
+    56 57, направо: 13 34 35 36 37 38 39 40 45 47 48 49 50 51
+    52 53 54 55 56 57 60 61
+exp_arg (63)
+    налево: 58 59, направо: 57
+expressions (64)
+    налево: 60 61, направо: 58 61
+
+
+State 0
+
+    0 $accept: . program $end
+    1 program: . main_class declarations
+    2 main_class: . CLASS IDENT LBRACE PUBLIC STATIC VOID MAIN LPAREN STRING LBRACK RBRACK IDENT RPAREN LBRACE statement RBRACE RBRACE
+
+    CLASS  сдвиг, и переход в состояние 1
+
+    program     переход в состояние 2
+    main_class  переход в состояние 3
+
+
+State 1
+
+    2 main_class: CLASS . IDENT LBRACE PUBLIC STATIC VOID MAIN LPAREN STRING LBRACK RBRACK IDENT RPAREN LBRACE statement RBRACE RBRACE
+
+    IDENT  сдвиг, и переход в состояние 4
+
+
+State 2
+
+    0 $accept: program . $end
+
+    $end  сдвиг, и переход в состояние 5
+
+
+State 3
+
+    1 program: main_class . declarations
+    3 declarations: . declarations class_declaration
+    4             | . %empty
+
+    $default  вывод с использованием правила 4 (declarations)
+
+    declarations  переход в состояние 6
+
+
+State 4
+
+    2 main_class: CLASS IDENT . LBRACE PUBLIC STATIC VOID MAIN LPAREN STRING LBRACK RBRACK IDENT RPAREN LBRACE statement RBRACE RBRACE
+
+    LBRACE  сдвиг, и переход в состояние 7
+
+
+State 5
+
+    0 $accept: program $end .
+
+    $default  принять
+
+
+State 6
+
+    1 program: main_class declarations .  [$end]
+    3 declarations: declarations . class_declaration
+    5 class_declaration: . CLASS IDENT extend_declaration LBRACE var_declarations method_declarations RBRACE
+
+    CLASS  сдвиг, и переход в состояние 8
+
+    $default  вывод с использованием правила 1 (program)
+
+    class_declaration  переход в состояние 9
+
+
+State 7
+
+    2 main_class: CLASS IDENT LBRACE . PUBLIC STATIC VOID MAIN LPAREN STRING LBRACK RBRACK IDENT RPAREN LBRACE statement RBRACE RBRACE
+
+    PUBLIC  сдвиг, и переход в состояние 10
+
+
+State 8
+
+    5 class_declaration: CLASS . IDENT extend_declaration LBRACE var_declarations method_declarations RBRACE
+
+    IDENT  сдвиг, и переход в состояние 11
+
+
+State 9
+
+    3 declarations: declarations class_declaration .
+
+    $default  вывод с использованием правила 3 (declarations)
+
+
+State 10
+
+    2 main_class: CLASS IDENT LBRACE PUBLIC . STATIC VOID MAIN LPAREN STRING LBRACK RBRACK IDENT RPAREN LBRACE statement RBRACE RBRACE
+
+    STATIC  сдвиг, и переход в состояние 12
+
+
+State 11
+
+    5 class_declaration: CLASS IDENT . extend_declaration LBRACE var_declarations method_declarations RBRACE
+    6 extend_declaration: . EXTENDS IDENT
+    7                   | . %empty  [LBRACE]
+
+    EXTENDS  сдвиг, и переход в состояние 13
+
+    $default  вывод с использованием правила 7 (extend_declaration)
+
+    extend_declaration  переход в состояние 14
+
+
+State 12
+
+    2 main_class: CLASS IDENT LBRACE PUBLIC STATIC . VOID MAIN LPAREN STRING LBRACK RBRACK IDENT RPAREN LBRACE statement RBRACE RBRACE
+
+    VOID  сдвиг, и переход в состояние 15
+
+
+State 13
+
+    6 extend_declaration: EXTENDS . IDENT
+
+    IDENT  сдвиг, и переход в состояние 16
+
+
+State 14
+
+    5 class_declaration: CLASS IDENT extend_declaration . LBRACE var_declarations method_declarations RBRACE
+
+    LBRACE  сдвиг, и переход в состояние 17
+
+
+State 15
+
+    2 main_class: CLASS IDENT LBRACE PUBLIC STATIC VOID . MAIN LPAREN STRING LBRACK RBRACK IDENT RPAREN LBRACE statement RBRACE RBRACE
+
+    MAIN  сдвиг, и переход в состояние 18
+
+
+State 16
+
+    6 extend_declaration: EXTENDS IDENT .
+
+    $default  вывод с использованием правила 6 (extend_declaration)
+
+
+State 17
+
+    5 class_declaration: CLASS IDENT extend_declaration LBRACE . var_declarations method_declarations RBRACE
+    8 var_declarations: . var_declarations var_declaration
+    9                 | . %empty
+
+    $default  вывод с использованием правила 9 (var_declarations)
+
+    var_declarations  переход в состояние 19
+
+
+State 18
+
+    2 main_class: CLASS IDENT LBRACE PUBLIC STATIC VOID MAIN . LPAREN STRING LBRACK RBRACK IDENT RPAREN LBRACE statement RBRACE RBRACE
+
+    LPAREN  сдвиг, и переход в состояние 20
+
+
+State 19
+
+    5 class_declaration: CLASS IDENT extend_declaration LBRACE var_declarations . method_declarations RBRACE
+    8 var_declarations: var_declarations . var_declaration
+   10 method_declarations: . method_declarations method_declaration
+   11                    | . %empty  [PUBLIC, RBRACE]
+   12 var_declaration: . type IDENT SEMCOL
+   27 type: . ARRAY
+   28     | . BOOLEAN_TYPE
+   29     | . INT_TYPE
+   30     | . IDENT
+
+    IDENT         сдвиг, и переход в состояние 21
+    INT_TYPE      сдвиг, и переход в состояние 22
+    BOOLEAN_TYPE  сдвиг, и переход в состояние 23
+    ARRAY         сдвиг, и переход в состояние 24
+
+    $default  вывод с использованием правила 11 (method_declarations)
+
+    method_declarations  переход в состояние 25
+    var_declaration      переход в состояние 26
+    type                 переход в состояние 27
+
+
+State 20
+
+    2 main_class: CLASS IDENT LBRACE PUBLIC STATIC VOID MAIN LPAREN . STRING LBRACK RBRACK IDENT RPAREN LBRACE statement RBRACE RBRACE
+
+    STRING  сдвиг, и переход в состояние 28
+
+
+State 21
+
+   30 type: IDENT .
+
+    $default  вывод с использованием правила 30 (type)
+
+
+State 22
+
+   29 type: INT_TYPE .
+
+    $default  вывод с использованием правила 29 (type)
+
+
+State 23
+
+   28 type: BOOLEAN_TYPE .
+
+    $default  вывод с использованием правила 28 (type)
+
+
+State 24
+
+   27 type: ARRAY .
+
+    $default  вывод с использованием правила 27 (type)
+
+
+State 25
+
+    5 class_declaration: CLASS IDENT extend_declaration LBRACE var_declarations method_declarations . RBRACE
+   10 method_declarations: method_declarations . method_declaration
+   13 method_declaration: . PUBLIC type IDENT LPAREN param_arg RPAREN LBRACE method_body RETURN expression SEMCOL RBRACE
+
+    PUBLIC  сдвиг, и переход в состояние 29
+    RBRACE  сдвиг, и переход в состояние 30
+
+    method_declaration  переход в состояние 31
+
+
+State 26
+
+    8 var_declarations: var_declarations var_declaration .
+
+    $default  вывод с использованием правила 8 (var_declarations)
+
+
+State 27
+
+   12 var_declaration: type . IDENT SEMCOL
+
+    IDENT  сдвиг, и переход в состояние 32
+
+
+State 28
+
+    2 main_class: CLASS IDENT LBRACE PUBLIC STATIC VOID MAIN LPAREN STRING . LBRACK RBRACK IDENT RPAREN LBRACE statement RBRACE RBRACE
+
+    LBRACK  сдвиг, и переход в состояние 33
+
+
+State 29
+
+   13 method_declaration: PUBLIC . type IDENT LPAREN param_arg RPAREN LBRACE method_body RETURN expression SEMCOL RBRACE
+   27 type: . ARRAY
+   28     | . BOOLEAN_TYPE
+   29     | . INT_TYPE
+   30     | . IDENT
+
+    IDENT         сдвиг, и переход в состояние 21
+    INT_TYPE      сдвиг, и переход в состояние 22
+    BOOLEAN_TYPE  сдвиг, и переход в состояние 23
+    ARRAY         сдвиг, и переход в состояние 24
+
+    type  переход в состояние 34
+
+
+State 30
+
+    5 class_declaration: CLASS IDENT extend_declaration LBRACE var_declarations method_declarations RBRACE .
+
+    $default  вывод с использованием правила 5 (class_declaration)
+
+
+State 31
+
+   10 method_declarations: method_declarations method_declaration .
+
+    $default  вывод с использованием правила 10 (method_declarations)
+
+
+State 32
+
+   12 var_declaration: type IDENT . SEMCOL
+
+    SEMCOL  сдвиг, и переход в состояние 35
+
+
+State 33
+
+    2 main_class: CLASS IDENT LBRACE PUBLIC STATIC VOID MAIN LPAREN STRING LBRACK . RBRACK IDENT RPAREN LBRACE statement RBRACE RBRACE
+
+    RBRACK  сдвиг, и переход в состояние 36
+
+
+State 34
+
+   13 method_declaration: PUBLIC type . IDENT LPAREN param_arg RPAREN LBRACE method_body RETURN expression SEMCOL RBRACE
+
+    IDENT  сдвиг, и переход в состояние 37
+
+
+State 35
+
+   12 var_declaration: type IDENT SEMCOL .
+
+    $default  вывод с использованием правила 12 (var_declaration)
+
+
+State 36
+
+    2 main_class: CLASS IDENT LBRACE PUBLIC STATIC VOID MAIN LPAREN STRING LBRACK RBRACK . IDENT RPAREN LBRACE statement RBRACE RBRACE
+
+    IDENT  сдвиг, и переход в состояние 38
+
+
+State 37
+
+   13 method_declaration: PUBLIC type IDENT . LPAREN param_arg RPAREN LBRACE method_body RETURN expression SEMCOL RBRACE
+
+    LPAREN  сдвиг, и переход в состояние 39
+
+
+State 38
+
+    2 main_class: CLASS IDENT LBRACE PUBLIC STATIC VOID MAIN LPAREN STRING LBRACK RBRACK IDENT . RPAREN LBRACE statement RBRACE RBRACE
+
+    RPAREN  сдвиг, и переход в состояние 40
+
+
+State 39
+
+   13 method_declaration: PUBLIC type IDENT LPAREN . param_arg RPAREN LBRACE method_body RETURN expression SEMCOL RBRACE
+   22 param_arg: . params
+   23          | . %empty  [RPAREN]
+   24 params: . param
+   25       | . params COMMA param
+   26 param: . type IDENT
+   27 type: . ARRAY
+   28     | . BOOLEAN_TYPE
+   29     | . INT_TYPE
+   30     | . IDENT
+
+    IDENT         сдвиг, и переход в состояние 21
+    INT_TYPE      сдвиг, и переход в состояние 22
+    BOOLEAN_TYPE  сдвиг, и переход в состояние 23
+    ARRAY         сдвиг, и переход в состояние 24
+
+    $default  вывод с использованием правила 23 (param_arg)
+
+    param_arg  переход в состояние 41
+    params     переход в состояние 42
+    param      переход в состояние 43
+    type       переход в состояние 44
+
+
+State 40
+
+    2 main_class: CLASS IDENT LBRACE PUBLIC STATIC VOID MAIN LPAREN STRING LBRACK RBRACK IDENT RPAREN . LBRACE statement RBRACE RBRACE
+
+    LBRACE  сдвиг, и переход в состояние 45
+
+
+State 41
+
+   13 method_declaration: PUBLIC type IDENT LPAREN param_arg . RPAREN LBRACE method_body RETURN expression SEMCOL RBRACE
+
+    RPAREN  сдвиг, и переход в состояние 46
+
+
+State 42
+
+   22 param_arg: params .  [RPAREN]
+   25 params: params . COMMA param
+
+    COMMA  сдвиг, и переход в состояние 47
+
+    $default  вывод с использованием правила 22 (param_arg)
+
+
+State 43
+
+   24 params: param .
+
+    $default  вывод с использованием правила 24 (params)
+
+
+State 44
+
+   26 param: type . IDENT
+
+    IDENT  сдвиг, и переход в состояние 48
+
+
+State 45
+
+    2 main_class: CLASS IDENT LBRACE PUBLIC STATIC VOID MAIN LPAREN STRING LBRACK RBRACK IDENT RPAREN LBRACE . statement RBRACE RBRACE
+   33 statement: . LBRACE statements RBRACE
+   34          | . IF LPAREN expression RPAREN statement ELSE statement
+   35          | . WHILE LPAREN expression RPAREN statement
+   36          | . PRINT LPAREN expression RPAREN SEMCOL
+   37          | . IDENT EQ expression SEMCOL
+   38          | . IDENT LBRACK expression RBRACK EQ expression SEMCOL
+
+    IDENT   сдвиг, и переход в состояние 49
+    IF      сдвиг, и переход в состояние 50
+    WHILE   сдвиг, и переход в состояние 51
+    PRINT   сдвиг, и переход в состояние 52
+    LBRACE  сдвиг, и переход в состояние 53
+
+    statement  переход в состояние 54
+
+
+State 46
+
+   13 method_declaration: PUBLIC type IDENT LPAREN param_arg RPAREN . LBRACE method_body RETURN expression SEMCOL RBRACE
+
+    LBRACE  сдвиг, и переход в состояние 55
+
+
+State 47
+
+   25 params: params COMMA . param
+   26 param: . type IDENT
+   27 type: . ARRAY
+   28     | . BOOLEAN_TYPE
+   29     | . INT_TYPE
+   30     | . IDENT
+
+    IDENT         сдвиг, и переход в состояние 21
+    INT_TYPE      сдвиг, и переход в состояние 22
+    BOOLEAN_TYPE  сдвиг, и переход в состояние 23
+    ARRAY         сдвиг, и переход в состояние 24
+
+    param  переход в состояние 56
+    type   переход в состояние 44
+
+
+State 48
+
+   26 param: type IDENT .
+
+    $default  вывод с использованием правила 26 (param)
+
+
+State 49
+
+   37 statement: IDENT . EQ expression SEMCOL
+   38          | IDENT . LBRACK expression RBRACK EQ expression SEMCOL
+
+    EQ      сдвиг, и переход в состояние 57
+    LBRACK  сдвиг, и переход в состояние 58
+
+
+State 50
+
+   34 statement: IF . LPAREN expression RPAREN statement ELSE statement
+
+    LPAREN  сдвиг, и переход в состояние 59
+
+
+State 51
+
+   35 statement: WHILE . LPAREN expression RPAREN statement
+
+    LPAREN  сдвиг, и переход в состояние 60
+
+
+State 52
+
+   36 statement: PRINT . LPAREN expression RPAREN SEMCOL
+
+    LPAREN  сдвиг, и переход в состояние 61
+
+
+State 53
+
+   31 statements: . statements statement
+   32           | . %empty
+   33 statement: LBRACE . statements RBRACE
+
+    $default  вывод с использованием правила 32 (statements)
+
+    statements  переход в состояние 62
+
+
+State 54
+
+    2 main_class: CLASS IDENT LBRACE PUBLIC STATIC VOID MAIN LPAREN STRING LBRACK RBRACK IDENT RPAREN LBRACE statement . RBRACE RBRACE
+
+    RBRACE  сдвиг, и переход в состояние 63
+
+
+State 55
+
+   12 var_declaration: . type IDENT SEMCOL
+   13 method_declaration: PUBLIC type IDENT LPAREN param_arg RPAREN LBRACE . method_body RETURN expression SEMCOL RBRACE
+   14 vars_dec: . vars_dec var_declaration
+   15         | . var_declaration
+   16 stats: . stats statement
+   17      | . statement
+   18 method_body: . vars_dec
+   19            | . stats
+   20            | . vars_dec stats
+   21            | . %empty  [RETURN]
+   27 type: . ARRAY
+   28     | . BOOLEAN_TYPE
+   29     | . INT_TYPE
+   30     | . IDENT
+   33 statement: . LBRACE statements RBRACE
+   34          | . IF LPAREN expression RPAREN statement ELSE statement
+   35          | . WHILE LPAREN expression RPAREN statement
+   36          | . PRINT LPAREN expression RPAREN SEMCOL
+   37          | . IDENT EQ expression SEMCOL
+   38          | . IDENT LBRACK expression RBRACK EQ expression SEMCOL
+
+    IDENT         сдвиг, и переход в состояние 64
+    INT_TYPE      сдвиг, и переход в состояние 22
+    BOOLEAN_TYPE  сдвиг, и переход в состояние 23
+    IF            сдвиг, и переход в состояние 50
+    WHILE         сдвиг, и переход в состояние 51
+    PRINT         сдвиг, и переход в состояние 52
+    ARRAY         сдвиг, и переход в состояние 24
+    LBRACE        сдвиг, и переход в состояние 53
+
+    $default  вывод с использованием правила 21 (method_body)
+
+    var_declaration  переход в состояние 65
+    vars_dec         переход в состояние 66
+    stats            переход в состояние 67
+    method_body      переход в состояние 68
+    type             переход в состояние 27
+    statement        переход в состояние 69
+
+
+State 56
+
+   25 params: params COMMA param .
+
+    $default  вывод с использованием правила 25 (params)
+
+
+State 57
+
+   37 statement: IDENT EQ . expression SEMCOL
+   39 expression: . expression LBRACK expression RBRACK
+   40           | . expression DOT LENGTH
+   41           | . INT
+   42           | . BOOLEAN
+   43           | . IDENT
+   44           | . THIS
+   45           | . NEW INT_TYPE LBRACK expression RBRACK
+   46           | . NEW IDENT LPAREN RPAREN
+   47           | . BANG expression
+   48           | . LPAREN expression RPAREN
+   49           | . expression PLUS expression
+   50           | . expression MINUS expression
+   51           | . expression MULT expression
+   52           | . expression AND expression
+   53           | . expression DIV expression
+   54           | . expression LEQ expression
+   55           | . PLUS expression
+   56           | . MINUS expression
+   57           | . expression DOT IDENT LPAREN exp_arg RPAREN
+
+    INT      сдвиг, и переход в состояние 70
+    BOOLEAN  сдвиг, и переход в состояние 71
+    IDENT    сдвиг, и переход в состояние 72
+    PLUS     сдвиг, и переход в состояние 73
+    THIS     сдвиг, и переход в состояние 74
+    NEW      сдвиг, и переход в состояние 75
+    LPAREN   сдвиг, и переход в состояние 76
+    MINUS    сдвиг, и переход в состояние 77
+    BANG     сдвиг, и переход в состояние 78
+
+    expression  переход в состояние 79
+
+
+State 58
+
+   38 statement: IDENT LBRACK . expression RBRACK EQ expression SEMCOL
+   39 expression: . expression LBRACK expression RBRACK
+   40           | . expression DOT LENGTH
+   41           | . INT
+   42           | . BOOLEAN
+   43           | . IDENT
+   44           | . THIS
+   45           | . NEW INT_TYPE LBRACK expression RBRACK
+   46           | . NEW IDENT LPAREN RPAREN
+   47           | . BANG expression
+   48           | . LPAREN expression RPAREN
+   49           | . expression PLUS expression
+   50           | . expression MINUS expression
+   51           | . expression MULT expression
+   52           | . expression AND expression
+   53           | . expression DIV expression
+   54           | . expression LEQ expression
+   55           | . PLUS expression
+   56           | . MINUS expression
+   57           | . expression DOT IDENT LPAREN exp_arg RPAREN
+
+    INT      сдвиг, и переход в состояние 70
+    BOOLEAN  сдвиг, и переход в состояние 71
+    IDENT    сдвиг, и переход в состояние 72
+    PLUS     сдвиг, и переход в состояние 73
+    THIS     сдвиг, и переход в состояние 74
+    NEW      сдвиг, и переход в состояние 75
+    LPAREN   сдвиг, и переход в состояние 76
+    MINUS    сдвиг, и переход в состояние 77
+    BANG     сдвиг, и переход в состояние 78
+
+    expression  переход в состояние 80
+
+
+State 59
+
+   34 statement: IF LPAREN . expression RPAREN statement ELSE statement
+   39 expression: . expression LBRACK expression RBRACK
+   40           | . expression DOT LENGTH
+   41           | . INT
+   42           | . BOOLEAN
+   43           | . IDENT
+   44           | . THIS
+   45           | . NEW INT_TYPE LBRACK expression RBRACK
+   46           | . NEW IDENT LPAREN RPAREN
+   47           | . BANG expression
+   48           | . LPAREN expression RPAREN
+   49           | . expression PLUS expression
+   50           | . expression MINUS expression
+   51           | . expression MULT expression
+   52           | . expression AND expression
+   53           | . expression DIV expression
+   54           | . expression LEQ expression
+   55           | . PLUS expression
+   56           | . MINUS expression
+   57           | . expression DOT IDENT LPAREN exp_arg RPAREN
+
+    INT      сдвиг, и переход в состояние 70
+    BOOLEAN  сдвиг, и переход в состояние 71
+    IDENT    сдвиг, и переход в состояние 72
+    PLUS     сдвиг, и переход в состояние 73
+    THIS     сдвиг, и переход в состояние 74
+    NEW      сдвиг, и переход в состояние 75
+    LPAREN   сдвиг, и переход в состояние 76
+    MINUS    сдвиг, и переход в состояние 77
+    BANG     сдвиг, и переход в состояние 78
+
+    expression  переход в состояние 81
+
+
+State 60
+
+   35 statement: WHILE LPAREN . expression RPAREN statement
+   39 expression: . expression LBRACK expression RBRACK
+   40           | . expression DOT LENGTH
+   41           | . INT
+   42           | . BOOLEAN
+   43           | . IDENT
+   44           | . THIS
+   45           | . NEW INT_TYPE LBRACK expression RBRACK
+   46           | . NEW IDENT LPAREN RPAREN
+   47           | . BANG expression
+   48           | . LPAREN expression RPAREN
+   49           | . expression PLUS expression
+   50           | . expression MINUS expression
+   51           | . expression MULT expression
+   52           | . expression AND expression
+   53           | . expression DIV expression
+   54           | . expression LEQ expression
+   55           | . PLUS expression
+   56           | . MINUS expression
+   57           | . expression DOT IDENT LPAREN exp_arg RPAREN
+
+    INT      сдвиг, и переход в состояние 70
+    BOOLEAN  сдвиг, и переход в состояние 71
+    IDENT    сдвиг, и переход в состояние 72
+    PLUS     сдвиг, и переход в состояние 73
+    THIS     сдвиг, и переход в состояние 74
+    NEW      сдвиг, и переход в состояние 75
+    LPAREN   сдвиг, и переход в состояние 76
+    MINUS    сдвиг, и переход в состояние 77
+    BANG     сдвиг, и переход в состояние 78
+
+    expression  переход в состояние 82
+
+
+State 61
+
+   36 statement: PRINT LPAREN . expression RPAREN SEMCOL
+   39 expression: . expression LBRACK expression RBRACK
+   40           | . expression DOT LENGTH
+   41           | . INT
+   42           | . BOOLEAN
+   43           | . IDENT
+   44           | . THIS
+   45           | . NEW INT_TYPE LBRACK expression RBRACK
+   46           | . NEW IDENT LPAREN RPAREN
+   47           | . BANG expression
+   48           | . LPAREN expression RPAREN
+   49           | . expression PLUS expression
+   50           | . expression MINUS expression
+   51           | . expression MULT expression
+   52           | . expression AND expression
+   53           | . expression DIV expression
+   54           | . expression LEQ expression
+   55           | . PLUS expression
+   56           | . MINUS expression
+   57           | . expression DOT IDENT LPAREN exp_arg RPAREN
+
+    INT      сдвиг, и переход в состояние 70
+    BOOLEAN  сдвиг, и переход в состояние 71
+    IDENT    сдвиг, и переход в состояние 72
+    PLUS     сдвиг, и переход в состояние 73
+    THIS     сдвиг, и переход в состояние 74
+    NEW      сдвиг, и переход в состояние 75
+    LPAREN   сдвиг, и переход в состояние 76
+    MINUS    сдвиг, и переход в состояние 77
+    BANG     сдвиг, и переход в состояние 78
+
+    expression  переход в состояние 83
+
+
+State 62
+
+   31 statements: statements . statement
+   33 statement: . LBRACE statements RBRACE
+   33          | LBRACE statements . RBRACE
+   34          | . IF LPAREN expression RPAREN statement ELSE statement
+   35          | . WHILE LPAREN expression RPAREN statement
+   36          | . PRINT LPAREN expression RPAREN SEMCOL
+   37          | . IDENT EQ expression SEMCOL
+   38          | . IDENT LBRACK expression RBRACK EQ expression SEMCOL
+
+    IDENT   сдвиг, и переход в состояние 49
+    IF      сдвиг, и переход в состояние 50
+    WHILE   сдвиг, и переход в состояние 51
+    PRINT   сдвиг, и переход в состояние 52
+    LBRACE  сдвиг, и переход в состояние 53
+    RBRACE  сдвиг, и переход в состояние 84
+
+    statement  переход в состояние 85
+
+
+State 63
+
+    2 main_class: CLASS IDENT LBRACE PUBLIC STATIC VOID MAIN LPAREN STRING LBRACK RBRACK IDENT RPAREN LBRACE statement RBRACE . RBRACE
+
+    RBRACE  сдвиг, и переход в состояние 86
+
+
+State 64
+
+   30 type: IDENT .  [IDENT]
+   37 statement: IDENT . EQ expression SEMCOL
+   38          | IDENT . LBRACK expression RBRACK EQ expression SEMCOL
+
+    EQ      сдвиг, и переход в состояние 57
+    LBRACK  сдвиг, и переход в состояние 58
+
+    $default  вывод с использованием правила 30 (type)
+
+
+State 65
+
+   15 vars_dec: var_declaration .
+
+    $default  вывод с использованием правила 15 (vars_dec)
+
+
+State 66
+
+   12 var_declaration: . type IDENT SEMCOL
+   14 vars_dec: vars_dec . var_declaration
+   16 stats: . stats statement
+   17      | . statement
+   18 method_body: vars_dec .  [RETURN]
+   20            | vars_dec . stats
+   27 type: . ARRAY
+   28     | . BOOLEAN_TYPE
+   29     | . INT_TYPE
+   30     | . IDENT
+   33 statement: . LBRACE statements RBRACE
+   34          | . IF LPAREN expression RPAREN statement ELSE statement
+   35          | . WHILE LPAREN expression RPAREN statement
+   36          | . PRINT LPAREN expression RPAREN SEMCOL
+   37          | . IDENT EQ expression SEMCOL
+   38          | . IDENT LBRACK expression RBRACK EQ expression SEMCOL
+
+    IDENT         сдвиг, и переход в состояние 64
+    INT_TYPE      сдвиг, и переход в состояние 22
+    BOOLEAN_TYPE  сдвиг, и переход в состояние 23
+    IF            сдвиг, и переход в состояние 50
+    WHILE         сдвиг, и переход в состояние 51
+    PRINT         сдвиг, и переход в состояние 52
+    ARRAY         сдвиг, и переход в состояние 24
+    LBRACE        сдвиг, и переход в состояние 53
+
+    $default  вывод с использованием правила 18 (method_body)
+
+    var_declaration  переход в состояние 87
+    stats            переход в состояние 88
+    type             переход в состояние 27
+    statement        переход в состояние 69
+
+
+State 67
+
+   16 stats: stats . statement
+   19 method_body: stats .  [RETURN]
+   33 statement: . LBRACE statements RBRACE
+   34          | . IF LPAREN expression RPAREN statement ELSE statement
+   35          | . WHILE LPAREN expression RPAREN statement
+   36          | . PRINT LPAREN expression RPAREN SEMCOL
+   37          | . IDENT EQ expression SEMCOL
+   38          | . IDENT LBRACK expression RBRACK EQ expression SEMCOL
+
+    IDENT   сдвиг, и переход в состояние 49
+    IF      сдвиг, и переход в состояние 50
+    WHILE   сдвиг, и переход в состояние 51
+    PRINT   сдвиг, и переход в состояние 52
+    LBRACE  сдвиг, и переход в состояние 53
+
+    $default  вывод с использованием правила 19 (method_body)
+
+    statement  переход в состояние 89
+
+
+State 68
+
+   13 method_declaration: PUBLIC type IDENT LPAREN param_arg RPAREN LBRACE method_body . RETURN expression SEMCOL RBRACE
+
+    RETURN  сдвиг, и переход в состояние 90
+
+
+State 69
+
+   17 stats: statement .
+
+    $default  вывод с использованием правила 17 (stats)
+
+
+State 70
+
+   41 expression: INT .
+
+    $default  вывод с использованием правила 41 (expression)
+
+
+State 71
+
+   42 expression: BOOLEAN .
+
+    $default  вывод с использованием правила 42 (expression)
+
+
+State 72
+
+   43 expression: IDENT .
+
+    $default  вывод с использованием правила 43 (expression)
+
+
+State 73
+
+   39 expression: . expression LBRACK expression RBRACK
+   40           | . expression DOT LENGTH
+   41           | . INT
+   42           | . BOOLEAN
+   43           | . IDENT
+   44           | . THIS
+   45           | . NEW INT_TYPE LBRACK expression RBRACK
+   46           | . NEW IDENT LPAREN RPAREN
+   47           | . BANG expression
+   48           | . LPAREN expression RPAREN
+   49           | . expression PLUS expression
+   50           | . expression MINUS expression
+   51           | . expression MULT expression
+   52           | . expression AND expression
+   53           | . expression DIV expression
+   54           | . expression LEQ expression
+   55           | . PLUS expression
+   55           | PLUS . expression
+   56           | . MINUS expression
+   57           | . expression DOT IDENT LPAREN exp_arg RPAREN
+
+    INT      сдвиг, и переход в состояние 70
+    BOOLEAN  сдвиг, и переход в состояние 71
+    IDENT    сдвиг, и переход в состояние 72
+    PLUS     сдвиг, и переход в состояние 73
+    THIS     сдвиг, и переход в состояние 74
+    NEW      сдвиг, и переход в состояние 75
+    LPAREN   сдвиг, и переход в состояние 76
+    MINUS    сдвиг, и переход в состояние 77
+    BANG     сдвиг, и переход в состояние 78
+
+    expression  переход в состояние 91
+
+
+State 74
+
+   44 expression: THIS .
+
+    $default  вывод с использованием правила 44 (expression)
+
+
+State 75
+
+   45 expression: NEW . INT_TYPE LBRACK expression RBRACK
+   46           | NEW . IDENT LPAREN RPAREN
+
+    IDENT     сдвиг, и переход в состояние 92
+    INT_TYPE  сдвиг, и переход в состояние 93
+
+
+State 76
+
+   39 expression: . expression LBRACK expression RBRACK
+   40           | . expression DOT LENGTH
+   41           | . INT
+   42           | . BOOLEAN
+   43           | . IDENT
+   44           | . THIS
+   45           | . NEW INT_TYPE LBRACK expression RBRACK
+   46           | . NEW IDENT LPAREN RPAREN
+   47           | . BANG expression
+   48           | . LPAREN expression RPAREN
+   48           | LPAREN . expression RPAREN
+   49           | . expression PLUS expression
+   50           | . expression MINUS expression
+   51           | . expression MULT expression
+   52           | . expression AND expression
+   53           | . expression DIV expression
+   54           | . expression LEQ expression
+   55           | . PLUS expression
+   56           | . MINUS expression
+   57           | . expression DOT IDENT LPAREN exp_arg RPAREN
+
+    INT      сдвиг, и переход в состояние 70
+    BOOLEAN  сдвиг, и переход в состояние 71
+    IDENT    сдвиг, и переход в состояние 72
+    PLUS     сдвиг, и переход в состояние 73
+    THIS     сдвиг, и переход в состояние 74
+    NEW      сдвиг, и переход в состояние 75
+    LPAREN   сдвиг, и переход в состояние 76
+    MINUS    сдвиг, и переход в состояние 77
+    BANG     сдвиг, и переход в состояние 78
+
+    expression  переход в состояние 94
+
+
+State 77
+
+   39 expression: . expression LBRACK expression RBRACK
+   40           | . expression DOT LENGTH
+   41           | . INT
+   42           | . BOOLEAN
+   43           | . IDENT
+   44           | . THIS
+   45           | . NEW INT_TYPE LBRACK expression RBRACK
+   46           | . NEW IDENT LPAREN RPAREN
+   47           | . BANG expression
+   48           | . LPAREN expression RPAREN
+   49           | . expression PLUS expression
+   50           | . expression MINUS expression
+   51           | . expression MULT expression
+   52           | . expression AND expression
+   53           | . expression DIV expression
+   54           | . expression LEQ expression
+   55           | . PLUS expression
+   56           | . MINUS expression
+   56           | MINUS . expression
+   57           | . expression DOT IDENT LPAREN exp_arg RPAREN
+
+    INT      сдвиг, и переход в состояние 70
+    BOOLEAN  сдвиг, и переход в состояние 71
+    IDENT    сдвиг, и переход в состояние 72
+    PLUS     сдвиг, и переход в состояние 73
+    THIS     сдвиг, и переход в состояние 74
+    NEW      сдвиг, и переход в состояние 75
+    LPAREN   сдвиг, и переход в состояние 76
+    MINUS    сдвиг, и переход в состояние 77
+    BANG     сдвиг, и переход в состояние 78
+
+    expression  переход в состояние 95
+
+
+State 78
+
+   39 expression: . expression LBRACK expression RBRACK
+   40           | . expression DOT LENGTH
+   41           | . INT
+   42           | . BOOLEAN
+   43           | . IDENT
+   44           | . THIS
+   45           | . NEW INT_TYPE LBRACK expression RBRACK
+   46           | . NEW IDENT LPAREN RPAREN
+   47           | . BANG expression
+   47           | BANG . expression
+   48           | . LPAREN expression RPAREN
+   49           | . expression PLUS expression
+   50           | . expression MINUS expression
+   51           | . expression MULT expression
+   52           | . expression AND expression
+   53           | . expression DIV expression
+   54           | . expression LEQ expression
+   55           | . PLUS expression
+   56           | . MINUS expression
+   57           | . expression DOT IDENT LPAREN exp_arg RPAREN
+
+    INT      сдвиг, и переход в состояние 70
+    BOOLEAN  сдвиг, и переход в состояние 71
+    IDENT    сдвиг, и переход в состояние 72
+    PLUS     сдвиг, и переход в состояние 73
+    THIS     сдвиг, и переход в состояние 74
+    NEW      сдвиг, и переход в состояние 75
+    LPAREN   сдвиг, и переход в состояние 76
+    MINUS    сдвиг, и переход в состояние 77
+    BANG     сдвиг, и переход в состояние 78
+
+    expression  переход в состояние 96
+
+
+State 79
+
+   37 statement: IDENT EQ expression . SEMCOL
+   39 expression: expression . LBRACK expression RBRACK
+   40           | expression . DOT LENGTH
+   49           | expression . PLUS expression
+   50           | expression . MINUS expression
+   51           | expression . MULT expression
+   52           | expression . AND expression
+   53           | expression . DIV expression
+   54           | expression . LEQ expression
+   57           | expression . DOT IDENT LPAREN exp_arg RPAREN
+
+    PLUS    сдвиг, и переход в состояние 97
+    LBRACK  сдвиг, и переход в состояние 98
+    LEQ     сдвиг, и переход в состояние 99
+    AND     сдвиг, и переход в состояние 100
+    MINUS   сдвиг, и переход в состояние 101
+    MULT    сдвиг, и переход в состояние 102
+    DIV     сдвиг, и переход в состояние 103
+    SEMCOL  сдвиг, и переход в состояние 104
+    DOT     сдвиг, и переход в состояние 105
+
+
+State 80
+
+   38 statement: IDENT LBRACK expression . RBRACK EQ expression SEMCOL
+   39 expression: expression . LBRACK expression RBRACK
+   40           | expression . DOT LENGTH
+   49           | expression . PLUS expression
+   50           | expression . MINUS expression
+   51           | expression . MULT expression
+   52           | expression . AND expression
+   53           | expression . DIV expression
+   54           | expression . LEQ expression
+   57           | expression . DOT IDENT LPAREN exp_arg RPAREN
+
+    PLUS    сдвиг, и переход в состояние 97
+    LBRACK  сдвиг, и переход в состояние 98
+    RBRACK  сдвиг, и переход в состояние 106
+    LEQ     сдвиг, и переход в состояние 99
+    AND     сдвиг, и переход в состояние 100
+    MINUS   сдвиг, и переход в состояние 101
+    MULT    сдвиг, и переход в состояние 102
+    DIV     сдвиг, и переход в состояние 103
+    DOT     сдвиг, и переход в состояние 105
+
+
+State 81
+
+   34 statement: IF LPAREN expression . RPAREN statement ELSE statement
+   39 expression: expression . LBRACK expression RBRACK
+   40           | expression . DOT LENGTH
+   49           | expression . PLUS expression
+   50           | expression . MINUS expression
+   51           | expression . MULT expression
+   52           | expression . AND expression
+   53           | expression . DIV expression
+   54           | expression . LEQ expression
+   57           | expression . DOT IDENT LPAREN exp_arg RPAREN
+
+    PLUS    сдвиг, и переход в состояние 97
+    RPAREN  сдвиг, и переход в состояние 107
+    LBRACK  сдвиг, и переход в состояние 98
+    LEQ     сдвиг, и переход в состояние 99
+    AND     сдвиг, и переход в состояние 100
+    MINUS   сдвиг, и переход в состояние 101
+    MULT    сдвиг, и переход в состояние 102
+    DIV     сдвиг, и переход в состояние 103
+    DOT     сдвиг, и переход в состояние 105
+
+
+State 82
+
+   35 statement: WHILE LPAREN expression . RPAREN statement
+   39 expression: expression . LBRACK expression RBRACK
+   40           | expression . DOT LENGTH
+   49           | expression . PLUS expression
+   50           | expression . MINUS expression
+   51           | expression . MULT expression
+   52           | expression . AND expression
+   53           | expression . DIV expression
+   54           | expression . LEQ expression
+   57           | expression . DOT IDENT LPAREN exp_arg RPAREN
+
+    PLUS    сдвиг, и переход в состояние 97
+    RPAREN  сдвиг, и переход в состояние 108
+    LBRACK  сдвиг, и переход в состояние 98
+    LEQ     сдвиг, и переход в состояние 99
+    AND     сдвиг, и переход в состояние 100
+    MINUS   сдвиг, и переход в состояние 101
+    MULT    сдвиг, и переход в состояние 102
+    DIV     сдвиг, и переход в состояние 103
+    DOT     сдвиг, и переход в состояние 105
+
+
+State 83
+
+   36 statement: PRINT LPAREN expression . RPAREN SEMCOL
+   39 expression: expression . LBRACK expression RBRACK
+   40           | expression . DOT LENGTH
+   49           | expression . PLUS expression
+   50           | expression . MINUS expression
+   51           | expression . MULT expression
+   52           | expression . AND expression
+   53           | expression . DIV expression
+   54           | expression . LEQ expression
+   57           | expression . DOT IDENT LPAREN exp_arg RPAREN
+
+    PLUS    сдвиг, и переход в состояние 97
+    RPAREN  сдвиг, и переход в состояние 109
+    LBRACK  сдвиг, и переход в состояние 98
+    LEQ     сдвиг, и переход в состояние 99
+    AND     сдвиг, и переход в состояние 100
+    MINUS   сдвиг, и переход в состояние 101
+    MULT    сдвиг, и переход в состояние 102
+    DIV     сдвиг, и переход в состояние 103
+    DOT     сдвиг, и переход в состояние 105
+
+
+State 84
+
+   33 statement: LBRACE statements RBRACE .
+
+    $default  вывод с использованием правила 33 (statement)
+
+
+State 85
+
+   31 statements: statements statement .
+
+    $default  вывод с использованием правила 31 (statements)
+
+
+State 86
+
+    2 main_class: CLASS IDENT LBRACE PUBLIC STATIC VOID MAIN LPAREN STRING LBRACK RBRACK IDENT RPAREN LBRACE statement RBRACE RBRACE .
+
+    $default  вывод с использованием правила 2 (main_class)
+
+
+State 87
+
+   14 vars_dec: vars_dec var_declaration .
+
+    $default  вывод с использованием правила 14 (vars_dec)
+
+
+State 88
+
+   16 stats: stats . statement
+   20 method_body: vars_dec stats .  [RETURN]
+   33 statement: . LBRACE statements RBRACE
+   34          | . IF LPAREN expression RPAREN statement ELSE statement
+   35          | . WHILE LPAREN expression RPAREN statement
+   36          | . PRINT LPAREN expression RPAREN SEMCOL
+   37          | . IDENT EQ expression SEMCOL
+   38          | . IDENT LBRACK expression RBRACK EQ expression SEMCOL
+
+    IDENT   сдвиг, и переход в состояние 49
+    IF      сдвиг, и переход в состояние 50
+    WHILE   сдвиг, и переход в состояние 51
+    PRINT   сдвиг, и переход в состояние 52
+    LBRACE  сдвиг, и переход в состояние 53
+
+    $default  вывод с использованием правила 20 (method_body)
+
+    statement  переход в состояние 89
+
+
+State 89
+
+   16 stats: stats statement .
+
+    $default  вывод с использованием правила 16 (stats)
+
+
+State 90
+
+   13 method_declaration: PUBLIC type IDENT LPAREN param_arg RPAREN LBRACE method_body RETURN . expression SEMCOL RBRACE
+   39 expression: . expression LBRACK expression RBRACK
+   40           | . expression DOT LENGTH
+   41           | . INT
+   42           | . BOOLEAN
+   43           | . IDENT
+   44           | . THIS
+   45           | . NEW INT_TYPE LBRACK expression RBRACK
+   46           | . NEW IDENT LPAREN RPAREN
+   47           | . BANG expression
+   48           | . LPAREN expression RPAREN
+   49           | . expression PLUS expression
+   50           | . expression MINUS expression
+   51           | . expression MULT expression
+   52           | . expression AND expression
+   53           | . expression DIV expression
+   54           | . expression LEQ expression
+   55           | . PLUS expression
+   56           | . MINUS expression
+   57           | . expression DOT IDENT LPAREN exp_arg RPAREN
+
+    INT      сдвиг, и переход в состояние 70
+    BOOLEAN  сдвиг, и переход в состояние 71
+    IDENT    сдвиг, и переход в состояние 72
+    PLUS     сдвиг, и переход в состояние 73
+    THIS     сдвиг, и переход в состояние 74
+    NEW      сдвиг, и переход в состояние 75
+    LPAREN   сдвиг, и переход в состояние 76
+    MINUS    сдвиг, и переход в состояние 77
+    BANG     сдвиг, и переход в состояние 78
+
+    expression  переход в состояние 110
+
+
+State 91
+
+   39 expression: expression . LBRACK expression RBRACK
+   40           | expression . DOT LENGTH
+   49           | expression . PLUS expression
+   50           | expression . MINUS expression
+   51           | expression . MULT expression
+   52           | expression . AND expression
+   53           | expression . DIV expression
+   54           | expression . LEQ expression
+   55           | PLUS expression .  [PLUS, RPAREN, RBRACK, LEQ, AND, MINUS, MULT, DIV, SEMCOL, COMMA]
+   57           | expression . DOT IDENT LPAREN exp_arg RPAREN
+
+    LBRACK  сдвиг, и переход в состояние 98
+    DOT     сдвиг, и переход в состояние 105
+
+    $default  вывод с использованием правила 55 (expression)
+
+    Конфликт между правилом 55 и лексемой PLUS разрешен выводом (PLUS < UPLUS).
+    Конфликт между правилом 55 и лексемой LBRACK разрешен сдвигом (UPLUS < LBRACK).
+    Конфликт между правилом 55 и лексемой LEQ разрешен выводом (LEQ < UPLUS).
+    Конфликт между правилом 55 и лексемой AND разрешен выводом (AND < UPLUS).
+    Конфликт между правилом 55 и лексемой MINUS разрешен выводом (MINUS < UPLUS).
+    Конфликт между правилом 55 и лексемой MULT разрешен выводом (MULT < UPLUS).
+    Конфликт между правилом 55 и лексемой DIV разрешен выводом (DIV < UPLUS).
+    Конфликт между правилом 55 и лексемой DOT разрешен сдвигом (UPLUS < DOT).
+
+
+State 92
+
+   46 expression: NEW IDENT . LPAREN RPAREN
+
+    LPAREN  сдвиг, и переход в состояние 111
+
+
+State 93
+
+   45 expression: NEW INT_TYPE . LBRACK expression RBRACK
+
+    LBRACK  сдвиг, и переход в состояние 112
+
+
+State 94
+
+   39 expression: expression . LBRACK expression RBRACK
+   40           | expression . DOT LENGTH
+   48           | LPAREN expression . RPAREN
+   49           | expression . PLUS expression
+   50           | expression . MINUS expression
+   51           | expression . MULT expression
+   52           | expression . AND expression
+   53           | expression . DIV expression
+   54           | expression . LEQ expression
+   57           | expression . DOT IDENT LPAREN exp_arg RPAREN
+
+    PLUS    сдвиг, и переход в состояние 97
+    RPAREN  сдвиг, и переход в состояние 113
+    LBRACK  сдвиг, и переход в состояние 98
+    LEQ     сдвиг, и переход в состояние 99
+    AND     сдвиг, и переход в состояние 100
+    MINUS   сдвиг, и переход в состояние 101
+    MULT    сдвиг, и переход в состояние 102
+    DIV     сдвиг, и переход в состояние 103
+    DOT     сдвиг, и переход в состояние 105
+
+
+State 95
+
+   39 expression: expression . LBRACK expression RBRACK
+   40           | expression . DOT LENGTH
+   49           | expression . PLUS expression
+   50           | expression . MINUS expression
+   51           | expression . MULT expression
+   52           | expression . AND expression
+   53           | expression . DIV expression
+   54           | expression . LEQ expression
+   56           | MINUS expression .  [PLUS, RPAREN, RBRACK, LEQ, AND, MINUS, MULT, DIV, SEMCOL, COMMA]
+   57           | expression . DOT IDENT LPAREN exp_arg RPAREN
+
+    LBRACK  сдвиг, и переход в состояние 98
+    DOT     сдвиг, и переход в состояние 105
+
+    $default  вывод с использованием правила 56 (expression)
+
+    Конфликт между правилом 56 и лексемой PLUS разрешен выводом (PLUS < UMINUS).
+    Конфликт между правилом 56 и лексемой LBRACK разрешен сдвигом (UMINUS < LBRACK).
+    Конфликт между правилом 56 и лексемой LEQ разрешен выводом (LEQ < UMINUS).
+    Конфликт между правилом 56 и лексемой AND разрешен выводом (AND < UMINUS).
+    Конфликт между правилом 56 и лексемой MINUS разрешен выводом (MINUS < UMINUS).
+    Конфликт между правилом 56 и лексемой MULT разрешен выводом (MULT < UMINUS).
+    Конфликт между правилом 56 и лексемой DIV разрешен выводом (DIV < UMINUS).
+    Конфликт между правилом 56 и лексемой DOT разрешен сдвигом (UMINUS < DOT).
+
+
+State 96
+
+   39 expression: expression . LBRACK expression RBRACK
+   40           | expression . DOT LENGTH
+   47           | BANG expression .  [PLUS, RPAREN, RBRACK, LEQ, AND, MINUS, MULT, DIV, SEMCOL, COMMA]
+   49           | expression . PLUS expression
+   50           | expression . MINUS expression
+   51           | expression . MULT expression
+   52           | expression . AND expression
+   53           | expression . DIV expression
+   54           | expression . LEQ expression
+   57           | expression . DOT IDENT LPAREN exp_arg RPAREN
+
+    LBRACK  сдвиг, и переход в состояние 98
+    DOT     сдвиг, и переход в состояние 105
+
+    $default  вывод с использованием правила 47 (expression)
+
+    Конфликт между правилом 47 и лексемой PLUS разрешен выводом (PLUS < BANG).
+    Конфликт между правилом 47 и лексемой LBRACK разрешен сдвигом (BANG < LBRACK).
+    Конфликт между правилом 47 и лексемой LEQ разрешен выводом (LEQ < BANG).
+    Конфликт между правилом 47 и лексемой AND разрешен выводом (AND < BANG).
+    Конфликт между правилом 47 и лексемой MINUS разрешен выводом (MINUS < BANG).
+    Конфликт между правилом 47 и лексемой MULT разрешен выводом (MULT < BANG).
+    Конфликт между правилом 47 и лексемой DIV разрешен выводом (DIV < BANG).
+    Конфликт между правилом 47 и лексемой DOT разрешен сдвигом (BANG < DOT).
+
+
+State 97
+
+   39 expression: . expression LBRACK expression RBRACK
+   40           | . expression DOT LENGTH
+   41           | . INT
+   42           | . BOOLEAN
+   43           | . IDENT
+   44           | . THIS
+   45           | . NEW INT_TYPE LBRACK expression RBRACK
+   46           | . NEW IDENT LPAREN RPAREN
+   47           | . BANG expression
+   48           | . LPAREN expression RPAREN
+   49           | . expression PLUS expression
+   49           | expression PLUS . expression
+   50           | . expression MINUS expression
+   51           | . expression MULT expression
+   52           | . expression AND expression
+   53           | . expression DIV expression
+   54           | . expression LEQ expression
+   55           | . PLUS expression
+   56           | . MINUS expression
+   57           | . expression DOT IDENT LPAREN exp_arg RPAREN
+
+    INT      сдвиг, и переход в состояние 70
+    BOOLEAN  сдвиг, и переход в состояние 71
+    IDENT    сдвиг, и переход в состояние 72
+    PLUS     сдвиг, и переход в состояние 73
+    THIS     сдвиг, и переход в состояние 74
+    NEW      сдвиг, и переход в состояние 75
+    LPAREN   сдвиг, и переход в состояние 76
+    MINUS    сдвиг, и переход в состояние 77
+    BANG     сдвиг, и переход в состояние 78
+
+    expression  переход в состояние 114
+
+
+State 98
+
+   39 expression: . expression LBRACK expression RBRACK
+   39           | expression LBRACK . expression RBRACK
+   40           | . expression DOT LENGTH
+   41           | . INT
+   42           | . BOOLEAN
+   43           | . IDENT
+   44           | . THIS
+   45           | . NEW INT_TYPE LBRACK expression RBRACK
+   46           | . NEW IDENT LPAREN RPAREN
+   47           | . BANG expression
+   48           | . LPAREN expression RPAREN
+   49           | . expression PLUS expression
+   50           | . expression MINUS expression
+   51           | . expression MULT expression
+   52           | . expression AND expression
+   53           | . expression DIV expression
+   54           | . expression LEQ expression
+   55           | . PLUS expression
+   56           | . MINUS expression
+   57           | . expression DOT IDENT LPAREN exp_arg RPAREN
+
+    INT      сдвиг, и переход в состояние 70
+    BOOLEAN  сдвиг, и переход в состояние 71
+    IDENT    сдвиг, и переход в состояние 72
+    PLUS     сдвиг, и переход в состояние 73
+    THIS     сдвиг, и переход в состояние 74
+    NEW      сдвиг, и переход в состояние 75
+    LPAREN   сдвиг, и переход в состояние 76
+    MINUS    сдвиг, и переход в состояние 77
+    BANG     сдвиг, и переход в состояние 78
+
+    expression  переход в состояние 115
+
+
+State 99
+
+   39 expression: . expression LBRACK expression RBRACK
+   40           | . expression DOT LENGTH
+   41           | . INT
+   42           | . BOOLEAN
+   43           | . IDENT
+   44           | . THIS
+   45           | . NEW INT_TYPE LBRACK expression RBRACK
+   46           | . NEW IDENT LPAREN RPAREN
+   47           | . BANG expression
+   48           | . LPAREN expression RPAREN
+   49           | . expression PLUS expression
+   50           | . expression MINUS expression
+   51           | . expression MULT expression
+   52           | . expression AND expression
+   53           | . expression DIV expression
+   54           | . expression LEQ expression
+   54           | expression LEQ . expression
+   55           | . PLUS expression
+   56           | . MINUS expression
+   57           | . expression DOT IDENT LPAREN exp_arg RPAREN
+
+    INT      сдвиг, и переход в состояние 70
+    BOOLEAN  сдвиг, и переход в состояние 71
+    IDENT    сдвиг, и переход в состояние 72
+    PLUS     сдвиг, и переход в состояние 73
+    THIS     сдвиг, и переход в состояние 74
+    NEW      сдвиг, и переход в состояние 75
+    LPAREN   сдвиг, и переход в состояние 76
+    MINUS    сдвиг, и переход в состояние 77
+    BANG     сдвиг, и переход в состояние 78
+
+    expression  переход в состояние 116
+
+
+State 100
+
+   39 expression: . expression LBRACK expression RBRACK
+   40           | . expression DOT LENGTH
+   41           | . INT
+   42           | . BOOLEAN
+   43           | . IDENT
+   44           | . THIS
+   45           | . NEW INT_TYPE LBRACK expression RBRACK
+   46           | . NEW IDENT LPAREN RPAREN
+   47           | . BANG expression
+   48           | . LPAREN expression RPAREN
+   49           | . expression PLUS expression
+   50           | . expression MINUS expression
+   51           | . expression MULT expression
+   52           | . expression AND expression
+   52           | expression AND . expression
+   53           | . expression DIV expression
+   54           | . expression LEQ expression
+   55           | . PLUS expression
+   56           | . MINUS expression
+   57           | . expression DOT IDENT LPAREN exp_arg RPAREN
+
+    INT      сдвиг, и переход в состояние 70
+    BOOLEAN  сдвиг, и переход в состояние 71
+    IDENT    сдвиг, и переход в состояние 72
+    PLUS     сдвиг, и переход в состояние 73
+    THIS     сдвиг, и переход в состояние 74
+    NEW      сдвиг, и переход в состояние 75
+    LPAREN   сдвиг, и переход в состояние 76
+    MINUS    сдвиг, и переход в состояние 77
+    BANG     сдвиг, и переход в состояние 78
+
+    expression  переход в состояние 117
+
+
+State 101
+
+   39 expression: . expression LBRACK expression RBRACK
+   40           | . expression DOT LENGTH
+   41           | . INT
+   42           | . BOOLEAN
+   43           | . IDENT
+   44           | . THIS
+   45           | . NEW INT_TYPE LBRACK expression RBRACK
+   46           | . NEW IDENT LPAREN RPAREN
+   47           | . BANG expression
+   48           | . LPAREN expression RPAREN
+   49           | . expression PLUS expression
+   50           | . expression MINUS expression
+   50           | expression MINUS . expression
+   51           | . expression MULT expression
+   52           | . expression AND expression
+   53           | . expression DIV expression
+   54           | . expression LEQ expression
+   55           | . PLUS expression
+   56           | . MINUS expression
+   57           | . expression DOT IDENT LPAREN exp_arg RPAREN
+
+    INT      сдвиг, и переход в состояние 70
+    BOOLEAN  сдвиг, и переход в состояние 71
+    IDENT    сдвиг, и переход в состояние 72
+    PLUS     сдвиг, и переход в состояние 73
+    THIS     сдвиг, и переход в состояние 74
+    NEW      сдвиг, и переход в состояние 75
+    LPAREN   сдвиг, и переход в состояние 76
+    MINUS    сдвиг, и переход в состояние 77
+    BANG     сдвиг, и переход в состояние 78
+
+    expression  переход в состояние 118
+
+
+State 102
+
+   39 expression: . expression LBRACK expression RBRACK
+   40           | . expression DOT LENGTH
+   41           | . INT
+   42           | . BOOLEAN
+   43           | . IDENT
+   44           | . THIS
+   45           | . NEW INT_TYPE LBRACK expression RBRACK
+   46           | . NEW IDENT LPAREN RPAREN
+   47           | . BANG expression
+   48           | . LPAREN expression RPAREN
+   49           | . expression PLUS expression
+   50           | . expression MINUS expression
+   51           | . expression MULT expression
+   51           | expression MULT . expression
+   52           | . expression AND expression
+   53           | . expression DIV expression
+   54           | . expression LEQ expression
+   55           | . PLUS expression
+   56           | . MINUS expression
+   57           | . expression DOT IDENT LPAREN exp_arg RPAREN
+
+    INT      сдвиг, и переход в состояние 70
+    BOOLEAN  сдвиг, и переход в состояние 71
+    IDENT    сдвиг, и переход в состояние 72
+    PLUS     сдвиг, и переход в состояние 73
+    THIS     сдвиг, и переход в состояние 74
+    NEW      сдвиг, и переход в состояние 75
+    LPAREN   сдвиг, и переход в состояние 76
+    MINUS    сдвиг, и переход в состояние 77
+    BANG     сдвиг, и переход в состояние 78
+
+    expression  переход в состояние 119
+
+
+State 103
+
+   39 expression: . expression LBRACK expression RBRACK
+   40           | . expression DOT LENGTH
+   41           | . INT
+   42           | . BOOLEAN
+   43           | . IDENT
+   44           | . THIS
+   45           | . NEW INT_TYPE LBRACK expression RBRACK
+   46           | . NEW IDENT LPAREN RPAREN
+   47           | . BANG expression
+   48           | . LPAREN expression RPAREN
+   49           | . expression PLUS expression
+   50           | . expression MINUS expression
+   51           | . expression MULT expression
+   52           | . expression AND expression
+   53           | . expression DIV expression
+   53           | expression DIV . expression
+   54           | . expression LEQ expression
+   55           | . PLUS expression
+   56           | . MINUS expression
+   57           | . expression DOT IDENT LPAREN exp_arg RPAREN
+
+    INT      сдвиг, и переход в состояние 70
+    BOOLEAN  сдвиг, и переход в состояние 71
+    IDENT    сдвиг, и переход в состояние 72
+    PLUS     сдвиг, и переход в состояние 73
+    THIS     сдвиг, и переход в состояние 74
+    NEW      сдвиг, и переход в состояние 75
+    LPAREN   сдвиг, и переход в состояние 76
+    MINUS    сдвиг, и переход в состояние 77
+    BANG     сдвиг, и переход в состояние 78
+
+    expression  переход в состояние 120
+
+
+State 104
+
+   37 statement: IDENT EQ expression SEMCOL .
+
+    $default  вывод с использованием правила 37 (statement)
+
+
+State 105
+
+   40 expression: expression DOT . LENGTH
+   57           | expression DOT . IDENT LPAREN exp_arg RPAREN
+
+    IDENT   сдвиг, и переход в состояние 121
+    LENGTH  сдвиг, и переход в состояние 122
+
+
+State 106
+
+   38 statement: IDENT LBRACK expression RBRACK . EQ expression SEMCOL
+
+    EQ  сдвиг, и переход в состояние 123
+
+
+State 107
+
+   33 statement: . LBRACE statements RBRACE
+   34          | . IF LPAREN expression RPAREN statement ELSE statement
+   34          | IF LPAREN expression RPAREN . statement ELSE statement
+   35          | . WHILE LPAREN expression RPAREN statement
+   36          | . PRINT LPAREN expression RPAREN SEMCOL
+   37          | . IDENT EQ expression SEMCOL
+   38          | . IDENT LBRACK expression RBRACK EQ expression SEMCOL
+
+    IDENT   сдвиг, и переход в состояние 49
+    IF      сдвиг, и переход в состояние 50
+    WHILE   сдвиг, и переход в состояние 51
+    PRINT   сдвиг, и переход в состояние 52
+    LBRACE  сдвиг, и переход в состояние 53
+
+    statement  переход в состояние 124
+
+
+State 108
+
+   33 statement: . LBRACE statements RBRACE
+   34          | . IF LPAREN expression RPAREN statement ELSE statement
+   35          | . WHILE LPAREN expression RPAREN statement
+   35          | WHILE LPAREN expression RPAREN . statement
+   36          | . PRINT LPAREN expression RPAREN SEMCOL
+   37          | . IDENT EQ expression SEMCOL
+   38          | . IDENT LBRACK expression RBRACK EQ expression SEMCOL
+
+    IDENT   сдвиг, и переход в состояние 49
+    IF      сдвиг, и переход в состояние 50
+    WHILE   сдвиг, и переход в состояние 51
+    PRINT   сдвиг, и переход в состояние 52
+    LBRACE  сдвиг, и переход в состояние 53
+
+    statement  переход в состояние 125
+
+
+State 109
+
+   36 statement: PRINT LPAREN expression RPAREN . SEMCOL
+
+    SEMCOL  сдвиг, и переход в состояние 126
+
+
+State 110
+
+   13 method_declaration: PUBLIC type IDENT LPAREN param_arg RPAREN LBRACE method_body RETURN expression . SEMCOL RBRACE
+   39 expression: expression . LBRACK expression RBRACK
+   40           | expression . DOT LENGTH
+   49           | expression . PLUS expression
+   50           | expression . MINUS expression
+   51           | expression . MULT expression
+   52           | expression . AND expression
+   53           | expression . DIV expression
+   54           | expression . LEQ expression
+   57           | expression . DOT IDENT LPAREN exp_arg RPAREN
+
+    PLUS    сдвиг, и переход в состояние 97
+    LBRACK  сдвиг, и переход в состояние 98
+    LEQ     сдвиг, и переход в состояние 99
+    AND     сдвиг, и переход в состояние 100
+    MINUS   сдвиг, и переход в состояние 101
+    MULT    сдвиг, и переход в состояние 102
+    DIV     сдвиг, и переход в состояние 103
+    SEMCOL  сдвиг, и переход в состояние 127
+    DOT     сдвиг, и переход в состояние 105
+
+
+State 111
+
+   46 expression: NEW IDENT LPAREN . RPAREN
+
+    RPAREN  сдвиг, и переход в состояние 128
+
+
+State 112
+
+   39 expression: . expression LBRACK expression RBRACK
+   40           | . expression DOT LENGTH
+   41           | . INT
+   42           | . BOOLEAN
+   43           | . IDENT
+   44           | . THIS
+   45           | . NEW INT_TYPE LBRACK expression RBRACK
+   45           | NEW INT_TYPE LBRACK . expression RBRACK
+   46           | . NEW IDENT LPAREN RPAREN
+   47           | . BANG expression
+   48           | . LPAREN expression RPAREN
+   49           | . expression PLUS expression
+   50           | . expression MINUS expression
+   51           | . expression MULT expression
+   52           | . expression AND expression
+   53           | . expression DIV expression
+   54           | . expression LEQ expression
+   55           | . PLUS expression
+   56           | . MINUS expression
+   57           | . expression DOT IDENT LPAREN exp_arg RPAREN
+
+    INT      сдвиг, и переход в состояние 70
+    BOOLEAN  сдвиг, и переход в состояние 71
+    IDENT    сдвиг, и переход в состояние 72
+    PLUS     сдвиг, и переход в состояние 73
+    THIS     сдвиг, и переход в состояние 74
+    NEW      сдвиг, и переход в состояние 75
+    LPAREN   сдвиг, и переход в состояние 76
+    MINUS    сдвиг, и переход в состояние 77
+    BANG     сдвиг, и переход в состояние 78
+
+    expression  переход в состояние 129
+
+
+State 113
+
+   48 expression: LPAREN expression RPAREN .
+
+    $default  вывод с использованием правила 48 (expression)
+
+
+State 114
+
+   39 expression: expression . LBRACK expression RBRACK
+   40           | expression . DOT LENGTH
+   49           | expression . PLUS expression
+   49           | expression PLUS expression .  [PLUS, RPAREN, RBRACK, LEQ, AND, MINUS, SEMCOL, COMMA]
+   50           | expression . MINUS expression
+   51           | expression . MULT expression
+   52           | expression . AND expression
+   53           | expression . DIV expression
+   54           | expression . LEQ expression
+   57           | expression . DOT IDENT LPAREN exp_arg RPAREN
+
+    LBRACK  сдвиг, и переход в состояние 98
+    MULT    сдвиг, и переход в состояние 102
+    DIV     сдвиг, и переход в состояние 103
+    DOT     сдвиг, и переход в состояние 105
+
+    $default  вывод с использованием правила 49 (expression)
+
+    Конфликт между правилом 49 и лексемой PLUS разрешен выводом (%left PLUS).
+    Конфликт между правилом 49 и лексемой LBRACK разрешен сдвигом (PLUS < LBRACK).
+    Конфликт между правилом 49 и лексемой LEQ разрешен выводом (LEQ < PLUS).
+    Конфликт между правилом 49 и лексемой AND разрешен выводом (AND < PLUS).
+    Конфликт между правилом 49 и лексемой MINUS разрешен выводом (%left MINUS).
+    Конфликт между правилом 49 и лексемой MULT разрешен сдвигом (PLUS < MULT).
+    Конфликт между правилом 49 и лексемой DIV разрешен сдвигом (PLUS < DIV).
+    Конфликт между правилом 49 и лексемой DOT разрешен сдвигом (PLUS < DOT).
+
+
+State 115
+
+   39 expression: expression . LBRACK expression RBRACK
+   39           | expression LBRACK expression . RBRACK
+   40           | expression . DOT LENGTH
+   49           | expression . PLUS expression
+   50           | expression . MINUS expression
+   51           | expression . MULT expression
+   52           | expression . AND expression
+   53           | expression . DIV expression
+   54           | expression . LEQ expression
+   57           | expression . DOT IDENT LPAREN exp_arg RPAREN
+
+    PLUS    сдвиг, и переход в состояние 97
+    LBRACK  сдвиг, и переход в состояние 98
+    RBRACK  сдвиг, и переход в состояние 130
+    LEQ     сдвиг, и переход в состояние 99
+    AND     сдвиг, и переход в состояние 100
+    MINUS   сдвиг, и переход в состояние 101
+    MULT    сдвиг, и переход в состояние 102
+    DIV     сдвиг, и переход в состояние 103
+    DOT     сдвиг, и переход в состояние 105
+
+
+State 116
+
+   39 expression: expression . LBRACK expression RBRACK
+   40           | expression . DOT LENGTH
+   49           | expression . PLUS expression
+   50           | expression . MINUS expression
+   51           | expression . MULT expression
+   52           | expression . AND expression
+   53           | expression . DIV expression
+   54           | expression . LEQ expression
+   54           | expression LEQ expression .  [RPAREN, RBRACK, LEQ, AND, SEMCOL, COMMA]
+   57           | expression . DOT IDENT LPAREN exp_arg RPAREN
+
+    PLUS    сдвиг, и переход в состояние 97
+    LBRACK  сдвиг, и переход в состояние 98
+    MINUS   сдвиг, и переход в состояние 101
+    MULT    сдвиг, и переход в состояние 102
+    DIV     сдвиг, и переход в состояние 103
+    DOT     сдвиг, и переход в состояние 105
+
+    $default  вывод с использованием правила 54 (expression)
+
+    Конфликт между правилом 54 и лексемой PLUS разрешен сдвигом (LEQ < PLUS).
+    Конфликт между правилом 54 и лексемой LBRACK разрешен сдвигом (LEQ < LBRACK).
+    Конфликт между правилом 54 и лексемой LEQ разрешен выводом (%left LEQ).
+    Конфликт между правилом 54 и лексемой AND разрешен выводом (AND < LEQ).
+    Конфликт между правилом 54 и лексемой MINUS разрешен сдвигом (LEQ < MINUS).
+    Конфликт между правилом 54 и лексемой MULT разрешен сдвигом (LEQ < MULT).
+    Конфликт между правилом 54 и лексемой DIV разрешен сдвигом (LEQ < DIV).
+    Конфликт между правилом 54 и лексемой DOT разрешен сдвигом (LEQ < DOT).
+
+
+State 117
+
+   39 expression: expression . LBRACK expression RBRACK
+   40           | expression . DOT LENGTH
+   49           | expression . PLUS expression
+   50           | expression . MINUS expression
+   51           | expression . MULT expression
+   52           | expression . AND expression
+   52           | expression AND expression .  [RPAREN, RBRACK, AND, SEMCOL, COMMA]
+   53           | expression . DIV expression
+   54           | expression . LEQ expression
+   57           | expression . DOT IDENT LPAREN exp_arg RPAREN
+
+    PLUS    сдвиг, и переход в состояние 97
+    LBRACK  сдвиг, и переход в состояние 98
+    LEQ     сдвиг, и переход в состояние 99
+    MINUS   сдвиг, и переход в состояние 101
+    MULT    сдвиг, и переход в состояние 102
+    DIV     сдвиг, и переход в состояние 103
+    DOT     сдвиг, и переход в состояние 105
+
+    $default  вывод с использованием правила 52 (expression)
+
+    Конфликт между правилом 52 и лексемой PLUS разрешен сдвигом (AND < PLUS).
+    Конфликт между правилом 52 и лексемой LBRACK разрешен сдвигом (AND < LBRACK).
+    Конфликт между правилом 52 и лексемой LEQ разрешен сдвигом (AND < LEQ).
+    Конфликт между правилом 52 и лексемой AND разрешен выводом (%left AND).
+    Конфликт между правилом 52 и лексемой MINUS разрешен сдвигом (AND < MINUS).
+    Конфликт между правилом 52 и лексемой MULT разрешен сдвигом (AND < MULT).
+    Конфликт между правилом 52 и лексемой DIV разрешен сдвигом (AND < DIV).
+    Конфликт между правилом 52 и лексемой DOT разрешен сдвигом (AND < DOT).
+
+
+State 118
+
+   39 expression: expression . LBRACK expression RBRACK
+   40           | expression . DOT LENGTH
+   49           | expression . PLUS expression
+   50           | expression . MINUS expression
+   50           | expression MINUS expression .  [PLUS, RPAREN, RBRACK, LEQ, AND, MINUS, SEMCOL, COMMA]
+   51           | expression . MULT expression
+   52           | expression . AND expression
+   53           | expression . DIV expression
+   54           | expression . LEQ expression
+   57           | expression . DOT IDENT LPAREN exp_arg RPAREN
+
+    LBRACK  сдвиг, и переход в состояние 98
+    MULT    сдвиг, и переход в состояние 102
+    DIV     сдвиг, и переход в состояние 103
+    DOT     сдвиг, и переход в состояние 105
+
+    $default  вывод с использованием правила 50 (expression)
+
+    Конфликт между правилом 50 и лексемой PLUS разрешен выводом (%left PLUS).
+    Конфликт между правилом 50 и лексемой LBRACK разрешен сдвигом (MINUS < LBRACK).
+    Конфликт между правилом 50 и лексемой LEQ разрешен выводом (LEQ < MINUS).
+    Конфликт между правилом 50 и лексемой AND разрешен выводом (AND < MINUS).
+    Конфликт между правилом 50 и лексемой MINUS разрешен выводом (%left MINUS).
+    Конфликт между правилом 50 и лексемой MULT разрешен сдвигом (MINUS < MULT).
+    Конфликт между правилом 50 и лексемой DIV разрешен сдвигом (MINUS < DIV).
+    Конфликт между правилом 50 и лексемой DOT разрешен сдвигом (MINUS < DOT).
+
+
+State 119
+
+   39 expression: expression . LBRACK expression RBRACK
+   40           | expression . DOT LENGTH
+   49           | expression . PLUS expression
+   50           | expression . MINUS expression
+   51           | expression . MULT expression
+   51           | expression MULT expression .  [PLUS, RPAREN, RBRACK, LEQ, AND, MINUS, MULT, DIV, SEMCOL, COMMA]
+   52           | expression . AND expression
+   53           | expression . DIV expression
+   54           | expression . LEQ expression
+   57           | expression . DOT IDENT LPAREN exp_arg RPAREN
+
+    LBRACK  сдвиг, и переход в состояние 98
+    DOT     сдвиг, и переход в состояние 105
+
+    $default  вывод с использованием правила 51 (expression)
+
+    Конфликт между правилом 51 и лексемой PLUS разрешен выводом (PLUS < MULT).
+    Конфликт между правилом 51 и лексемой LBRACK разрешен сдвигом (MULT < LBRACK).
+    Конфликт между правилом 51 и лексемой LEQ разрешен выводом (LEQ < MULT).
+    Конфликт между правилом 51 и лексемой AND разрешен выводом (AND < MULT).
+    Конфликт между правилом 51 и лексемой MINUS разрешен выводом (MINUS < MULT).
+    Конфликт между правилом 51 и лексемой MULT разрешен выводом (%left MULT).
+    Конфликт между правилом 51 и лексемой DIV разрешен выводом (%left DIV).
+    Конфликт между правилом 51 и лексемой DOT разрешен сдвигом (MULT < DOT).
+
+
+State 120
+
+   39 expression: expression . LBRACK expression RBRACK
+   40           | expression . DOT LENGTH
+   49           | expression . PLUS expression
+   50           | expression . MINUS expression
+   51           | expression . MULT expression
+   52           | expression . AND expression
+   53           | expression . DIV expression
+   53           | expression DIV expression .  [PLUS, RPAREN, RBRACK, LEQ, AND, MINUS, MULT, DIV, SEMCOL, COMMA]
+   54           | expression . LEQ expression
+   57           | expression . DOT IDENT LPAREN exp_arg RPAREN
+
+    LBRACK  сдвиг, и переход в состояние 98
+    DOT     сдвиг, и переход в состояние 105
+
+    $default  вывод с использованием правила 53 (expression)
+
+    Конфликт между правилом 53 и лексемой PLUS разрешен выводом (PLUS < DIV).
+    Конфликт между правилом 53 и лексемой LBRACK разрешен сдвигом (DIV < LBRACK).
+    Конфликт между правилом 53 и лексемой LEQ разрешен выводом (LEQ < DIV).
+    Конфликт между правилом 53 и лексемой AND разрешен выводом (AND < DIV).
+    Конфликт между правилом 53 и лексемой MINUS разрешен выводом (MINUS < DIV).
+    Конфликт между правилом 53 и лексемой MULT разрешен выводом (%left MULT).
+    Конфликт между правилом 53 и лексемой DIV разрешен выводом (%left DIV).
+    Конфликт между правилом 53 и лексемой DOT разрешен сдвигом (DIV < DOT).
+
+
+State 121
+
+   57 expression: expression DOT IDENT . LPAREN exp_arg RPAREN
+
+    LPAREN  сдвиг, и переход в состояние 131
+
+
+State 122
+
+   40 expression: expression DOT LENGTH .
+
+    $default  вывод с использованием правила 40 (expression)
+
+
+State 123
+
+   38 statement: IDENT LBRACK expression RBRACK EQ . expression SEMCOL
+   39 expression: . expression LBRACK expression RBRACK
+   40           | . expression DOT LENGTH
+   41           | . INT
+   42           | . BOOLEAN
+   43           | . IDENT
+   44           | . THIS
+   45           | . NEW INT_TYPE LBRACK expression RBRACK
+   46           | . NEW IDENT LPAREN RPAREN
+   47           | . BANG expression
+   48           | . LPAREN expression RPAREN
+   49           | . expression PLUS expression
+   50           | . expression MINUS expression
+   51           | . expression MULT expression
+   52           | . expression AND expression
+   53           | . expression DIV expression
+   54           | . expression LEQ expression
+   55           | . PLUS expression
+   56           | . MINUS expression
+   57           | . expression DOT IDENT LPAREN exp_arg RPAREN
+
+    INT      сдвиг, и переход в состояние 70
+    BOOLEAN  сдвиг, и переход в состояние 71
+    IDENT    сдвиг, и переход в состояние 72
+    PLUS     сдвиг, и переход в состояние 73
+    THIS     сдвиг, и переход в состояние 74
+    NEW      сдвиг, и переход в состояние 75
+    LPAREN   сдвиг, и переход в состояние 76
+    MINUS    сдвиг, и переход в состояние 77
+    BANG     сдвиг, и переход в состояние 78
+
+    expression  переход в состояние 132
+
+
+State 124
+
+   34 statement: IF LPAREN expression RPAREN statement . ELSE statement
+
+    ELSE  сдвиг, и переход в состояние 133
+
+
+State 125
+
+   35 statement: WHILE LPAREN expression RPAREN statement .
+
+    $default  вывод с использованием правила 35 (statement)
+
+
+State 126
+
+   36 statement: PRINT LPAREN expression RPAREN SEMCOL .
+
+    $default  вывод с использованием правила 36 (statement)
+
+
+State 127
+
+   13 method_declaration: PUBLIC type IDENT LPAREN param_arg RPAREN LBRACE method_body RETURN expression SEMCOL . RBRACE
+
+    RBRACE  сдвиг, и переход в состояние 134
+
+
+State 128
+
+   46 expression: NEW IDENT LPAREN RPAREN .
+
+    $default  вывод с использованием правила 46 (expression)
+
+
+State 129
+
+   39 expression: expression . LBRACK expression RBRACK
+   40           | expression . DOT LENGTH
+   45           | NEW INT_TYPE LBRACK expression . RBRACK
+   49           | expression . PLUS expression
+   50           | expression . MINUS expression
+   51           | expression . MULT expression
+   52           | expression . AND expression
+   53           | expression . DIV expression
+   54           | expression . LEQ expression
+   57           | expression . DOT IDENT LPAREN exp_arg RPAREN
+
+    PLUS    сдвиг, и переход в состояние 97
+    LBRACK  сдвиг, и переход в состояние 98
+    RBRACK  сдвиг, и переход в состояние 135
+    LEQ     сдвиг, и переход в состояние 99
+    AND     сдвиг, и переход в состояние 100
+    MINUS   сдвиг, и переход в состояние 101
+    MULT    сдвиг, и переход в состояние 102
+    DIV     сдвиг, и переход в состояние 103
+    DOT     сдвиг, и переход в состояние 105
+
+
+State 130
+
+   39 expression: expression LBRACK expression RBRACK .
+
+    $default  вывод с использованием правила 39 (expression)
+
+
+State 131
+
+   39 expression: . expression LBRACK expression RBRACK
+   40           | . expression DOT LENGTH
+   41           | . INT
+   42           | . BOOLEAN
+   43           | . IDENT
+   44           | . THIS
+   45           | . NEW INT_TYPE LBRACK expression RBRACK
+   46           | . NEW IDENT LPAREN RPAREN
+   47           | . BANG expression
+   48           | . LPAREN expression RPAREN
+   49           | . expression PLUS expression
+   50           | . expression MINUS expression
+   51           | . expression MULT expression
+   52           | . expression AND expression
+   53           | . expression DIV expression
+   54           | . expression LEQ expression
+   55           | . PLUS expression
+   56           | . MINUS expression
+   57           | . expression DOT IDENT LPAREN exp_arg RPAREN
+   57           | expression DOT IDENT LPAREN . exp_arg RPAREN
+   58 exp_arg: . expressions
+   59        | . %empty  [RPAREN]
+   60 expressions: . expression
+   61            | . expressions COMMA expression
+
+    INT      сдвиг, и переход в состояние 70
+    BOOLEAN  сдвиг, и переход в состояние 71
+    IDENT    сдвиг, и переход в состояние 72
+    PLUS     сдвиг, и переход в состояние 73
+    THIS     сдвиг, и переход в состояние 74
+    NEW      сдвиг, и переход в состояние 75
+    LPAREN   сдвиг, и переход в состояние 76
+    MINUS    сдвиг, и переход в состояние 77
+    BANG     сдвиг, и переход в состояние 78
+
+    $default  вывод с использованием правила 59 (exp_arg)
+
+    expression   переход в состояние 136
+    exp_arg      переход в состояние 137
+    expressions  переход в состояние 138
+
+
+State 132
+
+   38 statement: IDENT LBRACK expression RBRACK EQ expression . SEMCOL
+   39 expression: expression . LBRACK expression RBRACK
+   40           | expression . DOT LENGTH
+   49           | expression . PLUS expression
+   50           | expression . MINUS expression
+   51           | expression . MULT expression
+   52           | expression . AND expression
+   53           | expression . DIV expression
+   54           | expression . LEQ expression
+   57           | expression . DOT IDENT LPAREN exp_arg RPAREN
+
+    PLUS    сдвиг, и переход в состояние 97
+    LBRACK  сдвиг, и переход в состояние 98
+    LEQ     сдвиг, и переход в состояние 99
+    AND     сдвиг, и переход в состояние 100
+    MINUS   сдвиг, и переход в состояние 101
+    MULT    сдвиг, и переход в состояние 102
+    DIV     сдвиг, и переход в состояние 103
+    SEMCOL  сдвиг, и переход в состояние 139
+    DOT     сдвиг, и переход в состояние 105
+
+
+State 133
+
+   33 statement: . LBRACE statements RBRACE
+   34          | . IF LPAREN expression RPAREN statement ELSE statement
+   34          | IF LPAREN expression RPAREN statement ELSE . statement
+   35          | . WHILE LPAREN expression RPAREN statement
+   36          | . PRINT LPAREN expression RPAREN SEMCOL
+   37          | . IDENT EQ expression SEMCOL
+   38          | . IDENT LBRACK expression RBRACK EQ expression SEMCOL
+
+    IDENT   сдвиг, и переход в состояние 49
+    IF      сдвиг, и переход в состояние 50
+    WHILE   сдвиг, и переход в состояние 51
+    PRINT   сдвиг, и переход в состояние 52
+    LBRACE  сдвиг, и переход в состояние 53
+
+    statement  переход в состояние 140
+
+
+State 134
+
+   13 method_declaration: PUBLIC type IDENT LPAREN param_arg RPAREN LBRACE method_body RETURN expression SEMCOL RBRACE .
+
+    $default  вывод с использованием правила 13 (method_declaration)
+
+
+State 135
+
+   45 expression: NEW INT_TYPE LBRACK expression RBRACK .
+
+    $default  вывод с использованием правила 45 (expression)
+
+
+State 136
+
+   39 expression: expression . LBRACK expression RBRACK
+   40           | expression . DOT LENGTH
+   49           | expression . PLUS expression
+   50           | expression . MINUS expression
+   51           | expression . MULT expression
+   52           | expression . AND expression
+   53           | expression . DIV expression
+   54           | expression . LEQ expression
+   57           | expression . DOT IDENT LPAREN exp_arg RPAREN
+   60 expressions: expression .  [RPAREN, COMMA]
+
+    PLUS    сдвиг, и переход в состояние 97
+    LBRACK  сдвиг, и переход в состояние 98
+    LEQ     сдвиг, и переход в состояние 99
+    AND     сдвиг, и переход в состояние 100
+    MINUS   сдвиг, и переход в состояние 101
+    MULT    сдвиг, и переход в состояние 102
+    DIV     сдвиг, и переход в состояние 103
+    DOT     сдвиг, и переход в состояние 105
+
+    $default  вывод с использованием правила 60 (expressions)
+
+
+State 137
+
+   57 expression: expression DOT IDENT LPAREN exp_arg . RPAREN
+
+    RPAREN  сдвиг, и переход в состояние 141
+
+
+State 138
+
+   58 exp_arg: expressions .  [RPAREN]
+   61 expressions: expressions . COMMA expression
+
+    COMMA  сдвиг, и переход в состояние 142
+
+    $default  вывод с использованием правила 58 (exp_arg)
+
+
+State 139
+
+   38 statement: IDENT LBRACK expression RBRACK EQ expression SEMCOL .
+
+    $default  вывод с использованием правила 38 (statement)
+
+
+State 140
+
+   34 statement: IF LPAREN expression RPAREN statement ELSE statement .
+
+    $default  вывод с использованием правила 34 (statement)
+
+
+State 141
+
+   57 expression: expression DOT IDENT LPAREN exp_arg RPAREN .
+
+    $default  вывод с использованием правила 57 (expression)
+
+
+State 142
+
+   39 expression: . expression LBRACK expression RBRACK
+   40           | . expression DOT LENGTH
+   41           | . INT
+   42           | . BOOLEAN
+   43           | . IDENT
+   44           | . THIS
+   45           | . NEW INT_TYPE LBRACK expression RBRACK
+   46           | . NEW IDENT LPAREN RPAREN
+   47           | . BANG expression
+   48           | . LPAREN expression RPAREN
+   49           | . expression PLUS expression
+   50           | . expression MINUS expression
+   51           | . expression MULT expression
+   52           | . expression AND expression
+   53           | . expression DIV expression
+   54           | . expression LEQ expression
+   55           | . PLUS expression
+   56           | . MINUS expression
+   57           | . expression DOT IDENT LPAREN exp_arg RPAREN
+   61 expressions: expressions COMMA . expression
+
+    INT      сдвиг, и переход в состояние 70
+    BOOLEAN  сдвиг, и переход в состояние 71
+    IDENT    сдвиг, и переход в состояние 72
+    PLUS     сдвиг, и переход в состояние 73
+    THIS     сдвиг, и переход в состояние 74
+    NEW      сдвиг, и переход в состояние 75
+    LPAREN   сдвиг, и переход в состояние 76
+    MINUS    сдвиг, и переход в состояние 77
+    BANG     сдвиг, и переход в состояние 78
+
+    expression  переход в состояние 143
+
+
+State 143
+
+   39 expression: expression . LBRACK expression RBRACK
+   40           | expression . DOT LENGTH
+   49           | expression . PLUS expression
+   50           | expression . MINUS expression
+   51           | expression . MULT expression
+   52           | expression . AND expression
+   53           | expression . DIV expression
+   54           | expression . LEQ expression
+   57           | expression . DOT IDENT LPAREN exp_arg RPAREN
+   61 expressions: expressions COMMA expression .  [RPAREN, COMMA]
+
+    PLUS    сдвиг, и переход в состояние 97
+    LBRACK  сдвиг, и переход в состояние 98
+    LEQ     сдвиг, и переход в состояние 99
+    AND     сдвиг, и переход в состояние 100
+    MINUS   сдвиг, и переход в состояние 101
+    MULT    сдвиг, и переход в состояние 102
+    DIV     сдвиг, и переход в состояние 103
+    DOT     сдвиг, и переход в состояние 105
+
+    $default  вывод с использованием правила 61 (expressions)

@@ -1,10 +1,8 @@
-#ifndef CPRINTVISITOR_H_INCLUDED
-#define CPRINTVISITOR_H_INCLUDED
-#include <iostream>
-#include <typeinfo>
-#include "CVisitor.h"
-#include "ast.h"
-using namespace std;
+#ifndef PRINTVISITOR_H_INCLUDED
+#define PRINTVISITOR_H_INCLUDED
+#include "../common.h"
+#include "../Structs/Ast.h"
+#include "../Visitors/Visitor.h"
 
 class CPrintVisitor : public CVisitor{
     int counter = 0;
