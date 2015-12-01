@@ -11,8 +11,6 @@ public:
 	CLabel(): name("label" + std::to_string(nextUniqueId)) {
 		++nextUniqueId;
 	}
-	// Создать метку с заданным именем
-	explicit CLabel( ... );
 
 	const std::string& Name() const { 
 		return name; 
