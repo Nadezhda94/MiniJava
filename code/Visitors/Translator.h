@@ -1,15 +1,18 @@
-#include "IRTree.h"
-#include "CVisitor.h"
-#include "Temp.h"
-#include <cassert>
+#ifndef TRANSLATOR_H_INCLUDED
+#define TRANSLATOR_H_INCLUDED
+#include "../common.h"
+#include "../Structs/IRTree.h"
+#include "../Visitors/Visitor.h"
+#include "../Structs/Temp.h"
+
 
 namespace Translate {
 
 class ISubtreeWrapper {
 public:
 	virtual ~ISubtreeWrapper() { }
-	virtual const IRTree::IExp* ToExp() const = 0; 
-	virtual const IRTree::IStm* ToStm() const = 0; 
+	virtual const IRTree::IExp* ToExp() const = 0;
+	virtual const IRTree::IStm* ToStm() const = 0;
 	virtual const IRTree::IStm* ToConditional(const Temp::CLabel* t, const Temp::CLabel* f) const = 0;
 };
 
@@ -21,7 +24,7 @@ public:
 		return expr;
 	}
 
-	const IRTree::IStm* ToStm() const { 
+	const IRTree::IStm* ToStm() const {
 		return new IRTree::EXP(expr);
 	}
 
@@ -52,7 +55,6 @@ public:
 private:
 	const IRTree::IStm* stm;
 };
-
 
 /*class CConditionalWrapper : public ISubtreeWrapper {
 public:
@@ -86,6 +88,7 @@ public:
 };
 
 class CTranslatorVisitor: public CVisitor {
+	std::vector<IRTree::IStm*> trees;
 public:
 	virtual void visit(const CProgramRuleNode* node) {}
 	virtual void visit(const CMainClassDeclarationRuleNode* node) {}
@@ -135,3 +138,4 @@ public:
 };
 
 }
+#endif

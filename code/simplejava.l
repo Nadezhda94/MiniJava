@@ -1,11 +1,8 @@
 %option noyywrap
 
 %{
-#include <iostream>
-#include <fstream>
-#include <cstdlib>
+#include "common.h"
 #include "simplejava.tab.hpp"
-using namespace std;
 
 //FlexLexer* lexer = new yyFlexLexer();
 int curLineNum = 1;

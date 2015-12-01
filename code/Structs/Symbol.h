@@ -1,12 +1,6 @@
-#ifndef CSYMBOL_H_INCLUDED
-#define CSYMBOL_H_INCLUDED
-
-#include <string>
-#include <functional>
-#include <unordered_map>
-#include <memory>
-#include <iostream>
-
+#ifndef SYMBOL_H_INCLUDED
+#define SYMBOL_H_INCLUDED
+#include "../common.h"
 
 namespace Symbol {
 	class CStorage;
@@ -21,7 +15,7 @@ namespace Symbol {
 		friend std::ostream& operator<<(std::ostream& ostr, const CSymbol* symbol) {
 			ostr << symbol->name;
 			return ostr;
-		} 
+		}
 	private:
 		std::string name;
 		static CStorage* symbolsStorage;
@@ -33,11 +27,11 @@ namespace Symbol {
 			std::unordered_map<std::string, std::unique_ptr<CSymbol>>::iterator it = symbols.find(s);
 			if (it == symbols.end() ) {
 				it = symbols.emplace(s, std::unique_ptr<CSymbol>(new CSymbol(s))).first;
-			} 
+			}
 			return (it->second).get();
 		}
 
-	
+
 		std::unordered_map<std::string, std::unique_ptr<CSymbol>> symbols;
 
 };

@@ -1,3 +1,5 @@
+#ifndef FRAME_H_INCLUDED
+#define FRAME_H_INCLUDED
 namespace Frame {
 // Переменная фрейма
 class IAccess {
@@ -17,3 +19,5 @@ private:
   // ...
 };
 }
+
+#endif

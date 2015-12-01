@@ -1,16 +1,10 @@
-#include <stdio.h>
-#include <stdexcept>
-#include <iostream>
-#include "ast.h"
-#include "CPrintVisitor.h"
-#include "CSymbolTableBuilder.h"
-#include "CTypeChecker.h"
-#include "Translator.h"
-#include "CSymbol.h"
-
-using std::invalid_argument;
-using std::cout;
-using std::endl;
+#include "common.h"
+#include "Structs/Ast.h"
+#include "Structs/Symbol.h"
+#include "Visitors/PrintVisitor.h"
+#include "Visitors/SymbolTableBuilder.h"
+#include "Visitors/TypeChecker.h"
+#include "Visitors/Translator.h"
 extern FILE * yyin;
 extern int yyparse();
 extern CProgramRuleNode* root;

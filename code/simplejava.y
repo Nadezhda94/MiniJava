@@ -1,10 +1,8 @@
 %{
-#include <iostream>
+#include "common.h"
 #include "simplejava.tab.hpp"
-#include "ast.h"
-#include "CSymbol.h"
-using std::cout;
-using std::endl;
+#include "Structs/Ast.h"
+#include "Structs/Symbol.h"
 extern FILE * yyin;
 CProgramRuleNode* root;
 

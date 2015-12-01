@@ -1,6 +1,6 @@
-#ifndef CVISITOR_H_INCLUDED
-#define CVISITOR_H_INCLUDED
-#include "ast.h"
+#ifndef VISITOR_H_INCLUDED
+#define VISITOR_H_INCLUDED
+#include "../Structs/Ast.h"
 
 class CProgramRuleNode;
 class CMainClassDeclarationRuleNode;

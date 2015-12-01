@@ -1,8 +1,7 @@
 #ifndef SYMBOLSTABLE_H_INCLUDED
 #define SYMBOLSTABLE_H_INCLUDED
-#include <string>
-#include <vector>
-#include "CSymbol.h"
+#include "../common.h"
+#include "../Structs/Symbol.h"
 
 namespace SymbolsTable{
   using std::vector;

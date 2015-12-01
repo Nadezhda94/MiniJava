@@ -1,4 +1,6 @@
-#include "Temp.h"
+#ifndef IRTREE_H_INCLUDED
+#define IRTREE_H_INCLUDED
+#include "../Structs/Temp.h"
 
 namespace IRTree {
 
@@ -54,12 +56,12 @@ private:
 
 class CJUMP: public IStm {
 public:
-	CJUMP(CJUMP_OP _relop, IExp* _left, IExp* _right, Temp::CLabel* _iftrue, Temp::CLabel* _iffalse): 
+	CJUMP(CJUMP_OP _relop, IExp* _left, IExp* _right, Temp::CLabel* _iftrue, Temp::CLabel* _iffalse):
 						relop(_relop), left(_left), right(_right), iftrue(_iftrue), iffalse(_iffalse) {}
 private:
 	CJUMP_OP relop;
-	IExp* left; 
-	IExp* right; 
+	IExp* left;
+	IExp* right;
 	Temp::CLabel* iftrue;
 	Temp::CLabel* iffalse;
 };
@@ -134,3 +136,5 @@ private:
 };
 
 }
+
+#endif

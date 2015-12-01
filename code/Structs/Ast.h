@@ -1,10 +1,8 @@
 #ifndef AST_H_INCLUDED
 #define AST_H_INCLUDED
-#include <string>
-#include "CVisitor.h"
-#include "CSymbol.h"
-
-using std::string;
+#include "../common.h"
+#include "../Visitors/Visitor.h"
+#include "../Structs/Symbol.h"
 using namespace Symbol;
 extern Symbol::CStorage symbolsStorage;
 
@@ -374,7 +372,7 @@ public:
 
 class CAssignStatementNode : public CAcceptsVisitor<CAssignStatementNode, CStatementNode>{
 public:
-    CAssignStatementNode(CExpressionNode* _expression, const char* ident):expression(_expression), 
+    CAssignStatementNode(CExpressionNode* _expression, const char* ident):expression(_expression),
         identifier(symbolsStorage.get(ident)){}
     ~CAssignStatementNode(){
         delete expression;
@@ -386,8 +384,8 @@ public:
 
 class CInvokeExpressionStatementNode : public CAcceptsVisitor<CInvokeExpressionStatementNode, CStatementNode>{
 public:
-    CInvokeExpressionStatementNode(CExpressionNode* _firstexpression, CExpressionNode* _secondexpression, 
-        const char* ident): firstexpression(_firstexpression), secondexpression(_secondexpression), 
+    CInvokeExpressionStatementNode(CExpressionNode* _firstexpression, CExpressionNode* _secondexpression,
+        const char* ident): firstexpression(_firstexpression), secondexpression(_secondexpression),
         identifier(symbolsStorage.get(ident)){}
     ~CInvokeExpressionStatementNode(){
         delete firstexpression;
