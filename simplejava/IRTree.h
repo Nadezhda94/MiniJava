@@ -43,10 +43,13 @@ private:
 	IExp* exp;
 };
 
-//??
+
 class JUMP: public IStm {
 public:
+	JUMP(IExp* _exp, Temp::CLabel* _target) : exp(_exp), target(_target) {}
 private:
+	IExp* exp;
+	Temp::CLabel* target;
 };
 
 class CJUMP: public IStm {
