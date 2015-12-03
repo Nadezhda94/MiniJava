@@ -1,7 +1,7 @@
 #include "common.h"
 #include "Structs/Ast.h"
 #include "Structs/Symbol.h"
-#include "Visitors/PrintVisitor.h"
+#include "Visitors/Print.h"
 #include "Visitors/SymbolTableBuilder.h"
 #include "Visitors/TypeChecker.h"
 #include "Visitors/Translator.h"
@@ -9,6 +9,7 @@ extern FILE * yyin;
 extern int yyparse();
 extern CProgramRuleNode* root;
 Symbol::CStorage symbolsStorage;
+using Translate::CTranslator;
 
 
 void testBuilder(CSymbolTableBuilder& table_vis){
@@ -65,20 +66,23 @@ int main(int argc, char** argv) {
         }
         yyin = progrFile;
         yyparse();
-
-        CPrintVisitor print_vis;
-        root->accept(&print_vis);
-        cout<<endl;
+        //
+        // CPrint print_vis;
+        // root->accept(&print_vis);
+        // cout<<endl;
 
         CSymbolTableBuilder table_vis(&symbolsStorage);
         root->accept(&table_vis);
-        //            testBuilder(table_vis);
+        // testBuilder(table_vis);
 
         CTypeChecker checker_vis(&symbolsStorage);
         checker_vis.table = table_vis.table;
         root->accept(&checker_vis);
 
-        storagePrinter();
+        CTranslator traslator_vis;
+        root->accept(&traslator_vis);
+
+        //  storagePrinter();
         delete root;
 	} catch(const std::exception& e) {
 		std::cerr << e.what() << std::endl;

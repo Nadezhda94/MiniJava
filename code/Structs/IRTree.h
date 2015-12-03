@@ -1,6 +1,7 @@
 #ifndef IRTREE_H_INCLUDED
 #define IRTREE_H_INCLUDED
 #include "../Structs/Temp.h"
+#include "../Structs/Ast.h"
 
 namespace IRTree {
 
@@ -8,15 +9,15 @@ enum CJUMP_OP{
 	EQ, NE, LT, GT, LE, GE, ULT, ULE, UGT, UGE
 };
 
-enum BINOP_OP {
-	OR, LSHIFT, RSHIFT, ARSHIFT, XOR, PLUS, MINUS, MUL, DIV, AND
-};
-
-class IExp {
+class INode{
 
 };
 
-class IStm {
+class IExp : public INode {
+
+};
+
+class IStm : public INode {
 
 };
 
@@ -105,9 +106,9 @@ private:
 
 class BINOP: public IExp {
 public:
-	BINOP(BINOP_OP _binop, IExp* _left, IExp* _right): binop(_binop), left(_left), right(_right) {}
+	BINOP(ArithmeticOpType _binop, IExp* _left, IExp* _right): binop(_binop), left(_left), right(_right) {}
 private:
-	BINOP_OP binop;
+	ArithmeticOpType binop;
 	IExp* left;
 	IExp* right;
 };

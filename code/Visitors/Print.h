@@ -4,7 +4,7 @@
 #include "../Structs/Ast.h"
 #include "../Visitors/Visitor.h"
 
-class CPrintVisitor : public CVisitor{
+class CPrint : public CVisitor{
     int counter = 0;
     void print_tabs(int num){
       for (int i=0; i<num; i++)

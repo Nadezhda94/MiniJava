@@ -8,6 +8,9 @@
 
 namespace Translate {
 
+using namespace IRTree;
+using namespace Temp;
+
 class ISubtreeWrapper {
 public:
 	virtual ~ISubtreeWrapper() { }
@@ -77,7 +80,7 @@ public:
 		Temp::CLabel* f = new Temp::CLabel();
 		return new IRTree::ESEQ( new IRTree::SEQ( new IRTree::MOVE( new IRTree::TEMP(r), new IRTree::CONST(1) ),
 			new IRTree::SEQ( ToConditional(t, f), new IRTree::SEQ( new IRTree::LABEL(f),
-				new IRTree::SEQ( new IRTree::MOVE( new IRTree::TEMP(r), new IRTree::CONST(0) ), 
+				new IRTree::SEQ( new IRTree::MOVE( new IRTree::TEMP(r), new IRTree::CONST(0) ),
 					new IRTree::LABEL(t) ) ) ) ),
 			new IRTree::TEMP(r) );
 	}
@@ -87,54 +90,234 @@ public:
 		}
 };
 
-class CTranslatorVisitor: public CVisitor {
-	std::vector<IRTree::IStm*> trees;
+class CTranslator: public CVisitor {
+	std::vector<INode*> trees;
+	std::vector<INode*> children;
 public:
-	virtual void visit(const CProgramRuleNode* node) {}
-	virtual void visit(const CMainClassDeclarationRuleNode* node) {}
-	virtual void visit(const CDeclarationsListNode* node) {}
-	virtual void visit(const CClassDeclarationRuleNode* node) {}
-	virtual void visit(const CExtendDeclarationRuleNode* node) {}
-	virtual void visit(const CVarDeclarationsListNode* node) {}
-	virtual void visit(const CMethodDeclarationsListNode* node) {}
-	virtual void visit(const CVarDeclarationRuleNode* node) {}
-	virtual void visit(const CMethodDeclarationRuleNode* node) {}
-	virtual void visit(const CVarsDecListNode* node) {}
-	virtual void visit(const CVarsDecFirstNode* node) {}
-	virtual void visit(const CStatsFirstNode* node) {}
-	virtual void visit(const CStatsListNode* node) {}
-	virtual void visit(const CMethodBodyVarsNode* node) {}
-	virtual void visit(const CMethodBodyStatsNode* node) {}
-	virtual void visit(const CMethodBodyAllNode* node) {}
-	virtual void visit(const CParamArgListNode* node) {}
-	virtual void visit(const CParamsOneNode* node) {}
-	virtual void visit(const CParamsTwoNode* node) {}
-	virtual void visit(const CParamRuleNode* node) {}
-	virtual void visit(const CTypeRuleNode* node) {}
-	virtual void visit(const CNumerousStatementsNode* node) {}
-	virtual void visit(const CBracedStatementNode* node) {}
-	virtual void visit(const CIfStatementNode* node) {}
-	virtual void visit(const CWhileStatementNode* node) {}
-	virtual void visit(const CPrintStatementNode* node) {}
-	virtual void visit(const CAssignStatementNode* node) {}
-	virtual void visit(const CInvokeExpressionStatementNode* node) {}
-	virtual void visit(const CInvokeExpressionNode* node) {}
-	virtual void visit(const CLengthExpressionNode* node) {}
-	virtual void visit(const CArithmeticExpressionNode* node) {}
-	virtual void visit(const CUnaryExpressionNode* node) {}
-	virtual void visit(const CCompareExpressionNode* node) {}
-	virtual void visit(const CNotExpressionNode* node) {}
-	virtual void visit(const CNewArrayExpressionNode* node) {}
-	virtual void visit(const CNewObjectExpressionNode* node) {}
-	virtual void visit(const CIntExpressionNode* node) {}
-	virtual void visit(const CBooleanExpressionNode* node) {}
-	virtual void visit(const CIdentExpressionNode* node) {}
-	virtual void visit(const CThisExpressionNode* node) {}
-	virtual void visit(const CParenExpressionNode* node) {}
-	virtual void visit(const CInvokeMethodExpressionNode* node) {}
-	virtual void visit(const CFewArgsExpressionNode* node) {}
-	virtual void visit(const CListExpressionNode* node) {}
-	virtual void visit(const CLastListExpressionNode* node) {}
+	void visit(const CProgramRuleNode* node){
+		node->mainClass->accept(this);
+		if (node->decl != 0)
+			node->decl->accept(this);
+	}
+
+	void visit(const CMainClassDeclarationRuleNode* node){
+		node->stmt->accept(this);
+	}
+
+	void visit(const CDeclarationsListNode* node){
+		if (node->decl != 0)
+			node->decl->accept(this);
+		if (node->cl != 0)
+			node->cl->accept(this);
+	}
+
+	void visit(const CClassDeclarationRuleNode* node){
+		if (node->extDecl != 0)
+			node->extDecl->accept(this);
+		if (node->vars != 0)
+			node->vars->accept(this);
+		node->method->accept(this);
+	}
+
+	void visit(const CExtendDeclarationRuleNode* node){
+	}
+
+	void visit(const CVarDeclarationsListNode* node){
+		if (node->list != 0)
+			node->list->accept(this);
+		node->item->accept(this);
+	}
+
+	void visit(const CMethodDeclarationsListNode* node){
+		if (node->list != 0)
+			node->list->accept(this);
+		node->item->accept(this);
+	}
+
+	void visit(const CVarDeclarationRuleNode* node){
+		node->type->accept(this);
+	}
+
+	void visit(const CMethodDeclarationRuleNode* node){
+		node->type->accept(this);
+		if (node->param_arg != 0)
+			node->param_arg->accept(this);
+		if (node->method_body != 0)
+			node->method_body->accept(this);
+		node->return_exp->accept(this);
+	}
+
+	void visit(const CVarsDecListNode* node){
+		if (node->list != 0)
+			node->list->accept(this);
+		if (node->next != 0)
+			node->next->accept(this);
+	}
+
+	void visit(const CVarsDecFirstNode* node){
+		if (node->first != 0)
+		  node->first->accept(this);
+	}
+
+	void visit(const CStatsFirstNode* node){
+		if (node->stm != 0)
+			node->stm->accept(this);
+	}
+
+	void visit(const CStatsListNode* node){
+		if (node->list != 0)
+			node->list->accept(this);
+		if (node->stm != 0)
+			node->stm->accept(this);
+	}
+
+	void visit(const CMethodBodyVarsNode* node){
+		if (node->vars != 0)
+			node->vars->accept(this);
+	}
+
+	void visit(const CMethodBodyStatsNode* node){
+		node->stats->accept(this);
+	}
+
+	void visit(const CMethodBodyAllNode* node){
+		node->vars->accept(this);
+		node->stats->accept(this);
+	}
+
+	void visit(const CParamArgListNode* node){
+		node->params->accept(this);
+	}
+
+	void visit(const CParamsOneNode* node){
+		if (node->param != 0)
+			node->param->accept(this);
+	}
+
+	void visit(const CParamsTwoNode* node){
+		if (node->first != 0)
+			node->first->accept(this);
+		if (node->second != 0)
+			node->second->accept(this);
+	}
+
+	void visit(const CParamRuleNode* node){
+		node->type->accept(this);
+	}
+
+	void visit(const CTypeRuleNode* node){
+	}
+
+	void visit(const CNumerousStatementsNode* node){
+		if (node->statements != 0)
+			node->statements->accept(this);
+		node->statement->accept(this);
+	}
+
+	void visit(const CBracedStatementNode* node){
+		if (node->statements != 0)
+			node->statements->accept(this);
+	}
+
+	void visit(const CIfStatementNode* node){
+		node->expression->accept(this);
+		node->thenStatement->accept(this);
+		if (node->elseStatement != 0){
+			node->elseStatement->accept(this);
+		}
+	}
+
+	void visit(const CWhileStatementNode* node){
+		node->expression->accept(this);
+		node->statement->accept(this);
+	}
+
+	void visit(const CPrintStatementNode* node){
+		node->expression->accept(this);
+	}
+
+	void visit(const CAssignStatementNode* node){
+		node->expression->accept(this);
+	}
+	void visit(const CInvokeExpressionStatementNode* node){
+		node->firstexpression->accept(this);
+		node->secondexpression->accept(this);
+	}
+
+	void visit(const CInvokeExpressionNode* node){
+		node->firstExp->accept(this);
+		node->secondExp->accept(this);
+	}
+
+	void visit(const CLengthExpressionNode* node){
+		node->expr->accept(this);
+	}
+
+	void visit(const CArithmeticExpressionNode* node) {
+		node->firstExp->accept(this);
+		node->secondExp->accept(this);
+		IExp* res = new BINOP(node->opType,
+			static_cast<IExp*>(children[0]),
+			static_cast<IExp*>(children[1]));
+		children.clear();
+		children.push_back(res);
+	}
+
+	void visit(const CUnaryExpressionNode* node){
+		node->expr->accept(this);
+	}
+
+	void visit(const CCompareExpressionNode* node){
+		node->firstExp->accept(this);
+		node->secondExp->accept(this);
+	}
+
+	void visit(const CNotExpressionNode* node){
+		node->expr->accept(this);
+	}
+
+	void visit(const CNewArrayExpressionNode* node){
+		node->expr->accept(this);
+	}
+
+	void visit(const CNewObjectExpressionNode* node){
+	}
+
+	void visit(const CIntExpressionNode* node) {
+		children.push_back(new CONST(node->value));
+	}
+
+	void visit(const CBooleanExpressionNode* node){
+	}
+
+	void visit(const CIdentExpressionNode* node){
+	}
+
+	void visit(const CThisExpressionNode* node){
+	}
+
+	void visit(const CParenExpressionNode* node){
+		node->expr->accept(this);
+	}
+
+	void visit(const CInvokeMethodExpressionNode* node){
+		node->expr->accept(this);
+		if (node->args != 0)
+			node->args->accept(this);
+	}
+
+	void visit(const CFewArgsExpressionNode* node){
+		node->expr->accept(this);
+	}
+
+	void visit(const CListExpressionNode* node){
+		node->prevExps->accept(this);
+		node->nextExp->accept(this);
+	}
+
+	void visit(const CLastListExpressionNode* node){
+		node->expr->accept(this);
+	}
 };
 
 }

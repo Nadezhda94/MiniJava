@@ -85,19 +85,19 @@ public:
 	}
 
 	void visit(const CProgramRuleNode* node){
-		if (node->mainClass != NULL)
+		if (node->mainClass != 0)
 		node->mainClass->accept(this);
 
-		if (node->decl != NULL)
+		if (node->decl != 0)
 		node->decl->accept(this);
 	}
 
 	void visit(const CMainClassDeclarationRuleNode* node){
-		if (node->stmt != NULL)
+		if (node->stmt != 0)
 		node->stmt->accept(this);
 	}
 	void visit(const CDeclarationsListNode* node){
-		if (node->decl != NULL)
+		if (node->decl != 0)
 			node->decl->accept(this);
 
 		node->cl->accept(this);
@@ -105,13 +105,13 @@ public:
 
 	void visit(const CClassDeclarationRuleNode* node){
 		this->classPos++;
-		if (node->extDecl != NULL)
+		if (node->extDecl != 0)
 			node->extDecl->accept(this);
 
-		if (node->vars != NULL)
+		if (node->vars != 0)
 			node->vars->accept(this);
 
-		if (node->method != NULL)
+		if (node->method != 0)
 			node->method->accept(this);
 	}
 
@@ -133,15 +133,15 @@ public:
 	}
 
 	void visit(const CVarDeclarationsListNode* node){
-		if (node->list != NULL)
+		if (node->list != 0)
 			node->list->accept(this);
 
-		if (node->item != NULL)
+		if (node->item != 0)
 			node->item->accept(this);
 	}
 
 	void visit(const CMethodDeclarationsListNode* node){
-		if (node->list != NULL) {
+		if (node->list != 0) {
 			node->list->accept(this);
 			}
 		node->item->accept(this);
@@ -154,8 +154,6 @@ public:
 				cout << "No such type: " << tmp->type << endl;
 			}
 		}
-
-		delete tmp;
 	}
 
 	void visit(const CMethodDeclarationRuleNode* node){
@@ -171,78 +169,76 @@ public:
 			if (!flag)
 			cout << "No such type: " << tmp->type << endl;
 		}
-		if (node->param_arg != NULL)
+		if (node->param_arg != 0)
 			node->param_arg->accept(this);
-		if (node->method_body != NULL)
+		if (node->method_body != 0)
 			node->method_body->accept(this);
-		if (node->return_exp != NULL)
+		if (node->return_exp != 0)
 			node->return_exp->accept(this);
-
-		delete tmp;
 	}
 
 	void visit(const CVarsDecListNode* node){
-		if (node->list != NULL)
+		if (node->list != 0)
 			node->list->accept(this);
 
-		if (node->next != NULL)
+		if (node->next != 0)
 			node->next->accept(this);
 	}
 
 	void visit(const CVarsDecFirstNode* node){
-		if (node->first != NULL)
+		if (node->first != 0)
 			node->first->accept(this);
 	}
 
 	void visit(const CStatsFirstNode* node){
-		if (node->stm != NULL)
+		if (node->stm != 0)
 			node->stm->accept(this);
 	}
 
 	void visit(const CStatsListNode* node){
-		if (node->list != NULL)
+		if (node->list != 0)
 			node->list->accept(this);
-		if (node->stm != NULL)
+		if (node->stm != 0)
 			node->stm->accept(this);
 	}
 
 	void visit(const CMethodBodyVarsNode* node){
-		if (node->vars != NULL)
+		if (node->vars != 0)
 			node->vars->accept(this);
 	}
 
 	void visit(const CMethodBodyStatsNode* node){
-		if (node->stats != NULL)
+		if (node->stats != 0)
 			node->stats->accept(this);
 	}
 
 	void visit(const CMethodBodyAllNode* node){
-		if (node->vars != NULL)
+		if (node->vars != 0)
 			node->vars->accept(this);
 
-		if (node->stats != NULL)
+		if (node->stats != 0)
 			node->stats->accept(this);
 	}
 
 	void visit(const CParamArgListNode* node){
-		if (node->params != NULL)
+		if (node->params != 0)
 			node->params->accept(this);
 	}
 
 	void visit(const CParamsOneNode* node){
-		if (node->param != NULL)
+		if (node->param != 0)
 			node->param->accept(this);
 	}
 
 	void visit(const CParamsTwoNode* node){
-		if (node->first != NULL)
+		if (node->first != 0)
 			node->first->accept(this);
-		if (node->second != NULL)
+		if (node->second != 0)
 			node->second->accept(this);
 		}
 
 	void visit(const CParamRuleNode* node){
-		if (node->type != NULL)
+		if (node->type != 0)
 			node->type->accept(this);
 	}
 
@@ -251,14 +247,14 @@ public:
 	}
 
 	void visit(const CNumerousStatementsNode* node){
-		if (node->statements != NULL)
+		if (node->statements != 0)
 			node->statements->accept(this);
-		if (node->statement != NULL)
+		if (node->statement != 0)
 			node->statement->accept(this);
 	}
 
 	void visit(const CBracedStatementNode* node){
-		if (node->statements != NULL)
+		if (node->statements != 0)
 			node->statements->accept(this);
 	}
 
@@ -281,20 +277,20 @@ public:
 	}
 
 	void visit(const CAssignStatementNode* node){
-	if (node->expression != NULL)
+	if (node->expression != 0)
 		node->expression->accept(this);
 
 		checkAssignment(node->identifier);
 	}
 
 	void visit(const CInvokeExpressionStatementNode* node){
-		if (node->firstexpression != NULL)
+		if (node->firstexpression != 0)
 			node->firstexpression->accept(this);
 
 		if (lastTypeValue != symbolsStorage->get("int"))
 			cout << "Array index is not int in " << node->identifier << endl;
 
-		if (node->secondexpression != NULL)
+		if (node->secondexpression != 0)
 			node->secondexpression->accept(this);
 
 		const CSymbol* type;
@@ -305,13 +301,13 @@ public:
 	}
 
 	void visit(const CInvokeExpressionNode* node){
-		if (node->firstExp != NULL)
+		if (node->firstExp != 0)
 			node->firstExp->accept(this);
 
 		if (lastTypeValue != symbolsStorage->get("int[]"))
 			cout << "Trying to access non-existent array" << endl;
 
-		if (node->secondExp != NULL)
+		if (node->secondExp != 0)
 			node->secondExp->accept(this);
 
 		if (lastTypeValue != symbolsStorage->get("int"))
@@ -322,7 +318,7 @@ public:
 
 	void visit(const CLengthExpressionNode* node){
 
-	if (node->expr != NULL)
+	if (node->expr != 0)
 		node->expr->accept(this);
 		lastTypeValue = symbolsStorage->get("int");
 	}
@@ -369,7 +365,7 @@ public:
 	}
 
 	void visit(const CNewArrayExpressionNode* node){
-		if (node->expr != NULL)
+		if (node->expr != 0)
 			node->expr->accept(this);
 
 		if (lastTypeValue != symbolsStorage->get("int"))
@@ -407,16 +403,16 @@ public:
 	}
 
 	void visit(const CParenExpressionNode* node){
-		if (node->expr != NULL)
+		if (node->expr != 0)
 			node->expr->accept(this);
 
 		if ((lastTypeValue != symbolsStorage->get("int")) && (lastTypeValue != symbolsStorage->get("bool")))
 			cout << "Expression in brackets is not valid" << endl;
 	}
 	void visit(const CInvokeMethodExpressionNode* node){
-		if (node->args != NULL)
+		if (node->args != 0)
 			node->args->accept(this);
-		if (node->expr != NULL)
+		if (node->expr != 0)
 			node->expr->accept(this);
 
 		bool declaredClass = false;
@@ -440,18 +436,18 @@ public:
 			cout << "Class not declared: " << lastTypeValue <<node->name << endl;
 	}
 	void visit(const CFewArgsExpressionNode* node){
-		if (node->expr != NULL)
+		if (node->expr != 0)
 			node->expr->accept(this);
 	}
 
 	void visit(const CListExpressionNode* node){
-		if (node->prevExps != NULL)
+		if (node->prevExps != 0)
 			node->prevExps->accept(this);
-		if (node->nextExp != NULL)
+		if (node->nextExp != 0)
 			node->nextExp->accept(this);
 	}
 	void visit(const CLastListExpressionNode* node){
-		if (node->expr != NULL)
+		if (node->expr != 0)
 			node->expr->accept(this);
 	}
 };
