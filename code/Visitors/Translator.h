@@ -1,9 +1,10 @@
 #ifndef TRANSLATOR_H_INCLUDED
 #define TRANSLATOR_H_INCLUDED
 #include "../common.h"
-#include "../Structs/IRTree.h"
 #include "../Visitors/Visitor.h"
+#include "../Structs/IRTree.h"
 #include "../Structs/Temp.h"
+#include "../Structs/Frame.h"
 
 
 namespace Translate {
@@ -291,6 +292,7 @@ public:
 	}
 
 	void visit(const CIdentExpressionNode* node){
+		// get from frame by access exp method
 	}
 
 	void visit(const CThisExpressionNode* node){
