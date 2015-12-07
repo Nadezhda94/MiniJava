@@ -1,17 +1,24 @@
 #ifndef FRAME_H_INCLUDED
 #define FRAME_H_INCLUDED
-#include "../Structs/Temp.h"
+#include "../Structs/IRTree.h"
 namespace Frame {
 using namespace Temp;
+using namespace IRTree;
 // Переменная фрейма
 class IAccess {
 public:
+    virtual IExp* getExp(CTemp* fp) const = 0;
     virtual ~IAccess() {}
 };
 
 class CFrameAccess : public IAccess {
 public:
     CFrameAccess(int _offset) : offset(_offset){}
+    IExp* getExp(CTemp* fp) const{
+        return new MEM(new BINOP(ArithmeticOpType::PLUS_OP,
+            static_cast<IExp*>(new TEMP(fp)),
+            static_cast<IExp*>(new CONST(offset))));
+    }
 private:
     int offset;
 };
@@ -23,12 +30,13 @@ private:
     CTemp temp;
 };
 
-// Класс-контейнер с платформо-зависимой информацией о функции
 class CFrame {
+// Класс-контейнер с платформо-зависимой информацией о функции
 public:
     static const int wordSize = 4;
     CFrame( const Symbol::CSymbol* _name, int _formalsCount ):
-        name(_name), formals(_formalsCount), local_offset(0){
+        name(_name), formals(_formalsCount), localOffset(0), framePointer()
+    {
         for (int i=0; i<_formalsCount; i++){
             formals[i] = new CFrameAccess(i*wordSize);
         }
@@ -36,6 +44,10 @@ public:
 
     int formalsCount() const {
         return formals.size();
+    }
+
+    CTemp& getFP(){
+        return framePointer;
     }
 
     const IAccess* getFormal( size_t index ) const {
@@ -46,8 +58,8 @@ public:
     }
 
     IAccess* allocLocal() {
-        locals.push_back(new CFrameAccess(local_offset));
-        local_offset -= wordSize;
+        locals.push_back(new CFrameAccess(localOffset));
+        localOffset -= wordSize;
     }
 
     ~CFrame(){
@@ -57,10 +69,11 @@ public:
             delete locals[i];
     }
 private:
-    int local_offset;
+    const Symbol::CSymbol* name;
+    CTemp framePointer;
+    int localOffset;
     vector<IAccess*> formals;
     vector<IAccess*> locals;
-    const Symbol::CSymbol* name;
 };
 }
 

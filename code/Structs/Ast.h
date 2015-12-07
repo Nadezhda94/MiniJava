@@ -6,6 +6,10 @@
 using namespace Symbol;
 extern Symbol::CStorage symbolsStorage;
 
+enum ArithmeticOpType {
+    PLUS_OP, MINUS_OP, MULT_OP, DIV_OP, AND_OP, OR_OP, LSHIFT_OP, RSHIFT_OP, ARSHIFT_OP
+};
+
 struct Location
 {
   int firstColumn;
@@ -421,9 +425,6 @@ public:
     CExpressionNode* expr;
 };
 
-enum ArithmeticOpType {
-    PLUS_OP, MINUS_OP, MULT_OP, DIV_OP, AND_OP, OR_OP, LSHIFT_OP, RSHIFT_OP, ARSHIFT_OP
-};
 
 class CArithmeticExpressionNode: public CAcceptsVisitor<CArithmeticExpressionNode, CExpressionNode> {
 public:

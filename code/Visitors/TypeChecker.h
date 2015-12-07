@@ -16,7 +16,7 @@ public:
 	int methodPos = -1;
 
 	bool inMethod;
-	CTypeChecker(CStorage* _symbols): symbolsStorage(_symbols) {}
+	CTypeChecker(CStorage* _symbols, CTable& _table): symbolsStorage(_symbols), table(_table){}
 
 	bool checkClassExistence(const CSymbol* name){
 		bool flag = false;

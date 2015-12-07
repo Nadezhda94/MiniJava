@@ -73,16 +73,15 @@ int main(int argc, char** argv) {
 
         CSymbolTableBuilder table_vis(&symbolsStorage);
         root->accept(&table_vis);
-        // testBuilder(table_vis);
+        testBuilder(table_vis);
 
-        CTypeChecker checker_vis(&symbolsStorage);
-        checker_vis.table = table_vis.table;
+        CTypeChecker checker_vis(&symbolsStorage, table_vis.table);
         root->accept(&checker_vis);
 
-        CTranslator traslator_vis;
+        CTranslator traslator_vis(&symbolsStorage, table_vis.table);
         root->accept(&traslator_vis);
 
-        //  storagePrinter();
+        //storagePrinter();
         delete root;
 	} catch(const std::exception& e) {
 		std::cerr << e.what() << std::endl;

@@ -11,6 +11,7 @@ namespace Translate {
 
 using namespace IRTree;
 using namespace Temp;
+using namespace Frame;
 
 class ISubtreeWrapper {
 public:
@@ -92,9 +93,19 @@ public:
 };
 
 class CTranslator: public CVisitor {
+	CStorage* symbolsStorage;
+	CTable table;
+	SymbolsTable::CClassInfo* current_class;
+	SymbolsTable::CMethodInfo* current_method;
+	CFrame* current_frame;
 	std::vector<INode*> trees;
 	std::vector<INode*> children;
 public:
+	CTranslator(CStorage* _symbols, CTable& _table):
+		symbolsStorage(_symbols), table(_table),
+		current_class(&table.classInfo[0]),
+		current_method(&table.classInfo[0].methods[0])
+	{}
 	void visit(const CProgramRuleNode* node){
 		node->mainClass->accept(this);
 		if (node->decl != 0)
@@ -113,6 +124,7 @@ public:
 	}
 
 	void visit(const CClassDeclarationRuleNode* node){
+		current_class = &table.getClassInfo(node->ident);
 		if (node->extDecl != 0)
 			node->extDecl->accept(this);
 		if (node->vars != 0)
@@ -136,16 +148,22 @@ public:
 	}
 
 	void visit(const CVarDeclarationRuleNode* node){
-		node->type->accept(this);
 	}
 
 	void visit(const CMethodDeclarationRuleNode* node){
+		current_method = &(current_class->getMethodInfo(node->ident));
+		current_frame = new CFrame(node->ident, current_method->params.size());
+		for (int i = 0; i < current_method->vars.size(); i++){
+			current_frame->allocLocal();
+		}
+
 		node->type->accept(this);
 		if (node->param_arg != 0)
 			node->param_arg->accept(this);
 		if (node->method_body != 0)
 			node->method_body->accept(this);
 		node->return_exp->accept(this);
+		delete current_frame;
 	}
 
 	void visit(const CVarsDecListNode* node){
@@ -292,7 +310,11 @@ public:
 	}
 
 	void visit(const CIdentExpressionNode* node){
-		// get from frame by access exp method
+		int index = current_method->getVarIndex(node->name);
+		if (index!=-1){
+			IExp* result = current_frame->getLocal(index)->getExp(&(current_frame->getFP()));
+			children.push_back(result);
+		}
 	}
 
 	void visit(const CThisExpressionNode* node){
