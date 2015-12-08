@@ -81,7 +81,7 @@ public:
 	const IRTree::IExp* ToStm() const {
 		Temp::CLabel* jmp = new Temp::CLabel();
 
-		return new new IRTree:SEQ( ToConditional(jmp, jmp), new IRTree::LABEL(lmp) );
+		return new new IRTree:SEQ( ToConditional(jmp, jmp), new IRTree::LABEL(tmp) );
 	}
 };
 
