@@ -61,19 +61,6 @@ private:
 	const IRTree::IStm* stm;
 };
 
-/*class CConditionalWrapper : public ISubtreeWrapper {
-public:
-    virtual const IRTree::IExp* ToExp() const { /* return CONST(1) or CONST(0); }
-    virtual const IRTree::IStm* ToStm() const { /* return stm; }
-    virtual const IRTree::IStm* ToConditional(const Temp::CLabel* t, const Temp::CLabel* f) const = 0;
-};
-
-class CRelativeCmpWrapper : public CConditionalWrapper {
-public:
-	CRelativeCmpWrapper ( op, e1, e2 );
-	virtual const IRTree::IStm* ToConditional( t, f ) const { return new IRTree::CJUMP(...); }
-};*/
-
 class CConditionalWrapper : public ISubtreeWrapper {
 public:
 	const IRTree::IExp* ToExp() const {
@@ -90,6 +77,12 @@ public:
 	/*virtual*/ IRTree::IStm* ToConditional(Temp::CLabel* t, Temp::CLabel* f) const {
 		return NULL;
 		}
+
+	const IRTree::IStm* ToStm() const {
+		Temp::CLabel* jmp = new Temp::CLabel();
+
+		return new IRTree::SEQ( ToConditional(jmp, jmp), new IRTree::LABEL(jmp) );
+	}
 };
 
 class CTranslator: public CVisitor {
