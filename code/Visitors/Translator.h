@@ -110,6 +110,8 @@ public:
 		node->mainClass->accept(this);
 		if (node->decl != 0)
 			node->decl->accept(this);
+		for (int i=0; i<children.size();i++)
+			cout<<typeid(*children[i]).name()<<endl;
 	}
 
 	void visit(const CMainClassDeclarationRuleNode* node){
@@ -152,7 +154,10 @@ public:
 
 	void visit(const CMethodDeclarationRuleNode* node){
 		current_method = &(current_class->getMethodInfo(node->ident));
-		current_frame = new CFrame(node->ident, current_method->params.size());
+		current_frame = new CFrame(node->ident);
+		for (int i = 0; i < current_method->params.size(); i++){
+			current_frame->allocFormal();
+		}
 		for (int i = 0; i < current_method->vars.size(); i++){
 			current_frame->allocLocal();
 		}
@@ -276,9 +281,10 @@ public:
 		node->firstExp->accept(this);
 		node->secondExp->accept(this);
 		IExp* res = new BINOP(node->opType,
-			static_cast<IExp*>(children[0]),
-			static_cast<IExp*>(children[1]));
-		children.clear();
+			static_cast<IExp*>(children[children.size()-2]),
+			static_cast<IExp*>(children[children.size()-1]));
+		children.pop_back();
+		children.pop_back();
 		children.push_back(res);
 	}
 
@@ -310,10 +316,21 @@ public:
 	}
 
 	void visit(const CIdentExpressionNode* node){
-		int index = current_method->getVarIndex(node->name);
-		if (index!=-1){
-			IExp* result = current_frame->getLocal(index)->getExp(&(current_frame->getFP()));
+		try{
+			int index = current_method->getLocalIndex(node->name);
+			IExp* result = current_frame->getLocal(index)->getExp(current_frame->getFP());
 			children.push_back(result);
+		}
+		catch (std::out_of_range* oor){
+			delete oor;
+			try{
+				int index = current_method->getFormalIndex(node->name);
+				IExp* result = current_frame->getFormal(index)->getExp(current_frame->getFP());
+				children.push_back(result);
+			}
+			catch (std::out_of_range* oor){
+				cout<<oor->what()<< " "<<node->name->getString()<<endl;
+			}
 		}
 	}
 

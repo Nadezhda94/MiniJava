@@ -7,14 +7,14 @@ using namespace IRTree;
 // Переменная фрейма
 class IAccess {
 public:
-    virtual IExp* getExp(CTemp* fp) const = 0;
+    virtual IExp* getExp(CTemp* fp) = 0;
     virtual ~IAccess() {}
 };
 
 class CFrameAccess : public IAccess {
 public:
     CFrameAccess(int _offset) : offset(_offset){}
-    IExp* getExp(CTemp* fp) const{
+    IExp* getExp(CTemp* fp){
         return new MEM(new BINOP(ArithmeticOpType::PLUS_OP,
             static_cast<IExp*>(new TEMP(fp)),
             static_cast<IExp*>(new CONST(offset))));
@@ -26,6 +26,9 @@ private:
 class CRegAccess : public IAccess {
 public:
     CRegAccess(): temp(){}
+    IExp* getExp(CTemp* fp){
+        return new TEMP(&temp);
+    }
 private:
     CTemp temp;
 };
@@ -34,32 +37,28 @@ class CFrame {
 // Класс-контейнер с платформо-зависимой информацией о функции
 public:
     static const int wordSize = 4;
-    CFrame( const Symbol::CSymbol* _name, int _formalsCount ):
-        name(_name), formals(_formalsCount), localOffset(0), framePointer()
-    {
-        for (int i=0; i<_formalsCount; i++){
-            formals[i] = new CFrameAccess(i*wordSize);
-        }
+    CFrame( const Symbol::CSymbol* _name):
+        name(_name), localOffset(0), formalOffset(0), framePointer()
+    {}
+
+    CTemp* getFP(){
+        return &framePointer;
     }
 
-    int formalsCount() const {
-        return formals.size();
-    }
-
-    CTemp& getFP(){
-        return framePointer;
-    }
-
-    const IAccess* getFormal( size_t index ) const {
-        return formals[index];
-    }
-    const IAccess* getLocal( size_t index ) const {
+    IAccess* getLocal(size_t index){
         return locals[index];
     }
+    IAccess* getFormal(size_t index){
+        return formals[index];
+    }
 
-    IAccess* allocLocal() {
+    void allocLocal() {
         locals.push_back(new CFrameAccess(localOffset));
         localOffset -= wordSize;
+    }
+    void allocFormal() {
+        formals.push_back(new CFrameAccess(formalOffset));
+        formalOffset += wordSize;
     }
 
     ~CFrame(){
@@ -72,6 +71,7 @@ private:
     const Symbol::CSymbol* name;
     CTemp framePointer;
     int localOffset;
+    int formalOffset;
     vector<IAccess*> formals;
     vector<IAccess*> locals;
 };

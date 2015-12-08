@@ -21,11 +21,17 @@ struct CMethodInfo{
     const CSymbol* returnType;
     CMethodInfo(const CSymbol* _name, const CSymbol* _returnType):
         name(_name), returnType(_returnType), vars(), params(){}
-    int getVarIndex(const CSymbol* name){
+    int getLocalIndex(const CSymbol* name){
         for (int i = 0; i < vars.size(); i++)
-            if (name->getString() == vars[i].name->getString())
+            if (name == vars[i].name)
                 return i;
-        return -1;
+        throw new std::out_of_range("Local not found");
+    }
+    int getFormalIndex(const CSymbol* name){
+        for (int i = 0; i < params.size(); i++)
+            if (name == params[i].name)
+                return i;
+        throw new std::out_of_range("Formal not found");
     }
 };
 

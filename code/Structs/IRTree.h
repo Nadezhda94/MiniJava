@@ -10,15 +10,14 @@ enum CJUMP_OP{
 };
 
 class INode{
-
+public:
+	virtual ~INode(){}
 };
 
 class IExp : public INode {
-
 };
 
 class IStm : public INode {
-
 };
 
 class ExpList;
