@@ -13,7 +13,6 @@ public:
 	const CSymbol* lastTypeValue;
 	CStorage* symbolsStorage;
 	int classPos = 0;
-	int methodPos = -1;
 
 	bool inMethod;
 	CTypeChecker(CStorage* _symbols, CTable& _table): symbolsStorage(_symbols), table(_table){}
@@ -124,9 +123,11 @@ public:
 
 			if (i == table.classInfo.size())
 				parent = symbolsStorage->get("");
+
 			else
 				parent = table.classInfo[i].parent;
-		} while ((parent != symbolsStorage->get("")) || (parent != node->ident));
+		
+		} while ((parent != symbolsStorage->get("")) && (parent != node->ident));
 
 		if (parent != symbolsStorage->get(""))
 			cout << "Cyclic inheritance with " << node->ident << endl;
@@ -157,7 +158,6 @@ public:
 	}
 
 	void visit(const CMethodDeclarationRuleNode* node){
-		this->methodPos++;
 		CTypeRuleNode* tmp = dynamic_cast<CTypeRuleNode*>(node->type);
 		if ((tmp->type != symbolsStorage->get("bool") ) && (tmp->type != symbolsStorage->get("int"))
 		&& (tmp->type != symbolsStorage->get("int[]"))) {
