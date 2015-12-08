@@ -78,10 +78,10 @@ public:
 		return NULL;
 		}
 
-	const IRTree::IExp* ToStm() const {
+	const IRTree::IStm* ToStm() const {
 		Temp::CLabel* jmp = new Temp::CLabel();
 
-		return new new IRTree:SEQ( ToConditional(jmp, jmp), new IRTree::LABEL(tmp) );
+		return new IRTree::SEQ( ToConditional(jmp, jmp), new IRTree::LABEL(jmp) );
 	}
 };
 
