@@ -179,6 +179,15 @@ public:
 			node->method_body->accept(this);
 		if (node->return_exp != 0)
 			node->return_exp->accept(this);
+
+		for (int i = 0; i < table.classInfo.size(); i++)
+			for (int j = 0; j < table.classInfo[i].methods.size(); j++){
+				if (table.classInfo[i].methods[j].name == node->ident){
+					if (table.classInfo[i].methods[j].returnType != lastTypeValue){
+						cout<< "Return types does not match" << endl;
+					}
+				}
+			}
 	}
 
 	void visit(const CVarsDecListNode* node){
@@ -449,6 +458,10 @@ public:
 
 		if (node->args != 0)
 			node->args->accept(this);
+		else{
+			if (argNum != 0)
+				cout << "Arguments number in declaration and in usage does not match" << endl;
+		}
 	}
 	void visit(const CFewArgsExpressionNode* node){
 		if (node->expr != 0)
