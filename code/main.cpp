@@ -67,9 +67,9 @@ int main(int argc, char** argv) {
         yyin = progrFile;
         yyparse();
 
-        // CPrint print_vis;
-        // root->accept(&print_vis);
-        // cout<<endl;
+        CPrint print_vis;
+        root->accept(&print_vis);
+        cout<<endl;
 
         CSymbolTableBuilder table_vis(&symbolsStorage);
         root->accept(&table_vis);
