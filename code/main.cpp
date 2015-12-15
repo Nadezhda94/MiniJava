@@ -66,7 +66,7 @@ int main(int argc, char** argv) {
         }
         yyin = progrFile;
         yyparse();
-        //
+
         // CPrint print_vis;
         // root->accept(&print_vis);
         // cout<<endl;
@@ -78,10 +78,10 @@ int main(int argc, char** argv) {
         CTypeChecker checker_vis(&symbolsStorage, table_vis.table);
         root->accept(&checker_vis);
 
-        CTranslator traslator_vis(&symbolsStorage, table_vis.table);
-        root->accept(&traslator_vis);
+        // CTranslator traslator_vis(&symbolsStorage, table_vis.table);
+        // root->accept(&traslator_vis);
 
-        //storagePrinter();
+        // storagePrinter();
         delete root;
 	} catch(const std::exception& e) {
 		std::cerr << e.what() << std::endl;

@@ -14,6 +14,8 @@ public:
 	CStorage* symbolsStorage;
 	int classPos = 0;
 	int methodPos = -1;
+	int argCount = 0;
+	int argNum = 0;
 
 	bool inMethod;
 	CTypeChecker(CStorage* _symbols, CTable& _table): symbolsStorage(_symbols), table(_table){}
@@ -154,6 +156,7 @@ public:
 				cout << "No such type: " << tmp->type << endl;
 			}
 		}
+		node->type->accept(this);
 	}
 
 	void visit(const CMethodDeclarationRuleNode* node){
@@ -169,6 +172,7 @@ public:
 			if (!flag)
 			cout << "No such type: " << tmp->type << endl;
 		}
+		node->type->accept(this);
 		if (node->param_arg != 0)
 			node->param_arg->accept(this);
 		if (node->method_body != 0)
@@ -262,12 +266,17 @@ public:
 		node->expression->accept(this);
 		if (lastTypeValue != symbolsStorage->get("bool"))
 			cout << "Error in if/else statement expression" << endl;
+		node->thenStatement->accept(this);
+		if (node->elseStatement != 0){
+          node->elseStatement->accept(this);
+        }
 	}
 
 	void visit(const CWhileStatementNode* node){
 		node->expression->accept(this);
 		if (lastTypeValue != symbolsStorage->get("bool"))
 			cout << "Error in while statement expression" << lastTypeValue << endl;
+		 node->statement->accept(this);
 	}
 
 	void visit(const CPrintStatementNode* node){
@@ -410,8 +419,7 @@ public:
 			cout << "Expression in brackets is not valid" << endl;
 	}
 	void visit(const CInvokeMethodExpressionNode* node){
-		if (node->args != 0)
-			node->args->accept(this);
+
 		if (node->expr != 0)
 			node->expr->accept(this);
 
@@ -423,6 +431,7 @@ public:
 				for (int j = 0; j < table.classInfo[i].methods.size(); j++) {
 					declaredMethod = declaredMethod || (table.classInfo[i].methods[j].name == node->name);
 					if (declaredMethod) {
+						argNum = table.classInfo[i].methods[j].params.size();
 						lastTypeValue = table.classInfo[i].methods[j].returnType;
 						break;
 					}
@@ -434,6 +443,9 @@ public:
 		}
 		if (!declaredClass)
 			cout << "Class not declared: " << lastTypeValue <<node->name << endl;
+
+		if (node->args != 0)
+			node->args->accept(this);
 	}
 	void visit(const CFewArgsExpressionNode* node){
 		if (node->expr != 0)
@@ -441,12 +453,17 @@ public:
 	}
 
 	void visit(const CListExpressionNode* node){
+		argCount++;
 		if (node->prevExps != 0)
 			node->prevExps->accept(this);
 		if (node->nextExp != 0)
 			node->nextExp->accept(this);
 	}
 	void visit(const CLastListExpressionNode* node){
+		argCount++;
+		if (argCount != argNum)
+			cout << "Arguments number in declaration and in usage does not match" << endl;
+		argCount  = 0;
 		if (node->expr != 0)
 			node->expr->accept(this);
 	}

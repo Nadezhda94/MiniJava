@@ -41,7 +41,7 @@ public:
   		  node->extDecl->accept(this);
       if (node->vars != 0)
   		  node->vars->accept(this);
-		  node->method->accept(this);
+      node->method->accept(this);
       --counter;
     }
 
