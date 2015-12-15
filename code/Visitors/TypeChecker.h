@@ -126,9 +126,11 @@ public:
 
 			if (i == table.classInfo.size())
 				parent = symbolsStorage->get("");
+
 			else
 				parent = table.classInfo[i].parent;
-		} while ((parent != symbolsStorage->get("")) || (parent != node->ident));
+
+		} while ((parent != symbolsStorage->get("")) && (parent != node->ident));
 
 		if (parent != symbolsStorage->get(""))
 			cout << "Cyclic inheritance with " << node->ident << endl;
@@ -160,7 +162,6 @@ public:
 	}
 
 	void visit(const CMethodDeclarationRuleNode* node){
-		this->methodPos++;
 		CTypeRuleNode* tmp = dynamic_cast<CTypeRuleNode*>(node->type);
 		if ((tmp->type != symbolsStorage->get("bool") ) && (tmp->type != symbolsStorage->get("int"))
 		&& (tmp->type != symbolsStorage->get("int[]"))) {
