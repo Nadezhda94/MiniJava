@@ -71,9 +71,8 @@ public:
 
 	const CSymbol* checkAssignment(const CSymbol* name){
 		const CSymbol* type;
+
 		bool declared = assignType(name, type);
-
-
 		if (!declared){
 			cout << "Variable not declared " << name << endl;
 			return symbolsStorage->get( "" );
@@ -402,9 +401,12 @@ public:
 
 	void visit(const CIdentExpressionNode* node){
 		const CSymbol* tmp;
-		assignType(node->name, tmp);
-		if (tmp != symbolsStorage->get("")) {
-			lastTypeValue = tmp;
+		if (assignType(node->name, tmp)){
+			if (tmp != symbolsStorage->get("")) {
+				lastTypeValue = tmp;
+			}
+		} else {
+			cout << "Invaid ident " << node->name << endl;
 		}
 	}
 

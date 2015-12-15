@@ -1,6 +1,6 @@
 class Factorial{
     public static void main(String[] a){
-    System.out.println(new Fac().ComputeFac(10, 2));
+    System.out.println(new Fac().ComputeFac(10));
     }
 }
 
@@ -10,7 +10,7 @@ class Fac {
     bool num_aux ;
 
     if (num < 1)
-        num_aux = 1 ;
+        num_aux = k1 ;
     else
         num_aux = num * (this.ComputeFac(num-1 , 2 , 3)) ;
     return num_aux ;
