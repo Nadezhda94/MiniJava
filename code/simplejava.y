@@ -3,14 +3,18 @@
 #include "simplejava.tab.hpp"
 #include "Structs/Ast.h"
 #include "Structs/Symbol.h"
+
+#include <exception>
 extern FILE * yyin;
 CProgramRuleNode* root;
 
+
 int yylex();
 void yyerror(const char * s){
-    std::cout << s << std::endl;
-    std::cout << "line number: " << yylloc.first_line << std::endl;
-    std:: cout << "position in line: " << yylloc.last_column << std::endl;
+    std::cerr << s << std::endl;
+    std::cerr << "line number: " << yylloc.first_line << std::endl;
+    std:: cerr << "position in line: " << yylloc.last_column << std::endl;
+    throw new std::invalid_argument("syntax error");
 };
 
 void setLocation(YYLTYPE& curLoc, YYLTYPE& firstLoc, YYLTYPE& lastLoc, CNode* node) {

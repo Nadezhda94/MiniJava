@@ -83,8 +83,9 @@ int main(int argc, char** argv) {
 
         // storagePrinter();
         delete root;
-	} catch(const std::exception& e) {
-		std::cerr << e.what() << std::endl;
+	} catch(const std::exception* e) {
+		std::cerr << e->what() << std::endl;
+        delete e;
 	}
     return 0;
 }
