@@ -24,61 +24,61 @@ class ExpList;
 
 class ExpList {
 public:
-	ExpList(IExp* _head, ExpList* _tail) : head(_head), tail(_tail) {}
+	ExpList(const IExp* _head, const ExpList* _tail) : head(_head), tail(_tail) {}
 private:
-	IExp* head;
-	ExpList* tail;
+	const IExp* head;
+	const ExpList* tail;
 };
 
 class MOVE: public IStm {
 public:
-	MOVE(IExp* _dst, IExp* _src): dst(_dst), src(_src) {}
+	MOVE(const IExp* _dst, const IExp* _src): dst(_dst), src(_src) {}
 private:
-	IExp* dst;
-	IExp* src;
+	const IExp* dst;
+	const IExp* src;
 };
 
 class EXP: public IStm {
 public:
-	EXP(IExp* _exp): exp(_exp) {}
+	EXP(const IExp* _exp): exp(_exp) {}
 private:
-	IExp* exp;
+	const IExp* exp;
 };
 
 
 class JUMP: public IStm {
 public:
-	JUMP(IExp* _exp, Temp::CLabel* _target) : exp(_exp), target(_target) {}
+	JUMP(const IExp* _exp, const Temp::CLabel* _target) : exp(_exp), target(_target) {}
 private:
-	IExp* exp;
-	Temp::CLabel* target;
+	const IExp* exp;
+	const Temp::CLabel* target;
 };
 
 class CJUMP: public IStm {
 public:
-	CJUMP(CJUMP_OP _relop, IExp* _left, IExp* _right, Temp::CLabel* _iftrue, Temp::CLabel* _iffalse):
+	CJUMP(CJUMP_OP _relop, const IExp* _left, const IExp* _right, const Temp::CLabel* _iftrue, const Temp::CLabel* _iffalse):
 						relop(_relop), left(_left), right(_right), iftrue(_iftrue), iffalse(_iffalse) {}
 private:
 	CJUMP_OP relop;
-	IExp* left;
-	IExp* right;
-	Temp::CLabel* iftrue;
-	Temp::CLabel* iffalse;
+	const IExp* left;
+	const IExp* right;
+	const Temp::CLabel* iftrue;
+	const Temp::CLabel* iffalse;
 };
 
 class SEQ: public IStm {
 public:
-	SEQ(IStm* _left, IStm* _right): left(_left), right(_right) {}
+	SEQ(const IStm* _left, const IStm* _right): left(_left), right(_right) {}
 private:
-	IStm* left;
-	IStm* right;
+	const IStm* left;
+	const IStm* right;
 };
 
 class LABEL: public IStm {
 public:
-	LABEL(Temp::CLabel* _label):label(_label) {}
+	LABEL(const Temp::CLabel* _label):label(_label) {}
 private:
-	Temp::CLabel* label;
+	const Temp::CLabel* label;
 };
 
 
@@ -98,41 +98,41 @@ private:
 
 class TEMP: public IExp {
 public:
-	TEMP(Temp::CTemp* _temp): temp(_temp) {}
+	TEMP(const Temp::CTemp* _temp): temp(_temp) {}
 private:
-	Temp::CTemp* temp;
+	const Temp::CTemp* temp;
 };
 
 class BINOP: public IExp {
 public:
-	BINOP(ArithmeticOpType _binop, IExp* _left, IExp* _right): binop(_binop), left(_left), right(_right) {}
+	BINOP(ArithmeticOpType _binop, const IExp* _left, const IExp* _right): binop(_binop), left(_left), right(_right) {}
 private:
 	ArithmeticOpType binop;
-	IExp* left;
-	IExp* right;
+	const IExp* left;
+	const IExp* right;
 };
 
 class MEM: public IExp {
 public:
-	MEM(IExp* _exp): exp(_exp) {}
+	MEM(const IExp* _exp): exp(_exp) {}
 private:
-	IExp* exp;
+	const IExp* exp;
 };
 
 class CALL: public IExp {
 public:
-	CALL(IExp* _func, ExpList* _args): func(_func), args(_args) {}
+	CALL(const IExp* _func, const ExpList* _args): func(_func), args(_args) {}
 private:
-	IExp* func;
-	ExpList* args;
+	const IExp* func;
+	const ExpList* args;
 };
 
 class ESEQ: public IExp {
 public:
-	ESEQ(IStm* _stm, IExp* _exp): stm(_stm), exp(_exp) {}
+	ESEQ(const IStm* _stm, const IExp* _exp): stm(_stm), exp(_exp) {}
 private:
-	IStm* stm;
-	IExp* exp;
+	const IStm* stm;
+	const IExp* exp;
 };
 
 }

@@ -23,7 +23,7 @@ public:
 
 class CExpConverter : public ISubtreeWrapper {
 public:
-	CExpConverter(IRTree::IExp* _expr) : expr(_expr) {}
+	CExpConverter(const IRTree::IExp* _expr) : expr(_expr) {}
 
 	const IRTree::IExp* ToExp() const {
 		return expr;
@@ -33,12 +33,12 @@ public:
 		return new IRTree::EXP(expr);
 	}
 
-	const IRTree::IStm* ToConditional(Temp::CLabel* t, Temp::CLabel* f) const {
+	const IRTree::IStm* ToConditional(const Temp::CLabel* t,const Temp::CLabel* f) const {
 		return new IRTree::CJUMP(IRTree::EQ, expr, new IRTree::CONST(0), f, t);
 	}
 
 private:
-	IRTree::IExp* expr;
+	const IRTree::IExp* expr;
 };
 
 class CStmConverter : public ISubtreeWrapper {
@@ -91,8 +91,8 @@ class CTranslator: public CVisitor {
 	SymbolsTable::CClassInfo* current_class;
 	SymbolsTable::CMethodInfo* current_method;
 	CFrame* current_frame;
-	std::vector<INode*> trees;
-	std::vector<INode*> children;
+	std::shared_ptr<ISubtreeWrapper> current_node;
+	std::vector<const INode*> trees;
 public:
 	CTranslator(CStorage* _symbols, CTable& _table):
 		symbolsStorage(_symbols), table(_table),
@@ -103,8 +103,6 @@ public:
 		node->mainClass->accept(this);
 		if (node->decl != 0)
 			node->decl->accept(this);
-		for (int i=0; i<children.size();i++)
-			cout<<typeid(*children[i]).name()<<endl;
 	}
 
 	void visit(const CMainClassDeclarationRuleNode* node){
@@ -148,19 +146,29 @@ public:
 	void visit(const CMethodDeclarationRuleNode* node){
 		current_method = &(current_class->getMethodInfo(node->ident));
 		current_frame = new CFrame(node->ident);
+		current_frame->allocFormal(); // this
 		for (int i = 0; i < current_method->params.size(); i++){
 			current_frame->allocFormal();
 		}
 		for (int i = 0; i < current_method->vars.size(); i++){
 			current_frame->allocLocal();
 		}
-
+		for (int i = 0; i < current_class->vars.size(); i++){
+			current_frame->allocVar();
+		}
 		node->type->accept(this);
 		if (node->param_arg != 0)
 			node->param_arg->accept(this);
+
 		if (node->method_body != 0)
 			node->method_body->accept(this);
+		const IStm* arg1 = current_node->ToStm();
+
 		node->return_exp->accept(this);
+		const IExp* arg2 = current_node->ToExp();
+		const IExp* res = new ESEQ(arg1, arg2);
+		trees.push_back(res);
+
 		delete current_frame;
 	}
 
@@ -272,13 +280,11 @@ public:
 
 	void visit(const CArithmeticExpressionNode* node) {
 		node->firstExp->accept(this);
+		const IExp* arg1 = current_node->ToExp();
 		node->secondExp->accept(this);
-		IExp* res = new BINOP(node->opType,
-			static_cast<IExp*>(children[children.size()-2]),
-			static_cast<IExp*>(children[children.size()-1]));
-		children.pop_back();
-		children.pop_back();
-		children.push_back(res);
+		const IExp* arg2 = current_node->ToExp();
+		const IExp* res = new BINOP(node->opType, arg1, arg2);
+		current_node = std::shared_ptr<CExpConverter>(new CExpConverter(res));
 	}
 
 	void visit(const CUnaryExpressionNode* node){
@@ -302,7 +308,8 @@ public:
 	}
 
 	void visit(const CIntExpressionNode* node) {
-		children.push_back(new CONST(node->value));
+		current_node = std::shared_ptr<CExpConverter>(
+			new CExpConverter(new CONST(node->value)));
 	}
 
 	void visit(const CBooleanExpressionNode* node){
@@ -311,23 +318,33 @@ public:
 	void visit(const CIdentExpressionNode* node){
 		try{
 			int index = current_method->getLocalIndex(node->name);
-			IExp* result = current_frame->getLocal(index)->getExp(current_frame->getFP());
-			children.push_back(result);
+			IExp* result = current_frame->getLocal(index)->getExp();
+			current_node =std::shared_ptr<CExpConverter>(new CExpConverter(result));
 		}
 		catch (std::out_of_range* oor){
 			delete oor;
 			try{
 				int index = current_method->getFormalIndex(node->name);
-				IExp* result = current_frame->getFormal(index)->getExp(current_frame->getFP());
-				children.push_back(result);
+				IExp* result = current_frame->getFormal(index)->getExp();
+				current_node = std::shared_ptr<CExpConverter>(new CExpConverter(result));
 			}
 			catch (std::out_of_range* oor){
-				cout<<oor->what()<< " "<<node->name->getString()<<endl;
+				delete oor;
+				try{
+					int index = current_class->getVarIndex(node->name);
+					IExp* result = current_frame->getVar(index)->getExp();
+					current_node = std::shared_ptr<CExpConverter>(new CExpConverter(result));
+				}
+				catch (std::out_of_range* oor){
+					cout<<oor->what()<< " "<<node->name->getString()<<endl;
+				}
 			}
 		}
 	}
 
 	void visit(const CThisExpressionNode* node){
+		current_node = std::shared_ptr<CExpConverter>(
+			new CExpConverter(current_frame->getFormal(0)->getExp()));
 	}
 
 	void visit(const CParenExpressionNode* node){

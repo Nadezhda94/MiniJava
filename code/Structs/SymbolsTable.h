@@ -47,6 +47,12 @@ struct CClassInfo{
             if (name->getString() == methods[i].name->getString())
                 return methods[i];
     }
+    int getVarIndex(const CSymbol* name){
+        for (int i = 0; i < vars.size(); i++)
+            if (name == vars[i].name)
+                return i;
+        throw new std::out_of_range("Var in class not found");
+    }
 };
 
 struct CTable{

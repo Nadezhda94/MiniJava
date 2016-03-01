@@ -152,7 +152,7 @@ public:
 
 	void visit(const CVarDeclarationRuleNode* node){
 		CTypeRuleNode* tmp = dynamic_cast<CTypeRuleNode*>(node->type);
-		if ((tmp->type != symbolsStorage->get("bool") ) && (tmp->type != symbolsStorage->get("int") && (tmp->type != symbolsStorage->get("int[]")))) {
+		if ((tmp->type != symbolsStorage->get("boolean") ) && (tmp->type != symbolsStorage->get("int") && (tmp->type != symbolsStorage->get("int[]")))) {
 			if (!checkClassExistence(tmp->type)) {
 				cout << "No such type: " << tmp->type << endl;
 			}
@@ -162,7 +162,7 @@ public:
 
 	void visit(const CMethodDeclarationRuleNode* node){
 		CTypeRuleNode* tmp = dynamic_cast<CTypeRuleNode*>(node->type);
-		if ((tmp->type != symbolsStorage->get("bool") ) && (tmp->type != symbolsStorage->get("int"))
+		if ((tmp->type != symbolsStorage->get("boolean") ) && (tmp->type != symbolsStorage->get("int"))
 		&& (tmp->type != symbolsStorage->get("int[]"))) {
 			bool flag = false;
 			for (int i = 0; i < table.classInfo.size(); i++){
@@ -273,7 +273,7 @@ public:
 
 	void visit(const CIfStatementNode* node){
 		node->expression->accept(this);
-		if (lastTypeValue != symbolsStorage->get("bool"))
+		if (lastTypeValue != symbolsStorage->get("boolean"))
 			cout << "Error in if/else statement expression" << endl;
 		node->thenStatement->accept(this);
 		if (node->elseStatement != 0){
@@ -283,7 +283,7 @@ public:
 
 	void visit(const CWhileStatementNode* node){
 		node->expression->accept(this);
-		if (lastTypeValue != symbolsStorage->get("bool"))
+		if (lastTypeValue != symbolsStorage->get("boolean"))
 			cout << "Error in while statement expression" << lastTypeValue << endl;
 		 node->statement->accept(this);
 	}
@@ -343,11 +343,11 @@ public:
 
 	void visit(const CArithmeticExpressionNode* node){
 		node->firstExp->accept(this);
-		if ((lastTypeValue != symbolsStorage->get("int")) && (lastTypeValue != symbolsStorage->get("bool")))
+		if ((lastTypeValue != symbolsStorage->get("int")) && (lastTypeValue != symbolsStorage->get("boolean")))
 			cout << "Error in arithmetic expression" << endl;
 
 		node->secondExp->accept(this);
-		if ((lastTypeValue != symbolsStorage->get("int")) && (lastTypeValue != symbolsStorage->get("bool")))
+		if ((lastTypeValue != symbolsStorage->get("int")) && (lastTypeValue != symbolsStorage->get("boolean")))
 			cout << "Error in arithmetic expression" << endl;
 	}
 
@@ -370,16 +370,16 @@ public:
 		if (lastTypeValue != symbolsStorage->get("int"))
 			cout << "Error in compare expression" << endl;
 
-		lastTypeValue = symbolsStorage->get("bool");
+		lastTypeValue = symbolsStorage->get("boolean");
 	}
 
 	void visit(const CNotExpressionNode* node){
 		node->expr->accept(this);
 
-		if (lastTypeValue != symbolsStorage->get("bool"))
+		if (lastTypeValue != symbolsStorage->get("boolean"))
 			cout << "Error in NOT expression" << endl;
 
-		lastTypeValue = symbolsStorage->get("bool");
+		lastTypeValue = symbolsStorage->get("boolean");
 	}
 
 	void visit(const CNewArrayExpressionNode* node){
@@ -392,7 +392,7 @@ public:
 	}
 
 	void visit(const CNewObjectExpressionNode* node){
-		if ((node->objType != symbolsStorage->get("int")) && (node->objType != symbolsStorage->get("bool")))
+		if ((node->objType != symbolsStorage->get("int")) && (node->objType != symbolsStorage->get("boolean")))
 			if (!checkClassExistence(node->objType))
 				cout << "No such type: " << node->objType << endl;
 			else
@@ -405,7 +405,7 @@ public:
 	}
 
 	void visit(const CBooleanExpressionNode* node){
-		lastTypeValue = symbolsStorage->get("bool");
+		lastTypeValue = symbolsStorage->get("boolean");
 	}
 
 	void visit(const CIdentExpressionNode* node){
@@ -427,7 +427,7 @@ public:
 		if (node->expr != 0)
 			node->expr->accept(this);
 
-		if ((lastTypeValue != symbolsStorage->get("int")) && (lastTypeValue != symbolsStorage->get("bool")))
+		if ((lastTypeValue != symbolsStorage->get("int")) && (lastTypeValue != symbolsStorage->get("boolean")))
 			cout << "Expression in brackets is not valid" << endl;
 	}
 	void visit(const CInvokeMethodExpressionNode* node){
@@ -437,6 +437,7 @@ public:
 
 		bool declaredClass = false;
 		bool declaredMethod = false;
+		const CSymbol* ret;
 		for (int i = 0; i < table.classInfo.size(); i++){
 			declaredClass = declaredClass || (table.classInfo[i].name == lastTypeValue);
 			if (declaredClass) {
@@ -444,7 +445,7 @@ public:
 					declaredMethod = declaredMethod || (table.classInfo[i].methods[j].name == node->name);
 					if (declaredMethod) {
 						argNum = table.classInfo[i].methods[j].params.size();
-						lastTypeValue = table.classInfo[i].methods[j].returnType;
+						ret = table.classInfo[i].methods[j].returnType;
 						break;
 					}
 				}
@@ -462,6 +463,7 @@ public:
 			if (argNum != 0)
 				cout << "Arguments number in declaration and in usage does not match" << endl;
 		}
+		lastTypeValue = ret;
 	}
 	void visit(const CFewArgsExpressionNode* node){
 		if (node->expr != 0)

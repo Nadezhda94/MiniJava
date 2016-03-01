@@ -78,8 +78,8 @@ int main(int argc, char** argv) {
         CTypeChecker checker_vis(&symbolsStorage, table_vis.table);
         root->accept(&checker_vis);
 
-        // CTranslator traslator_vis(&symbolsStorage, table_vis.table);
-        // root->accept(&traslator_vis);
+        CTranslator traslator_vis(&symbolsStorage, table_vis.table);
+        root->accept(&traslator_vis);
 
         // storagePrinter();
         delete root;

@@ -235,7 +235,7 @@ type
             setLocation(@$, @1, @1, $$);
         }
         | BOOLEAN_TYPE {
-            $$ = new CTypeRuleNode("bool");
+            $$ = new CTypeRuleNode("boolean");
             setLocation(@$, @1, @1, $$);
         }
         | INT_TYPE {
