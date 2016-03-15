@@ -57,6 +57,7 @@ public:
 class JUMP: public CAcceptsIRVisitor<JUMP, IStm> {
 public:
 	JUMP(const IExp* _exp, const Temp::CLabel* _target) : exp(_exp), target(_target) {}
+	JUMP(const Temp::CLabel* _target) : exp(0), target(_target) {}
 	const IExp* exp;
 	const Temp::CLabel* target;
 };
