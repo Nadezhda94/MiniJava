@@ -16,77 +16,79 @@ using namespace Frame;
 class ISubtreeWrapper {
 public:
 	virtual ~ISubtreeWrapper() { }
-	virtual const IRTree::IExp* ToExp() const = 0;
-	virtual const IRTree::IStm* ToStm() const = 0;
-	virtual const IRTree::IStm* ToConditional(const Temp::CLabel* t, const Temp::CLabel* f) const = 0;
+	virtual const IExp* ToExp() const = 0;
+	virtual const IStm* ToStm() const = 0;
+	virtual const IStm* ToConditional(const Temp::CLabel* t, const Temp::CLabel* f) const = 0;
 };
 
 class CExpConverter : public ISubtreeWrapper {
 public:
-	CExpConverter(const IRTree::IExp* _expr) : expr(_expr) {}
+	CExpConverter(const IExp* _expr) : expr(_expr) {}
 
-	const IRTree::IExp* ToExp() const {
+	const IExp* ToExp() const {
 		return expr;
 	}
 
-	const IRTree::IStm* ToStm() const {
-		return new IRTree::EXP(expr);
+	const IStm* ToStm() const {
+		return new EXP(expr);
 	}
 
-	const IRTree::IStm* ToConditional(const Temp::CLabel* t,const Temp::CLabel* f) const {
-		return new IRTree::CJUMP(IRTree::EQ, expr, new IRTree::CONST(0), f, t);
+	const IStm* ToConditional(const Temp::CLabel* t,const Temp::CLabel* f) const {
+		return new CJUMP(EQ, expr, new CONST(0), f, t);
 	}
 
 private:
-	const IRTree::IExp* expr;
+	const IExp* expr;
 };
 
 class CStmConverter : public ISubtreeWrapper {
 public:
-	CStmConverter(const IRTree::IStm* _stm): stm(_stm) {}
+	CStmConverter(const IStm* _stm): stm(_stm) {}
 
-	const IRTree::IExp* ToExp() const {
+	const IExp* ToExp() const {
 		assert(0);
 	}
 
-	const IRTree::IStm* ToStm() const {
+	const IStm* ToStm() const {
 		return stm;
 	}
 
-	const IRTree::IStm* ToConditional(const Temp::CLabel* t, const Temp::CLabel* f) const {
+	const IStm* ToConditional(const Temp::CLabel* t, const Temp::CLabel* f) const {
 		assert(0);
 	}
 
 private:
-	const IRTree::IStm* stm;
+	const IStm* stm;
 };
 
 class CConditionalWrapper : public ISubtreeWrapper {
 public:
-	const IRTree::IExp* ToExp() const {
+	const IExp* ToExp() const {
 		Temp::CTemp* r = new Temp::CTemp();
 		Temp::CLabel* t = new Temp::CLabel();
 		Temp::CLabel* f = new Temp::CLabel();
-		return new IRTree::ESEQ( new IRTree::SEQ( new IRTree::MOVE( new IRTree::TEMP(r), new IRTree::CONST(1) ),
-			new IRTree::SEQ( ToConditional(t, f), new IRTree::SEQ( new IRTree::LABEL(f),
-				new IRTree::SEQ( new IRTree::MOVE( new IRTree::TEMP(r), new IRTree::CONST(0) ),
-					new IRTree::LABEL(t) ) ) ) ),
-			new IRTree::TEMP(r) );
+		return new ESEQ(
+			   new SEQ( new MOVE( new TEMP(r), new CONST(1) ),
+			   new SEQ( ToConditional(t, f),
+		 	   new SEQ( new LABEL(f),
+			   new SEQ( new MOVE( new TEMP(r), new CONST(0) ),
+						 new LABEL(t) ) ) ) ),
+			   new TEMP(r) );
 	}
 
-	virtual const IRTree::IStm* ToConditional(const Temp::CLabel* t, const Temp::CLabel* f) const = 0;
+	virtual const IStm* ToConditional(const Temp::CLabel* t, const Temp::CLabel* f) const = 0;
 
-	const IRTree::IStm* ToStm() const {
+	const IStm* ToStm() const {
 		Temp::CLabel* jmp = new Temp::CLabel();
 
-		return new IRTree::SEQ( ToConditional(jmp, jmp), new IRTree::LABEL(jmp) );
+		return new SEQ( ToConditional(jmp, jmp), new LABEL(jmp) );
 	}
 };
 
 class CRelativeCmpWrapper : public CConditionalWrapper {
 public:
 	CRelativeCmpWrapper(CJUMP_OP op, const IExp* _first, const IExp* _second) : first(_first), second(_second) {}
-	const IRTree::IStm* ToConditional(const Temp::CLabel* t, const Temp::CLabel* f) const {
+	const IStm* ToConditional(const Temp::CLabel* t, const Temp::CLabel* f) const {
 		return new CJUMP(op, first, second, t, f);
 	}
 private:
@@ -98,9 +100,9 @@ private:
 class CFromAndConverter : public CConditionalWrapper {
 public:
 	CFromAndConverter(const IExp* _leftArg, const IExp* _rightArg) : leftArg(_leftArg), rightArg(_rightArg) {}
-	const IRTree::IStm* ToConditional(const Temp::CLabel* t, const Temp::CLabel* f) const {
+	const IStm* ToConditional(const Temp::CLabel* t, const Temp::CLabel* f) const {
 		const Temp::CLabel* z = new Temp::CLabel();
-		return new SEQ( new CJUMP(LT, leftArg, new CONST(1), f, z), 
+		return new SEQ( new CJUMP(LT, leftArg, new CONST(1), f, z),
 			new SEQ(new LABEL(z), new CJUMP(LT, rightArg, new CONST(1), f, t)));
 	}
 private:
@@ -111,15 +113,17 @@ private:
 class CFromOrConverter : public CConditionalWrapper {
 public:
 	CFromOrConverter(const IExp* _leftArg, const IExp* _rightArg) : leftArg(_leftArg), rightArg(_rightArg) {}
-	const IRTree::IStm* ToConditional(const Temp::CLabel* t, const Temp::CLabel* f) const {
+	const IStm* ToConditional(const Temp::CLabel* t, const Temp::CLabel* f) const {
 		const CLabel* z = new CLabel();
-		return new SEQ(new CJUMP(GT, leftArg, new CONST(1), t, z), 
+		return new SEQ(new CJUMP(GT, leftArg, new CONST(1), t, z),
 			new SEQ(new LABEL(z), new CJUMP(LT, rightArg, new CONST(1), f, t)));
 	}
 private:
 	const IExp* leftArg;
 	const IExp* rightArg;
 };
+
+
 
 class CTranslator: public CVisitor {
 	CStorage* symbolsStorage;
@@ -129,12 +133,34 @@ class CTranslator: public CVisitor {
 	CFrame* current_frame;
 	std::shared_ptr<ISubtreeWrapper> current_node;
 	std::vector<const INode*> trees;
+
+	IExp* findByName(const CSymbol* name){
+		try{
+			return current_frame->getLocal(current_method->getLocalIndex(name))->getExp();
+		}
+		catch (std::out_of_range* oor){
+			delete oor;
+			try{
+				return current_frame->getFormal(current_method->getFormalIndex(name))->getExp();
+			}
+			catch (std::out_of_range* oor){
+				delete oor;
+				try{
+					return current_frame->getVar(current_class->getVarIndex(name))->getExp();
+				}
+				catch (std::out_of_range* oor){
+					cout<<oor->what()<< " "<<name->getString()<<endl;
+				}
+			}
+		}
+	}
 public:
 	CTranslator(CStorage* _symbols, CTable& _table):
 		symbolsStorage(_symbols), table(_table),
 		current_class(&table.classInfo[0]),
 		current_method(&table.classInfo[0].methods[0])
 	{}
+
 	void visit(const CProgramRuleNode* node){
 		node->mainClass->accept(this);
 		if (node->decl != 0)
@@ -143,6 +169,7 @@ public:
 
 	void visit(const CMainClassDeclarationRuleNode* node){
 		node->stmt->accept(this);
+		// TODO: realize
 	}
 
 	void visit(const CDeclarationsListNode* node){
@@ -162,6 +189,7 @@ public:
 	}
 
 	void visit(const CExtendDeclarationRuleNode* node){
+		// TODO: realize
 	}
 
 	void visit(const CVarDeclarationsListNode* node){
@@ -270,6 +298,7 @@ public:
 	}
 
 	void visit(const CNumerousStatementsNode* node){
+		// TODO: SEQ
 		if (node->statements != 0)
 			node->statements->accept(this);
 		node->statement->accept(this);
@@ -283,39 +312,53 @@ public:
 	//TODO
 	void visit(const CIfStatementNode* node){
 		node->expression->accept(this);
-		const IExp* expr = current_node->ToExp();
+		const CLabel* t = new CLabel();
+		const CLabel* f = new CLabel();
+		const CLabel* e = new CLabel();
+		const IStm* stm = current_node->ToConditional(t, f);
+
 		node->thenStatement->accept(this);
+
 		const IStm* thenStatement = current_node->ToStm();
+		thenStatement = new SEQ( new SEQ( new LABEL(t), thenStatement ), new JUMP(e) );
 		if (node->elseStatement != 0){
 			node->elseStatement->accept(this);
 		}
 		const IStm* elseStatement = current_node->ToStm();
-		const CLabel* t = new CLabel();
-		const CLabel* f = new CLabel();
-		const IStm* res;
-		current_node = std::shared_ptr<CStmConverter>(new CStmConverter(res));
+		elseStatement = new SEQ( new SEQ( new LABEL(f), elseStatement ), new LABEL(e) );
+
+		const IStm* res = new SEQ( new SEQ( stm, thenStatement ), elseStatement );
+		current_node = std::shared_ptr<CStmConverter>( new CStmConverter(res) );
 	}
 
 	void visit(const CWhileStatementNode* node){
 		node->expression->accept(this);
+
 		const IExp* expr = current_node->ToExp();
 		node->statement->accept(this);
 		const IStm* statement = current_node->ToStm();
 		const CLabel* f = new CLabel();
-		const CLabel* z = new CLabel();
-		const IStm* res = new SEQ(new SEQ(new CJUMP(LT, expr, new CONST(1), f, z), 
-			new SEQ(new SEQ(new LABEL(z), statement), new CJUMP(LT, expr, new CONST(1), f, z))), 
-			new LABEL(f));
-		current_node = std::shared_ptr<CStmConverter>(new CStmConverter(res));
+		const CLabel* t = new CLabel();
 
+		const IStm* res = new SEQ(new SEQ(new SEQ(new SEQ(
+							  new CJUMP(EQ, expr, new CONST(0), f, t),
+						  	  new LABEL(t)),
+					  		  statement),
+							  new CJUMP(EQ, expr, new CONST(0), f, t)),
+					  		  new LABEL(f));
+
+		current_node = std::shared_ptr<CStmConverter>(new CStmConverter(res));
 	}
 
 	void visit(const CPrintStatementNode* node){
+		// TODO: print
 		node->expression->accept(this);
 	}
 
 	void visit(const CAssignStatementNode* node){
 		node->expression->accept(this);
+		const IStm* res = new MOVE( findByName(node->identifier), current_node->ToExp() );
+		current_node = std::shared_ptr<CStmConverter>(new CStmConverter(res));
 	}
 	void visit(const CInvokeExpressionStatementNode* node){
 		node->firstexpression->accept(this);
@@ -376,10 +419,10 @@ public:
 		node->secondExp->accept(this);
 		const IExp* arg2 = current_node->ToExp();
 
-		const CConditionalWrapper* cmpWrapper = new CRelativeCmpWrapper(LT, 
+		const CConditionalWrapper* cmpWrapper = new CRelativeCmpWrapper(LT,
 			arg1, arg2);
 		current_node = std::shared_ptr<CExpConverter>(new CExpConverter(cmpWrapper->ToExp()));
-		
+
 	}
 
 	void visit(const CNotExpressionNode* node){
@@ -402,30 +445,8 @@ public:
 	}
 
 	void visit(const CIdentExpressionNode* node){
-		try{
-			int index = current_method->getLocalIndex(node->name);
-			IExp* result = current_frame->getLocal(index)->getExp();
-			current_node =std::shared_ptr<CExpConverter>(new CExpConverter(result));
-		}
-		catch (std::out_of_range* oor){
-			delete oor;
-			try{
-				int index = current_method->getFormalIndex(node->name);
-				IExp* result = current_frame->getFormal(index)->getExp();
-				current_node = std::shared_ptr<CExpConverter>(new CExpConverter(result));
-			}
-			catch (std::out_of_range* oor){
-				delete oor;
-				try{
-					int index = current_class->getVarIndex(node->name);
-					IExp* result = current_frame->getVar(index)->getExp();
-					current_node = std::shared_ptr<CExpConverter>(new CExpConverter(result));
-				}
-				catch (std::out_of_range* oor){
-					cout<<oor->what()<< " "<<node->name->getString()<<endl;
-				}
-			}
-		}
+		IExp* result = findByName(node->name);
+		current_node = std::shared_ptr<CExpConverter>(new CExpConverter(result));
 	}
 
 	void visit(const CThisExpressionNode* node){
