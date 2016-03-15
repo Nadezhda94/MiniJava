@@ -128,8 +128,10 @@ class CTranslator: public CVisitor {
 	SymbolsTable::CMethodInfo* current_method;
 	CFrame* current_frame;
 	std::shared_ptr<ISubtreeWrapper> current_node;
-	std::vector<const INode*> trees;
+	
 public:
+	std::vector<const INode*> trees;
+
 	CTranslator(CStorage* _symbols, CTable& _table):
 		symbolsStorage(_symbols), table(_table),
 		current_class(&table.classInfo[0]),
@@ -344,14 +346,12 @@ public:
 					arg1,
 					arg2);
 				res = converter->ToExp();
-				delete converter;
 				break;
 			case OR_OP:
 				converter = new CFromOrConverter(
 					arg1,
 					arg2);
 				res = converter->ToExp();
-				delete converter;
 				break;
 			default:
 				res = new BINOP(node->opType,

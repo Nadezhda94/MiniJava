@@ -5,6 +5,7 @@
 #include "Visitors/SymbolTableBuilder.h"
 #include "Visitors/TypeChecker.h"
 #include "Visitors/Translator.h"
+#include "Visitors/IRPrintVisitor.h"
 extern FILE * yyin;
 extern int yyparse();
 extern CProgramRuleNode* root;
@@ -80,6 +81,11 @@ int main(int argc, char** argv) {
 
         CTranslator traslator_vis(&symbolsStorage, table_vis.table);
         root->accept(&traslator_vis);
+
+        CIRPrint ir_print_vis;
+        for (int i = 0; i < traslator_vis.trees.size(); ++i ) {
+            traslator_vis.trees[i]->accept(&ir_print_vis);
+        }
 
         // storagePrinter();
         delete root;

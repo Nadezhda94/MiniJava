@@ -2,6 +2,7 @@
 #define IRTREE_H_INCLUDED
 #include "../Structs/Temp.h"
 #include "../Structs/Ast.h"
+#include "../Visitors/IRVisitor.h"
 
 namespace IRTree {
 
@@ -11,7 +12,16 @@ enum CJUMP_OP{
 
 class INode{
 public:
+	virtual void accept(const CIRVisitor* visitor) const = 0;
 	virtual ~INode(){}
+};
+
+template<class TARGET, class INTERFACE>
+class CAcceptsIRVisitor : public INTERFACE {
+public:
+    virtual void accept(const CIRVisitor* visitor) const {
+        visitor->visit( static_cast<const TARGET*> (this) );
+    }
 };
 
 class IExp : public INode {
@@ -30,35 +40,31 @@ private:
 	const ExpList* tail;
 };
 
-class MOVE: public IStm {
+class MOVE: public CAcceptsIRVisitor<MOVE, IStm> {
 public:
 	MOVE(const IExp* _dst, const IExp* _src): dst(_dst), src(_src) {}
-private:
 	const IExp* dst;
 	const IExp* src;
 };
 
-class EXP: public IStm {
+class EXP: public CAcceptsIRVisitor<EXP, IStm> {
 public:
 	EXP(const IExp* _exp): exp(_exp) {}
-private:
 	const IExp* exp;
 };
 
 
-class JUMP: public IStm {
+class JUMP: public CAcceptsIRVisitor<JUMP, IStm> {
 public:
 	JUMP(const IExp* _exp, const Temp::CLabel* _target) : exp(_exp), target(_target) {}
-private:
 	const IExp* exp;
 	const Temp::CLabel* target;
 };
 
-class CJUMP: public IStm {
+class CJUMP: public CAcceptsIRVisitor<CJUMP, IStm> {
 public:
 	CJUMP(CJUMP_OP _relop, const IExp* _left, const IExp* _right, const Temp::CLabel* _iftrue, const Temp::CLabel* _iffalse):
 						relop(_relop), left(_left), right(_right), iftrue(_iftrue), iffalse(_iffalse) {}
-private:
 	CJUMP_OP relop;
 	const IExp* left;
 	const IExp* right;
@@ -66,75 +72,66 @@ private:
 	const Temp::CLabel* iffalse;
 };
 
-class SEQ: public IStm {
+class SEQ: public CAcceptsIRVisitor<SEQ, IStm> {
 public:
 	SEQ(const IStm* _left, const IStm* _right): left(_left), right(_right) {}
-private:
 	const IStm* left;
 	const IStm* right;
 };
 
-class LABEL: public IStm {
+class LABEL: public CAcceptsIRVisitor<LABEL, IStm> {
 public:
 	LABEL(const Temp::CLabel* _label):label(_label) {}
-private:
 	const Temp::CLabel* label;
 };
 
 
-class CONST: public IExp {
+class CONST: public CAcceptsIRVisitor<CONST, IExp> {
 public:
 	CONST(int _value): value(_value){}
-private:
 	int value;
 };
 
-class NAME : public IExp {
+class NAME : public CAcceptsIRVisitor<NAME, IExp> {
 public:
 	NAME(LABEL* _label): label(_label) {}
-private:
 	LABEL* label;
 };
 
-class TEMP: public IExp {
+class TEMP: public CAcceptsIRVisitor<TEMP, IExp> {
 public:
 	TEMP(const Temp::CTemp* _temp): temp(_temp) {}
-private:
 	const Temp::CTemp* temp;
 };
 
-class BINOP: public IExp {
+class BINOP: public CAcceptsIRVisitor<BINOP, IExp> {
 public:
 	BINOP(ArithmeticOpType _binop, const IExp* _left, const IExp* _right): binop(_binop), left(_left), right(_right) {}
-private:
 	ArithmeticOpType binop;
 	const IExp* left;
 	const IExp* right;
 };
 
-class MEM: public IExp {
+class MEM: public CAcceptsIRVisitor<MEM, IExp> {
 public:
 	MEM(const IExp* _exp): exp(_exp) {}
-private:
 	const IExp* exp;
 };
 
-class CALL: public IExp {
+class CALL: public CAcceptsIRVisitor<CALL, IExp> {
 public:
 	CALL(const IExp* _func, const ExpList* _args): func(_func), args(_args) {}
-private:
 	const IExp* func;
 	const ExpList* args;
 };
 
-class ESEQ: public IExp {
+class ESEQ: public CAcceptsIRVisitor<ESEQ, IExp> {
 public:
 	ESEQ(const IStm* _stm, const IExp* _exp): stm(_stm), exp(_exp) {}
-private:
 	const IStm* stm;
 	const IExp* exp;
 };
 
-}
+};
 
 #endif
