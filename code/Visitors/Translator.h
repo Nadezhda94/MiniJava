@@ -74,15 +74,51 @@ public:
 			new IRTree::TEMP(r) );
 	}
 
-	/*virtual*/ IRTree::IStm* ToConditional(Temp::CLabel* t, Temp::CLabel* f) const {
-		return NULL;
-		}
+	virtual const IRTree::IStm* ToConditional(const Temp::CLabel* t, const Temp::CLabel* f) const = 0;
 
 	const IRTree::IStm* ToStm() const {
 		Temp::CLabel* jmp = new Temp::CLabel();
 
 		return new IRTree::SEQ( ToConditional(jmp, jmp), new IRTree::LABEL(jmp) );
 	}
+};
+
+class CRelativeCmpWrapper : public CConditionalWrapper {
+public:
+	CRelativeCmpWrapper(CJUMP_OP op, const IExp* _first, const IExp* _second) : first(_first), second(_second) {}
+	const IRTree::IStm* ToConditional(const Temp::CLabel* t, const Temp::CLabel* f) const {
+		return new CJUMP(op, first, second, t, f);
+	}
+private:
+	const IExp* first;
+	const IExp* second;
+	CJUMP_OP op;
+};
+
+class CFromAndConverter : public CConditionalWrapper {
+public:
+	CFromAndConverter(const IExp* _leftArg, const IExp* _rightArg) : leftArg(_leftArg), rightArg(_rightArg) {}
+	const IRTree::IStm* ToConditional(const Temp::CLabel* t, const Temp::CLabel* f) const {
+		const Temp::CLabel* z = new Temp::CLabel();
+		return new SEQ( new CJUMP(LT, leftArg, new CONST(1), f, z), 
+			new SEQ(new LABEL(z), new CJUMP(LT, rightArg, new CONST(1), f, t)));
+	}
+private:
+	const IExp* leftArg;
+	const IExp* rightArg;
+};
+
+class CFromOrConverter : public CConditionalWrapper {
+public:
+	CFromOrConverter(const IExp* _leftArg, const IExp* _rightArg) : leftArg(_leftArg), rightArg(_rightArg) {}
+	const IRTree::IStm* ToConditional(const Temp::CLabel* t, const Temp::CLabel* f) const {
+		const CLabel* z = new CLabel();
+		return new SEQ(new CJUMP(GT, leftArg, new CONST(1), t, z), 
+			new SEQ(new LABEL(z), new CJUMP(LT, rightArg, new CONST(1), f, t)));
+	}
+private:
+	const IExp* leftArg;
+	const IExp* rightArg;
 };
 
 class CTranslator: public CVisitor {
@@ -244,17 +280,34 @@ public:
 			node->statements->accept(this);
 	}
 
+	//TODO
 	void visit(const CIfStatementNode* node){
 		node->expression->accept(this);
+		const IExp* expr = current_node->ToExp();
 		node->thenStatement->accept(this);
+		const IStm* thenStatement = current_node->ToStm();
 		if (node->elseStatement != 0){
 			node->elseStatement->accept(this);
 		}
+		const IStm* elseStatement = current_node->ToStm();
+		const CLabel* t = new CLabel();
+		const CLabel* f = new CLabel();
+		const IStm* res;
+		current_node = std::shared_ptr<CStmConverter>(new CStmConverter(res));
 	}
 
 	void visit(const CWhileStatementNode* node){
 		node->expression->accept(this);
+		const IExp* expr = current_node->ToExp();
 		node->statement->accept(this);
+		const IStm* statement = current_node->ToStm();
+		const CLabel* f = new CLabel();
+		const CLabel* z = new CLabel();
+		const IStm* res = new SEQ(new SEQ(new CJUMP(LT, expr, new CONST(1), f, z), 
+			new SEQ(new SEQ(new LABEL(z), statement), new CJUMP(LT, expr, new CONST(1), f, z))), 
+			new LABEL(f));
+		current_node = std::shared_ptr<CStmConverter>(new CStmConverter(res));
+
 	}
 
 	void visit(const CPrintStatementNode* node){
@@ -283,17 +336,50 @@ public:
 		const IExp* arg1 = current_node->ToExp();
 		node->secondExp->accept(this);
 		const IExp* arg2 = current_node->ToExp();
-		const IExp* res = new BINOP(node->opType, arg1, arg2);
+		const IExp* res;
+		const CConditionalWrapper* converter;
+		switch (node->opType) {
+			case AND_OP:
+				converter = new CFromAndConverter(
+					arg1,
+					arg2);
+				res = converter->ToExp();
+				delete converter;
+				break;
+			case OR_OP:
+				converter = new CFromOrConverter(
+					arg1,
+					arg2);
+				res = converter->ToExp();
+				delete converter;
+				break;
+			default:
+				res = new BINOP(node->opType,
+					arg1,
+					arg2);
+				break;
+		}
+
 		current_node = std::shared_ptr<CExpConverter>(new CExpConverter(res));
 	}
 
 	void visit(const CUnaryExpressionNode* node){
 		node->expr->accept(this);
+		const IExp* arg = current_node->ToExp();
+		const IExp* res;// = new BINOP(node->op, new CONST(0), arg);
+		current_node = std::shared_ptr<CExpConverter>(new CExpConverter(res));
 	}
 
 	void visit(const CCompareExpressionNode* node){
 		node->firstExp->accept(this);
+		const IExp* arg1 = current_node->ToExp();
 		node->secondExp->accept(this);
+		const IExp* arg2 = current_node->ToExp();
+
+		const CConditionalWrapper* cmpWrapper = new CRelativeCmpWrapper(LT, 
+			arg1, arg2);
+		current_node = std::shared_ptr<CExpConverter>(new CExpConverter(cmpWrapper->ToExp()));
+		
 	}
 
 	void visit(const CNotExpressionNode* node){
