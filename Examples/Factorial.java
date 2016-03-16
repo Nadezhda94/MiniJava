@@ -11,6 +11,8 @@ class Fac {
     boolean b;
 
     num_aux = 1 ;
+    num_aux = 2 ;
+    num_aux = 3 ;
     if (num_aux < 2)
         num_aux = 1 ;
     else

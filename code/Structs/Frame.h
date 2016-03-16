@@ -9,33 +9,40 @@ class CFrame;
 class IAccess {
 public:
     virtual IExp* getExp() = 0;
+    virtual const CSymbol* getName() = 0;
     virtual ~IAccess() {}
 };
 
 class CFrameAccess : public IAccess {
 public:
-    CFrameAccess(CFrame* _frame, int _offset) : frame(_frame), offset(_offset){}
+    CFrameAccess(const CSymbol* _name, CFrame* _frame, int _offset) :
+        name(_name), frame(_frame), offset(_offset){}
     IExp* getExp();
+    const CSymbol* getName() { return name; }
 private:
+    const CSymbol* name;
     CFrame* frame;
     int offset;
 };
 
 class CRegAccess : public IAccess {
 public:
-    CRegAccess(): temp(){}
-    IExp* getExp(){
-        return new TEMP(&temp);
-    }
+    CRegAccess(const CSymbol* _name): name(_name), temp(){}
+    IExp* getExp();
+    const CSymbol* getName() { return name; }
 private:
+    const CSymbol* name;
     CTemp temp;
 };
 
 class CVarAccess : public IAccess {
 public:
-    CVarAccess(CFrame* _frame, int _offset) : frame(_frame), offset(_offset){}
+    CVarAccess(const CSymbol* _name, CFrame* _frame, int _offset) :
+        name(_name), frame(_frame), offset(_offset){}
     IExp* getExp();
+    const CSymbol* getName() { return name; }
 private:
+    const CSymbol* name;
     CFrame* frame;
     int offset;
 };
@@ -45,37 +52,56 @@ class CFrame {
 public:
     static const int wordSize = 4;
     CFrame( const Symbol::CSymbol* _name):
-        name(_name), localOffset(0), formalOffset(0), framePointer()
+        name(_name), localOffset(0), formalOffset(0), framePointer(new CTemp())
     {}
 
     CTemp* getFP(){
-        return &framePointer;
+        return framePointer;
     }
 
     IAccess* getTP(){
         return formals[0];
     }
 
-    IAccess* getLocal(size_t index){
-        return locals[index];
+    IAccess* getLocal(const CSymbol* name){
+        for (int i = 0; i < locals.size(); i++)
+            if (name == locals[i]->getName())
+                return locals[i];
+        return 0;
     }
-    IAccess* getFormal(size_t index){
-        return formals[index];
+    IAccess* getFormal(const CSymbol* name){
+        for (int i = 0; i < formals.size(); i++)
+            if (name == formals[i]->getName())
+                return formals[i];
+        return 0;
     }
-    IAccess* getVar(size_t index){
-        return vars[index];
+    IAccess* getVar(const CSymbol* name){
+        for (int i = 0; i < vars.size(); i++)
+            if (name == vars[i]->getName())
+                return vars[i];
+        return 0;
     }
 
-    void allocLocal() {
-        locals.push_back(new CFrameAccess(this, localOffset));
+    IExp* findByName(const CSymbol* name){
+		IAccess* l = getLocal(name);
+        IAccess* f = getFormal(name);
+        IAccess* v = getVar(name);
+        if (l!=0) return l->getExp();
+        if (f!=0) return f->getExp();
+        if (v!=0) return v->getExp();
+		throw new std::out_of_range("Ident not found in findByName");
+	}
+
+    void allocLocal(const CSymbol* name) {
+        locals.push_back(new CFrameAccess(name, this, localOffset));
         localOffset -= wordSize;
     }
-    void allocFormal() {
-        formals.push_back(new CFrameAccess(this, formalOffset));
+    void allocFormal(const CSymbol* name) {
+        formals.push_back(new CFrameAccess(name, this, formalOffset));
         formalOffset += wordSize;
     }
-    void allocVar() {
-        vars.push_back(new CVarAccess(this, varOffset));
+    void allocVar(const CSymbol* name) {
+        vars.push_back(new CVarAccess(name, this, varOffset));
         varOffset += wordSize;
     }
 
@@ -89,7 +115,7 @@ public:
     }
 private:
     const Symbol::CSymbol* name;
-    CTemp framePointer;
+    CTemp* framePointer;
     int localOffset;
     int formalOffset;
     int varOffset;
@@ -109,6 +135,10 @@ IExp* CVarAccess::getExp(){
     return new MEM(new BINOP(ArithmeticOpType::PLUS_OP,
         static_cast<IExp*>(new MEM(frame->getTP()->getExp())),
         static_cast<IExp*>(new CONST(offset))));
+}
+
+IExp* CRegAccess::getExp(){
+    return new TEMP(&temp);
 }
 
 }

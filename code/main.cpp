@@ -82,7 +82,7 @@ int main(int argc, char** argv) {
         CTranslator traslator_vis(&symbolsStorage, table_vis.table);
         root->accept(&traslator_vis);
 
-        CIRPrint ir_print_vis;
+        CIRPrint ir_print_vis(false);
         for (int i = 0; i < traslator_vis.trees.size(); ++i ) {
             traslator_vis.trees[i]->accept(&ir_print_vis);
         }

@@ -25,7 +25,9 @@ public:
     }
   }
 
-  CSymbolTableBuilder(CStorage* _symbolsStorage): symbolsStorage(_symbolsStorage), inMethod(0) {}
+  CSymbolTableBuilder(CStorage* _symbolsStorage): symbolsStorage(_symbolsStorage), inMethod(0) {
+      symbolsStorage->get("this");
+  }
 
   void visit(const CProgramRuleNode* node){
     node->mainClass->accept(this);

@@ -36,6 +36,7 @@ template<class TARGET, class INTERFACE>
 class CAcceptsVisitor : public INTERFACE {
 public:
     virtual void accept(CVisitor* visitor) {
+        cout<<typeid(TARGET).name()<<endl;
         visitor->visit( static_cast<TARGET*> (this) );
     }
 };

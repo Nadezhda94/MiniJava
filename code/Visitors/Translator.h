@@ -80,14 +80,14 @@ public:
 
 	const IStm* ToStm() const {
 		Temp::CLabel* jmp = new Temp::CLabel();
-
 		return new SEQ( ToConditional(jmp, jmp), new LABEL(jmp) );
 	}
 };
 
 class CRelativeCmpWrapper : public CConditionalWrapper {
 public:
-	CRelativeCmpWrapper(CJUMP_OP op, const IExp* _first, const IExp* _second) : first(_first), second(_second) {}
+	CRelativeCmpWrapper(CJUMP_OP _op, const IExp* _first, const IExp* _second) :
+		op(_op), first(_first), second(_second) {}
 	const IStm* ToConditional(const Temp::CLabel* t, const Temp::CLabel* f) const {
 		return new CJUMP(op, first, second, t, f);
 	}
@@ -99,7 +99,8 @@ private:
 
 class CFromAndConverter : public CConditionalWrapper {
 public:
-	CFromAndConverter(const IExp* _leftArg, const IExp* _rightArg) : leftArg(_leftArg), rightArg(_rightArg) {}
+	CFromAndConverter(const IExp* _leftArg, const IExp* _rightArg) :
+		leftArg(_leftArg), rightArg(_rightArg) {}
 	const IStm* ToConditional(const Temp::CLabel* t, const Temp::CLabel* f) const {
 		const Temp::CLabel* z = new Temp::CLabel();
 		return new SEQ( new CJUMP(LT, leftArg, new CONST(1), f, z),
@@ -132,27 +133,6 @@ class CTranslator: public CVisitor {
 	SymbolsTable::CMethodInfo* current_method;
 	CFrame* current_frame;
 	std::shared_ptr<ISubtreeWrapper> current_node;
-
-	IExp* findByName(const CSymbol* name){
-		try{
-			return current_frame->getLocal(current_method->getLocalIndex(name))->getExp();
-		}
-		catch (std::out_of_range* oor){
-			delete oor;
-			try{
-				return current_frame->getFormal(current_method->getFormalIndex(name))->getExp();
-			}
-			catch (std::out_of_range* oor){
-				delete oor;
-				try{
-					return current_frame->getVar(current_class->getVarIndex(name))->getExp();
-				}
-				catch (std::out_of_range* oor){
-					cout<<oor->what()<< " "<<name->getString()<<endl;
-				}
-			}
-		}
-	}
 public:
 	std::vector<const INode*> trees;
 
@@ -193,11 +173,7 @@ public:
 		// TODO: realize
 	}
 
-	void visit(const CVarDeclarationsListNode* node){
-		if (node->list != 0)
-			node->list->accept(this);
-		node->item->accept(this);
-	}
+	void visit(const CVarDeclarationsListNode* node){}
 
 	void visit(const CMethodDeclarationsListNode* node){
 		if (node->list != 0)
@@ -205,25 +181,21 @@ public:
 		node->item->accept(this);
 	}
 
-	void visit(const CVarDeclarationRuleNode* node){
-	}
+	void visit(const CVarDeclarationRuleNode* node){}
 
 	void visit(const CMethodDeclarationRuleNode* node){
 		current_method = &(current_class->getMethodInfo(node->ident));
 		current_frame = new CFrame(node->ident);
-		current_frame->allocFormal(); // this
+		current_frame->allocFormal(symbolsStorage->get("this")); // this
 		for (int i = 0; i < current_method->params.size(); i++){
-			current_frame->allocFormal();
+			current_frame->allocFormal(current_method->params[i].name);
 		}
 		for (int i = 0; i < current_method->vars.size(); i++){
-			current_frame->allocLocal();
+			current_frame->allocLocal(current_method->vars[i].name);
 		}
 		for (int i = 0; i < current_class->vars.size(); i++){
-			current_frame->allocVar();
+			current_frame->allocVar(current_class->vars[i].name);
 		}
-		node->type->accept(this);
-		if (node->param_arg != 0)
-			node->param_arg->accept(this);
 
 		if (node->method_body != 0)
 			node->method_body->accept(this);
@@ -255,54 +227,48 @@ public:
 	}
 
 	void visit(const CStatsListNode* node){
-		if (node->list != 0)
+		const IStm* inner_seq = 0;
+		if (node->list != 0){
 			node->list->accept(this);
-		if (node->stm != 0)
+			inner_seq = current_node->ToStm();
+		}
+
+		const IStm* res = current_node->ToStm();
+		if (node->stm != 0){
 			node->stm->accept(this);
+			if (inner_seq != 0)
+				res = new SEQ( inner_seq, current_node->ToStm() );
+		}
+		current_node = std::shared_ptr<CStmConverter>( new CStmConverter(res) );
 	}
 
-	void visit(const CMethodBodyVarsNode* node){
-		if (node->vars != 0)
-			node->vars->accept(this);
-	}
+	void visit(const CMethodBodyVarsNode* node){}
 
 	void visit(const CMethodBodyStatsNode* node){
 		node->stats->accept(this);
 	}
 
 	void visit(const CMethodBodyAllNode* node){
-		node->vars->accept(this);
 		node->stats->accept(this);
 	}
 
-	void visit(const CParamArgListNode* node){
-		node->params->accept(this);
-	}
-
-	void visit(const CParamsOneNode* node){
-		if (node->param != 0)
-			node->param->accept(this);
-	}
-
-	void visit(const CParamsTwoNode* node){
-		if (node->first != 0)
-			node->first->accept(this);
-		if (node->second != 0)
-			node->second->accept(this);
-	}
-
-	void visit(const CParamRuleNode* node){
-		node->type->accept(this);
-	}
-
-	void visit(const CTypeRuleNode* node){
-	}
+	void visit(const CParamArgListNode* node){}
+	void visit(const CParamsOneNode* node){}
+	void visit(const CParamsTwoNode* node){}
+	void visit(const CParamRuleNode* node){}
+	void visit(const CTypeRuleNode* node){}
 
 	void visit(const CNumerousStatementsNode* node){
-		// TODO: SEQ
-		if (node->statements != 0)
+		const IStm* inner_seq = 0;
+		if (node->statements != 0){
 			node->statements->accept(this);
+			inner_seq = current_node->ToStm();
+		}
 		node->statement->accept(this);
+		const IStm* res = current_node->ToStm();
+		if (inner_seq != 0)
+			res = new SEQ( inner_seq, current_node->ToStm() );
+		current_node = std::shared_ptr<CStmConverter>( new CStmConverter(res) );
 	}
 
 	void visit(const CBracedStatementNode* node){
@@ -358,7 +324,7 @@ public:
 
 	void visit(const CAssignStatementNode* node){
 		node->expression->accept(this);
-		const IStm* res = new MOVE( findByName(node->identifier), current_node->ToExp() );
+		const IStm* res = new MOVE( current_frame->findByName(node->identifier), current_node->ToExp() );
 		current_node = std::shared_ptr<CStmConverter>(new CStmConverter(res));
 	}
 	void visit(const CInvokeExpressionStatementNode* node){
@@ -384,21 +350,15 @@ public:
 		const CConditionalWrapper* converter;
 		switch (node->opType) {
 			case AND_OP:
-				converter = new CFromAndConverter(
-					arg1,
-					arg2);
+				converter = new CFromAndConverter( arg1, arg2 );
 				res = converter->ToExp();
 				break;
 			case OR_OP:
-				converter = new CFromOrConverter(
-					arg1,
-					arg2);
+				converter = new CFromOrConverter( arg1, arg2 );
 				res = converter->ToExp();
 				break;
 			default:
-				res = new BINOP(node->opType,
-					arg1,
-					arg2);
+				res = new BINOP( node->opType, arg1, arg2 );
 				break;
 		}
 
@@ -417,9 +377,7 @@ public:
 		const IExp* arg1 = current_node->ToExp();
 		node->secondExp->accept(this);
 		const IExp* arg2 = current_node->ToExp();
-
-		const CConditionalWrapper* cmpWrapper = new CRelativeCmpWrapper(LT,
-			arg1, arg2);
+		const CConditionalWrapper* cmpWrapper = new CRelativeCmpWrapper(LT, arg1, arg2);
 		current_node = std::shared_ptr<CExpConverter>(new CExpConverter(cmpWrapper->ToExp()));
 
 	}
@@ -444,13 +402,13 @@ public:
 	}
 
 	void visit(const CIdentExpressionNode* node){
-		IExp* result = findByName(node->name);
+		IExp* result = current_frame->findByName(node->name);
 		current_node = std::shared_ptr<CExpConverter>(new CExpConverter(result));
 	}
 
 	void visit(const CThisExpressionNode* node){
 		current_node = std::shared_ptr<CExpConverter>(
-			new CExpConverter(current_frame->getFormal(0)->getExp()));
+			new CExpConverter(current_frame->getTP()->getExp()));
 	}
 
 	void visit(const CParenExpressionNode* node){
