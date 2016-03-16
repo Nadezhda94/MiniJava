@@ -7,10 +7,10 @@ using namespace IRTree;
 static const char * ArithmeticOpStrings[] = { "+", "-", "*", "/", "&&", "||", "<<", ">>", "!" };
 static const char * CJumpOpStrings[] = { "=", "!=", "<", ">", "<=", ">=", "u<", "u<=", "u>", "u>=" };
 
-class CIRPrint: public CIRVisitor {
+class CIRPrinter: public CIRVisitor {
     bool withoutSEQ;
 public:
-    CIRPrint(bool _withoutSEQ) : withoutSEQ(_withoutSEQ) {}
+    CIRPrinter(bool _withoutSEQ) : withoutSEQ(_withoutSEQ) {}
     virtual void visit(const MOVE* node) const {
         print_tabs(counter++);
         cout << "MOVE" << endl;

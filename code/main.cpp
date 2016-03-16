@@ -1,11 +1,11 @@
 #include "common.h"
 #include "Structs/Ast.h"
 #include "Structs/Symbol.h"
-#include "ASTVisitors/Print.h"
+#include "ASTVisitors/Printer.h"
 #include "ASTVisitors/SymbolTableBuilder.h"
 #include "ASTVisitors/TypeChecker.h"
 #include "ASTVisitors/Translator.h"
-#include "IRVisitors/PrintVisitor.h"
+#include "IRVisitors/Printer.h"
 extern FILE * yyin;
 extern int yyparse();
 extern CProgramRuleNode* root;
@@ -68,13 +68,13 @@ int main(int argc, char** argv) {
         yyin = progrFile;
         yyparse();
 
-        CPrint print_vis;
-        root->accept(&print_vis);
-        cout<<endl;
+        // CPrinter print_vis;
+        // root->accept(&print_vis);
+        // cout<<endl;
 
         CSymbolTableBuilder table_vis(&symbolsStorage);
         root->accept(&table_vis);
-        testBuilder(table_vis);
+        //testBuilder(table_vis);
 
         CTypeChecker checker_vis(&symbolsStorage, table_vis.table);
         root->accept(&checker_vis);
@@ -82,7 +82,7 @@ int main(int argc, char** argv) {
         CTranslator traslator_vis(&symbolsStorage, table_vis.table);
         root->accept(&traslator_vis);
 
-        CIRPrint ir_print_vis(false);
+        CIRPrinter ir_print_vis(false);
         for (int i = 0; i < traslator_vis.trees.size(); ++i ) {
             traslator_vis.trees[i]->accept(&ir_print_vis);
         }

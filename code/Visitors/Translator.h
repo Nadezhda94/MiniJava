@@ -1,7 +1,7 @@
 #ifndef TRANSLATOR_H_INCLUDED
 #define TRANSLATOR_H_INCLUDED
 #include "../common.h"
-#include "../ASTVisitors/Visitor.h"
+#include "../Visitors/Visitor.h"
 #include "../Structs/IRTree.h"
 #include "../Structs/Temp.h"
 #include "../Structs/Frame.h"
@@ -276,6 +276,7 @@ public:
 			node->statements->accept(this);
 	}
 
+	//TODO
 	void visit(const CIfStatementNode* node){
 		node->expression->accept(this);
 		const CLabel* t = new CLabel();
