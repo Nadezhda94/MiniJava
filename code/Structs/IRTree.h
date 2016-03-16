@@ -2,7 +2,7 @@
 #define IRTREE_H_INCLUDED
 #include "../Structs/Temp.h"
 #include "../Structs/Ast.h"
-#include "../Visitors/IRVisitor.h"
+#include "../IRVisitors/Visitor.h"
 
 namespace IRTree {
 

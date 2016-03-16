@@ -1,11 +1,11 @@
 #include "common.h"
 #include "Structs/Ast.h"
 #include "Structs/Symbol.h"
-#include "Visitors/Print.h"
-#include "Visitors/SymbolTableBuilder.h"
-#include "Visitors/TypeChecker.h"
-#include "Visitors/Translator.h"
-#include "Visitors/IRPrintVisitor.h"
+#include "ASTVisitors/Print.h"
+#include "ASTVisitors/SymbolTableBuilder.h"
+#include "ASTVisitors/TypeChecker.h"
+#include "ASTVisitors/Translator.h"
+#include "IRVisitors/PrintVisitor.h"
 extern FILE * yyin;
 extern int yyparse();
 extern CProgramRuleNode* root;

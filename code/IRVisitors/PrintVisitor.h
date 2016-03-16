@@ -2,7 +2,7 @@
 #define PRINTIRVISITOR_H_INCLUDED
 #include "../common.h"
 #include "../Structs/IRTree.h"
-#include "../Visitors/IRVisitor.h"
+#include "../IRVisitors/Visitor.h"
 using namespace IRTree;
 static const char * ArithmeticOpStrings[] = { "+", "-", "*", "/", "&&", "||", "<<", ">>", "!" };
 static const char * CJumpOpStrings[] = { "=", "!=", "<", ">", "<=", ">=", "u<", "u<=", "u>", "u>=" };

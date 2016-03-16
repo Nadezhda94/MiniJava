@@ -1,7 +1,7 @@
 #ifndef TRANSLATOR_H_INCLUDED
 #define TRANSLATOR_H_INCLUDED
 #include "../common.h"
-#include "../Visitors/Visitor.h"
+#include "../ASTVisitors/Visitor.h"
 #include "../Structs/IRTree.h"
 #include "../Structs/Temp.h"
 #include "../Structs/Frame.h"

@@ -1,7 +1,7 @@
 #ifndef TYPECHECKER_H_INCLUDED
 #define TYPECHECKER_H_INCLUDED
 #include "../common.h"
-#include "../Visitors/Visitor.h"
+#include "../ASTVisitors/Visitor.h"
 #include "../Structs/Ast.h"
 #include "../Structs/SymbolsTable.h"
 using namespace SymbolsTable;

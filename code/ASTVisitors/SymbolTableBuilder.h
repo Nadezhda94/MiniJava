@@ -3,7 +3,7 @@
 #include "../common.h"
 #include "../Structs/Ast.h"
 #include "../Structs/SymbolsTable.h"
-#include "../Visitors/Visitor.h"
+#include "../ASTVisitors/Visitor.h"
 
 using namespace SymbolsTable;
 

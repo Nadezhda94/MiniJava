@@ -2,7 +2,7 @@
 #define PRINTVISITOR_H_INCLUDED
 #include "../common.h"
 #include "../Structs/Ast.h"
-#include "../Visitors/Visitor.h"
+#include "../ASTVisitors/Visitor.h"
 
 class CPrint : public CVisitor{
     int counter = 0;

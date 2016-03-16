@@ -1,7 +1,7 @@
 #ifndef AST_H_INCLUDED
 #define AST_H_INCLUDED
 #include "../common.h"
-#include "../Visitors/Visitor.h"
+#include "../ASTVisitors/Visitor.h"
 #include "../Structs/Symbol.h"
 using namespace Symbol;
 extern Symbol::CStorage symbolsStorage;
