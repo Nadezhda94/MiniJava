@@ -132,7 +132,9 @@ class CTranslator: public CVisitor {
 	SymbolsTable::CClassInfo* current_class;
 	SymbolsTable::CMethodInfo* current_method;
 	CFrame* current_frame;
+	ExpList* arguments = 0;
 	std::shared_ptr<ISubtreeWrapper> current_node;
+	
 public:
 	std::vector<const INode*> trees;
 
@@ -151,8 +153,6 @@ public:
 
 	void visit(const CMainClassDeclarationRuleNode* node){
 		node->stmt->accept(this);
-		const IExp* arg = current_node->ToExp();
-		trees.push_back(arg);
 	}
 
 	void visit(const CDeclarationsListNode* node){
@@ -212,8 +212,8 @@ public:
 		{
 			node->return_exp->accept(this);
 			const IExp* arg2 = current_node->ToExp();
-			const IExp* res = arg2;
-			trees.push_back(res);
+			//const IExp* res = arg2;
+			trees.push_back(arg2);
 		}
 
 		delete current_frame;
@@ -425,10 +425,12 @@ public:
 	}
 
 	void visit(const CInvokeMethodExpressionNode* node){
-		
 		node->expr->accept(this);
 		if (node->args != 0)
 			node->args->accept(this);
+		ExpList* arguments = new ExpList(current_frame->findByName(symbolsStorage->get("this")), arguments);  //надо как-то в список аргументов зацепить this
+		current_node = std::shared_ptr<CExpConverter>(new CExpConverter (new CALL(new NAME(/*метка для конкретной функции!*/0), arguments))); // надеюсь, что после прохода по списку аргументов (экспрешнов) current_node станет ExpList
+		arguments = 0; //сбрасываем старые аргументы
 	}
 
 	void visit(const CFewArgsExpressionNode* node){
@@ -438,10 +440,12 @@ public:
 	void visit(const CListExpressionNode* node){
 		node->prevExps->accept(this);
 		node->nextExp->accept(this);
+		ExpList* arguments = new ExpList(current_node->ToExp(), arguments);
 	}
 
 	void visit(const CLastListExpressionNode* node){
 		node->expr->accept(this);
+		ExpList* arguments = new ExpList(current_node->ToExp(), arguments);
 	}
 };
 
