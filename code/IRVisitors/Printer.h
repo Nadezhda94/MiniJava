@@ -31,7 +31,7 @@ public:
         cout << "JUMP "<< node->target->Name() << endl;
         if (node->exp != 0)
             node->exp->accept(this);
-        //TODO
+        //TODO ???
         --counter;
     }
 
@@ -69,8 +69,7 @@ public:
 
     virtual void visit(const NAME* node) const {
         print_tabs(counter++);
-        cout << "NAME" << endl;
-        //TODO
+        cout << "NAME" << node->label->label->Name() << endl;
         --counter;
     }
 
