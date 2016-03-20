@@ -146,11 +146,13 @@ public:
 		node->mainClass->accept(this);
 		if (node->decl != 0)
 			node->decl->accept(this);
+
 	}
 
 	void visit(const CMainClassDeclarationRuleNode* node){
 		node->stmt->accept(this);
-		// TODO: realize
+		const IExp* arg = current_node->ToExp();
+		trees.push_back(arg);
 	}
 
 	void visit(const CDeclarationsListNode* node){
@@ -173,7 +175,8 @@ public:
 		// TODO: realize
 	}
 
-	void visit(const CVarDeclarationsListNode* node){}
+	void visit(const CVarDeclarationsListNode* node){
+	}
 
 	void visit(const CMethodDeclarationsListNode* node){
 		if (node->list != 0)
@@ -197,14 +200,21 @@ public:
 			current_frame->allocVar(current_class->vars[i].name);
 		}
 
-		if (node->method_body != 0)
+		if (node->method_body != 0){
 			node->method_body->accept(this);
-		const IStm* arg1 = current_node->ToStm();
-
-		node->return_exp->accept(this);
-		const IExp* arg2 = current_node->ToExp();
-		const IExp* res = new ESEQ(arg1, arg2);
-		trees.push_back(res);
+			const IStm* arg1 = current_node->ToStm();
+			node->return_exp->accept(this);
+			const IExp* arg2 = current_node->ToExp();
+			const IExp* res = new ESEQ(arg1, arg2);
+			trees.push_back(res);
+		}
+		else 
+		{
+			node->return_exp->accept(this);
+			const IExp* arg2 = current_node->ToExp();
+			const IExp* res = arg2;
+			trees.push_back(res);
+		}
 
 		delete current_frame;
 	}
@@ -415,6 +425,7 @@ public:
 	}
 
 	void visit(const CInvokeMethodExpressionNode* node){
+		
 		node->expr->accept(this);
 		if (node->args != 0)
 			node->args->accept(this);

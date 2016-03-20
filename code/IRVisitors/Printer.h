@@ -31,7 +31,6 @@ public:
         cout << "JUMP "<< node->target->Name() << endl;
         if (node->exp != 0)
             node->exp->accept(this);
-        //TODO ???
         --counter;
     }
 
