@@ -139,7 +139,11 @@ class CTranslator: public CVisitor {
 	shared_ptr<ExpList> arguments;
 
 	const CSymbol* getMallocFuncName() {
-		return symbolsStorage->get("malloc");
+		return symbolsStorage->get("#malloc");
+	}
+
+	const CSymbol* getPrintFuncName() {
+		return symbolsStorage->get("#print");
 	}
 
 public:
@@ -167,7 +171,24 @@ public:
 	}
 
 	void visit(const CMainClassDeclarationRuleNode* node){
-		node->stmt->accept(this);
+		const CSymbol* methodName = symbolsStorage->get("main");
+		currentMethod = &(currentClass->getMethodInfo(methodName));
+		currentFrame = shared_ptr<CFrame>( new CFrame(methodName) );
+		currentFrame->allocFormal(symbolsStorage->get("this")); // this
+		for (int i = 0; i < currentMethod->params.size(); i++){
+			currentFrame->allocFormal(currentMethod->params[i].name);
+		}
+		for (int i = 0; i < currentMethod->vars.size(); i++){
+			currentFrame->allocLocal(currentMethod->vars[i].name);
+		}
+		for (int i = 0; i < currentClass->vars.size(); i++){
+			currentFrame->allocVar(currentClass->vars[i].name);
+		}
+
+		if (node->stmt != 0){
+			node->stmt->accept(this);
+			trees.push_back(currentNode->ToStm());
+		}
 	}
 
 	void visit(const CDeclarationsListNode* node){
@@ -335,8 +356,12 @@ public:
 	}
 
 	void visit(const CPrintStatementNode* node){
-		// TODO: print
 		node->expression->accept(this);
+		const IExp* exp = currentNode->ToExp();
+		shared_ptr<ExpList> args = shared_ptr<ExpList>( new ExpList(exp, 0) );
+		const IExp* printCall = currentFrame->externalCall(getPrintFuncName()->getString(), args);
+		const CExpConverter* res = new CExpConverter(printCall);
+		currentNode = std::shared_ptr<CStmConverter>(new CStmConverter(res->ToStm()));
 	}
 
 	void visit(const CAssignStatementNode* node){
@@ -385,8 +410,8 @@ public:
 	void visit(const CUnaryExpressionNode* node){
 		node->expr->accept(this);
 		const IExp* arg = currentNode->ToExp();
-		const IExp* res;// = new BINOP(node->op, new CONST(0), arg);
-		currentNode = shared_ptr<CExpConverter>(new CExpConverter(res));
+		const IExp* res = new BINOP(node->op, new CONST(0), arg);
+		currentNode = std::shared_ptr<CExpConverter>(new CExpConverter(res));
 	}
 
 	void visit(const CCompareExpressionNode* node){
@@ -401,6 +426,9 @@ public:
 
 	void visit(const CNotExpressionNode* node){
 		node->expr->accept(this);
+		const IExp* arg = currentNode->ToExp();
+		const CConditionalWrapper* cmpWrapper = new CRelativeCmpWrapper(EQ, arg, new CONST(0));
+		currentNode = std::shared_ptr<CExpConverter>(new CExpConverter(cmpWrapper->ToExp()) );
 	}
 
 	void visit(const CNewArrayExpressionNode* node){
@@ -430,6 +458,8 @@ public:
 		shared_ptr<CTemp> temp = shared_ptr<CTemp>(new CTemp());
 
 		int varsSizeInBytes = CFrame::wordSize * table.getClassInfo(node->objType).vars.size();
+		if (varsSizeInBytes < CFrame::wordSize)
+			varsSizeInBytes = CFrame::wordSize;
 		shared_ptr<ExpList> args = shared_ptr<ExpList>(new ExpList(new CONST(varsSizeInBytes), 0));
 		const IExp* memCall = currentFrame->externalCall(getMallocFuncName()->getString(), args);
 		const IStm* storeCalcRes = new MOVE( new TEMP(temp), memCall);
