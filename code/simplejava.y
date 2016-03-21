@@ -349,11 +349,11 @@ expression
             setLocation(@$, @1, @3, $$);
         }
         | PLUS expression %prec UPLUS {
-            $$ = new CUnaryExpressionNode($2, UPLUS_OP);
+            $$ = new CUnaryExpressionNode($2, PLUS_OP);
             setLocation(@$, @1, @2, $$);
         }
         | MINUS expression %prec UMINUS {
-            $$ = new CUnaryExpressionNode($2, UMINUS_OP);
+            $$ = new CUnaryExpressionNode($2, MINUS_OP);
             setLocation(@$, @1, @2, $$);
         }
         | expression DOT IDENT LPAREN exp_arg RPAREN {

@@ -426,7 +426,6 @@ public:
     CExpressionNode* expr;
 };
 
-
 class CArithmeticExpressionNode: public CAcceptsVisitor<CArithmeticExpressionNode, CExpressionNode> {
 public:
     CArithmeticExpressionNode(CExpressionNode* _firstExp, CExpressionNode* _secondExp, ArithmeticOpType _opType) :
@@ -441,19 +440,15 @@ public:
     ArithmeticOpType opType;
 };
 
-enum UnaryOpType {
-    UPLUS_OP, UMINUS_OP
-};
-
 class CUnaryExpressionNode: public CAcceptsVisitor<CUnaryExpressionNode, CExpressionNode> {
 public:
-    CUnaryExpressionNode(CExpressionNode* _exp, UnaryOpType _op) : expr(_exp), op(_op){}
+    CUnaryExpressionNode(CExpressionNode* _exp, ArithmeticOpType _op) : expr(_exp), op(_op){}
     ~CUnaryExpressionNode(){
         delete expr;
     }
 
     CExpressionNode* expr;
-    UnaryOpType op;
+    ArithmeticOpType op;
 };
 
 class CCompareExpressionNode: public CAcceptsVisitor<CCompareExpressionNode, CExpressionNode> {

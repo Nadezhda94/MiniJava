@@ -250,10 +250,10 @@ public:
   	void visit(const CUnaryExpressionNode* node){
       print_tabs(counter++);
       switch(node->op) {
-        case UPLUS_OP:
+        case PLUS_OP:
           cout << "'+'" << endl;
           break;
-        case UMINUS_OP:
+        case MINUS_OP:
           cout << "'-'" << endl;
           break;
       }

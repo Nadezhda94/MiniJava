@@ -136,7 +136,11 @@ class CTranslator: public CVisitor {
 	std::shared_ptr<ISubtreeWrapper> current_node;
 	
 	const CSymbol* getMallocFuncName() {
-		return symbolsStorage->get("malloc");
+		return symbolsStorage->get("#malloc");
+	}
+
+	const CSymbol* getPrintFuncName() {
+		return symbolsStorage->get("#print");
 	}
 
 public:
@@ -156,7 +160,26 @@ public:
 	}
 
 	void visit(const CMainClassDeclarationRuleNode* node){
-		node->stmt->accept(this);
+		const CSymbol* methodName = symbolsStorage->get("main");
+		current_method = &(current_class->getMethodInfo(methodName));
+		current_frame = new CFrame(methodName);
+		current_frame->allocFormal(symbolsStorage->get("this")); // this
+		for (int i = 0; i < current_method->params.size(); i++){
+			current_frame->allocFormal(current_method->params[i].name);
+		}
+		for (int i = 0; i < current_method->vars.size(); i++){
+			current_frame->allocLocal(current_method->vars[i].name);
+		}
+		for (int i = 0; i < current_class->vars.size(); i++){
+			current_frame->allocVar(current_class->vars[i].name);
+		}
+
+		if (node->stmt != 0){
+			//node->stmt->accept(this);
+			//trees.push_back(current_node->ToStm());
+		}
+
+		delete current_frame;
 	}
 
 	void visit(const CDeclarationsListNode* node){
@@ -331,8 +354,12 @@ public:
 	}
 
 	void visit(const CPrintStatementNode* node){
-		// TODO: print
 		node->expression->accept(this);
+		const IExp* exp = current_node->ToExp();
+		const ExpList* args = new ExpList(exp, 0);
+		const IExp* printCall = current_frame->externalCall(getPrintFuncName()->getString(), args);
+		const CExpConverter* res = new CExpConverter(printCall);
+		current_node = std::shared_ptr<CStmConverter>(new CStmConverter(res->ToStm()));
 	}
 
 	void visit(const CAssignStatementNode* node){
@@ -381,7 +408,7 @@ public:
 	void visit(const CUnaryExpressionNode* node){
 		node->expr->accept(this);
 		const IExp* arg = current_node->ToExp();
-		const IExp* res;// = new BINOP(node->op, new CONST(0), arg);
+		const IExp* res = new BINOP(node->op, new CONST(0), arg);
 		current_node = std::shared_ptr<CExpConverter>(new CExpConverter(res));
 	}
 
@@ -397,6 +424,9 @@ public:
 
 	void visit(const CNotExpressionNode* node){
 		node->expr->accept(this);
+		const IExp* arg = current_node->ToExp();
+		const CConditionalWrapper* cmpWrapper = new CRelativeCmpWrapper(EQ, arg, new CONST(0));
+		current_node = std::shared_ptr<CExpConverter>(new CExpConverter(cmpWrapper->ToExp()) );
 	}
 
 	void visit(const CNewArrayExpressionNode* node){

@@ -68,7 +68,7 @@ public:
 
     virtual void visit(const NAME* node) const {
         print_tabs(counter++);
-        //cout << "NAME" << node->label->Name() << endl;
+        cout << "NAME" << node->label->Name() << endl;
         --counter;
     }
 
