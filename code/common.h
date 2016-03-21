@@ -8,6 +8,7 @@
 #include <vector>
 #include <typeinfo>
 #include <cassert>
+#include <map>
 
 using namespace std;
 

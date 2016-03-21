@@ -34,10 +34,9 @@ class ExpList;
 
 class ExpList {
 public:
-	ExpList(const IExp* _head, const ExpList* _tail) : head(_head), tail(_tail) {}
-private:
+	ExpList(const IExp* _head, shared_ptr<ExpList> _tail) : head(_head), tail(_tail) {}
 	const IExp* head;
-	const ExpList* tail;
+	shared_ptr<ExpList> tail;
 };
 
 class MOVE: public CAcceptsIRVisitor<MOVE, IStm> {
@@ -95,14 +94,14 @@ public:
 
 class NAME : public CAcceptsIRVisitor<NAME, IExp> {
 public:
-	NAME(const Temp::CLabel* _label): label(_label) {}
-	const Temp::CLabel* label;
+	NAME(shared_ptr<Temp::CLabel> _label): label(_label) {}
+	shared_ptr<Temp::CLabel> label;
 };
 
 class TEMP: public CAcceptsIRVisitor<TEMP, IExp> {
 public:
-	TEMP(const Temp::CTemp* _temp): temp(_temp) {}
-	const Temp::CTemp* temp;
+	TEMP(shared_ptr<Temp::CTemp> _temp): temp(_temp) {}
+	shared_ptr<Temp::CTemp> temp;
 };
 
 class BINOP: public CAcceptsIRVisitor<BINOP, IExp> {
@@ -121,9 +120,9 @@ public:
 
 class CALL: public CAcceptsIRVisitor<CALL, IExp> {
 public:
-	CALL(const IExp* _func, const ExpList* _args): func(_func), args(_args) {}
+	CALL(const IExp* _func, shared_ptr<ExpList> _args): func(_func), args(_args) {}
 	const IExp* func;
-	const ExpList* args;
+	shared_ptr<ExpList> args;
 };
 
 class ESEQ: public CAcceptsIRVisitor<ESEQ, IExp> {
