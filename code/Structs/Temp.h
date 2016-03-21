@@ -12,6 +12,8 @@ public:
 		++nextUniqueId;
 	}
 
+	CLabel(const std::string& uniqueName) : name(uniqueName) {}
+
 	const std::string& Name() const {
 		return name;
 	}

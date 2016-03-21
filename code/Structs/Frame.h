@@ -1,6 +1,7 @@
 #ifndef FRAME_H_INCLUDED
 #define FRAME_H_INCLUDED
 #include "../Structs/IRTree.h"
+#include "../Structs/Temp.h"
 namespace Frame {
 using namespace Temp;
 using namespace IRTree;
@@ -103,6 +104,10 @@ public:
     void allocVar(const CSymbol* name) {
         vars.push_back(new CVarAccess(name, this, varOffset));
         varOffset += wordSize;
+    }
+
+    const IExp* externalCall(const std::string& funcName, const ExpList* args) {
+        return new CALL(new NAME(new CLabel(funcName)), args);
     }
 
     ~CFrame(){

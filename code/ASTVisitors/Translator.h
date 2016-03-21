@@ -135,6 +135,9 @@ class CTranslator: public CVisitor {
 	ExpList* arguments = 0;
 	std::shared_ptr<ISubtreeWrapper> current_node;
 	
+	const CSymbol* getMallocFuncName() {
+		return symbolsStorage->get("malloc");
+	}
 public:
 	std::vector<const INode*> trees;
 
@@ -397,9 +400,34 @@ public:
 
 	void visit(const CNewArrayExpressionNode* node){
 		node->expr->accept(this);
+		const IExp* arg = current_node->ToExp();
+		const CTemp* arrSize = new CTemp();
+		const IExp* calcArrSize = new BINOP(PLUS_OP, arg, new CONST(1));
+		const IStm* storeArrSize = new MOVE (new TEMP(arrSize), calcArrSize);
+		const IExp* sizeInBytes = new BINOP(MULT_OP, new MEM( new TEMP(arrSize)), new CONST(4));
+		
+		
+		const ExpList* args = new ExpList(sizeInBytes, 0);
+		const IExp* memCall = current_frame->externalCall(getMallocFuncName()->getString(), args);
+		const CTemp* temp = new CTemp();
+
+		const IStm* storeCalcRes = new MOVE( new TEMP(temp), memCall);
+		const IStm* storeLength = new MOVE( new MEM( new TEMP(temp) ), new MEM( new TEMP(arrSize) ) );
+		//const CTemp* curVar = new CTemp();
+		//const IStm* writeZero = new CJUMP(LT,  )
+		
+		const IExp* res = new ESEQ(  new SEQ( storeArrSize, 
+											new SEQ(storeCalcRes, 
+													storeLength 
+													) 
+											), 
+									new TEMP(temp)
+									);
+		current_node = std::shared_ptr<CExpConverter>(new CExpConverter(res));
 	}
 
 	void visit(const CNewObjectExpressionNode* node){
+
 	}
 
 	void visit(const CIntExpressionNode* node) {
@@ -425,12 +453,12 @@ public:
 	}
 
 	void visit(const CInvokeMethodExpressionNode* node){
-		node->expr->accept(this);
-		if (node->args != 0)
-			node->args->accept(this);
-		ExpList* arguments = new ExpList(current_frame->findByName(symbolsStorage->get("this")), arguments);  //надо как-то в список аргументов зацепить this
-		current_node = std::shared_ptr<CExpConverter>(new CExpConverter (new CALL(new NAME(/*метка для конкретной функции!*/0), arguments))); // надеюсь, что после прохода по списку аргументов (экспрешнов) current_node станет ExpList
-		arguments = 0; //сбрасываем старые аргументы
+		//node->expr->accept(this);
+		//if (node->args != 0)
+		//	node->args->accept(this);
+		//ExpList* arguments = new ExpList(current_frame->findByName(symbolsStorage->get("this")), arguments);  //надо как-то в список аргументов зацепить this
+		//current_node = std::shared_ptr<CExpConverter>(new CExpConverter (new CALL(new NAME(/*метка для конкретной функции!*/0), arguments))); // надеюсь, что после прохода по списку аргументов (экспрешнов) current_node станет ExpList
+		//arguments = 0; //сбрасываем старые аргументы
 	}
 
 	void visit(const CFewArgsExpressionNode* node){

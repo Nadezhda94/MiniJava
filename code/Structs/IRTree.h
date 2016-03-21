@@ -95,8 +95,8 @@ public:
 
 class NAME : public CAcceptsIRVisitor<NAME, IExp> {
 public:
-	NAME(LABEL* _label): label(_label) {}
-	LABEL* label;
+	NAME(const Temp::CLabel* _label): label(_label) {}
+	const Temp::CLabel* label;
 };
 
 class TEMP: public CAcceptsIRVisitor<TEMP, IExp> {
