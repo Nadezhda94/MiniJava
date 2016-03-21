@@ -138,6 +138,7 @@ class CTranslator: public CVisitor {
 	const CSymbol* getMallocFuncName() {
 		return symbolsStorage->get("malloc");
 	}
+
 public:
 	std::vector<const INode*> trees;
 
@@ -427,7 +428,16 @@ public:
 	}
 
 	void visit(const CNewObjectExpressionNode* node){
+		const CTemp* temp = new CTemp();
 
+		int varsSizeInBytes = CFrame::wordSize * table.getClassInfo(node->objType).vars.size();
+		const ExpList* args = new ExpList(new CONST(varsSizeInBytes), 0);
+		const IExp* memCall = current_frame->externalCall(getMallocFuncName()->getString(), args);
+		const IStm* storeCalcRes = new MOVE( new TEMP(temp), memCall);
+		const IExp* res = new ESEQ( storeCalcRes, 
+									new TEMP(temp));
+
+		current_node = std::shared_ptr<CExpConverter>(new CExpConverter(res));
 	}
 
 	void visit(const CIntExpressionNode* node) {
@@ -436,6 +446,8 @@ public:
 	}
 
 	void visit(const CBooleanExpressionNode* node){
+		current_node = std::shared_ptr<CExpConverter>(
+			new CExpConverter(new CONST(node->value)));
 	}
 
 	void visit(const CIdentExpressionNode* node){
