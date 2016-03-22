@@ -98,7 +98,7 @@ public:
         print_tabs(counter++);
         cout << "CALL" << endl;
         node->func->accept(this);
-        shared_ptr<ExpList> cur = node->args;
+        shared_ptr<const ExpList> cur = node->args;
         while(cur){
             cur->head->accept(this);
             cur = cur->tail;
