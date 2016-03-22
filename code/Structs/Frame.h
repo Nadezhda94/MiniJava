@@ -28,12 +28,12 @@ private:
 
 class CRegAccess : public IAccess {
 public:
-    CRegAccess(const CSymbol* _name): name(_name), temp(){}
+    CRegAccess(const CSymbol* _name): name(_name), temp(new CTemp()){}
     IExp* getExp();
     const CSymbol* getName() { return name; }
 private:
     const CSymbol* name;
-    CTemp temp;
+    shared_ptr<CTemp> temp;
 };
 
 class CVarAccess : public IAccess {
@@ -56,27 +56,28 @@ public:
         name(_name), localOffset(0), formalOffset(0), framePointer(new CTemp())
     {}
 
-    CTemp* getFP(){
+    shared_ptr<CTemp> getFP(){
         return framePointer;
     }
 
-    IAccess* getTP(){
+    shared_ptr<IAccess> getTP(){
         return formals[0];
     }
 
-    IAccess* getLocal(const CSymbol* name){
+    shared_ptr<IAccess> getLocal(const CSymbol* name){
         for (int i = 0; i < locals.size(); i++)
             if (name == locals[i]->getName())
                 return locals[i];
         return 0;
     }
-    IAccess* getFormal(const CSymbol* name){
+    shared_ptr<IAccess> getFormal(const CSymbol* name){
         for (int i = 0; i < formals.size(); i++)
             if (name == formals[i]->getName())
                 return formals[i];
         return 0;
     }
-    IAccess* getVar(const CSymbol* name){
+
+    shared_ptr<IAccess> getVar(const CSymbol* name){
         for (int i = 0; i < vars.size(); i++)
             if (name == vars[i]->getName())
                 return vars[i];
@@ -84,9 +85,9 @@ public:
     }
 
     IExp* findByName(const CSymbol* name){
-		IAccess* l = getLocal(name);
-        IAccess* f = getFormal(name);
-        IAccess* v = getVar(name);
+		shared_ptr<IAccess> l = getLocal(name);
+        shared_ptr<IAccess> f = getFormal(name);
+        shared_ptr<IAccess> v = getVar(name);
         if (l!=0) return l->getExp();
         if (f!=0) return f->getExp();
         if (v!=0) return v->getExp();
@@ -94,39 +95,32 @@ public:
 	}
 
     void allocLocal(const CSymbol* name) {
-        locals.push_back(new CFrameAccess(name, this, localOffset));
+        locals.push_back(shared_ptr<IAccess>(new CFrameAccess(name, this, localOffset)));
         localOffset -= wordSize;
     }
     void allocFormal(const CSymbol* name) {
-        formals.push_back(new CFrameAccess(name, this, formalOffset));
+        formals.push_back(shared_ptr<IAccess>(new CFrameAccess(name, this, formalOffset)));
         formalOffset += wordSize;
     }
     void allocVar(const CSymbol* name) {
-        vars.push_back(new CVarAccess(name, this, varOffset));
+        vars.push_back(shared_ptr<IAccess>(new CVarAccess(name, this, varOffset)));
         varOffset += wordSize;
     }
 
-    const IExp* externalCall(const std::string& funcName, const ExpList* args) {
-        return new CALL(new NAME(new CLabel(funcName)), args);
+    const IExp* externalCall(const std::string& funcName, shared_ptr<ExpList> args) {
+        return new CALL(new NAME(shared_ptr<CLabel>(new CLabel(funcName))), args);
     }
 
-    ~CFrame(){
-        for (int i=0; i<formals.size(); i++)
-            delete formals[i];
-        for (int i=0; i<locals.size(); i++)
-            delete locals[i];
-        for (int i=0; i<vars.size(); i++)
-            delete vars[i];
-    }
+    ~CFrame(){}
 private:
     const Symbol::CSymbol* name;
-    CTemp* framePointer;
+    shared_ptr<CTemp> framePointer;
     int localOffset;
     int formalOffset;
     int varOffset;
-    vector<IAccess*> formals;
-    vector<IAccess*> locals;
-    vector<IAccess*> vars;
+    vector<shared_ptr<IAccess>> formals;
+    vector<shared_ptr<IAccess>> locals;
+    vector<shared_ptr<IAccess>> vars;
 
 };
 
@@ -143,7 +137,7 @@ IExp* CVarAccess::getExp(){
 }
 
 IExp* CRegAccess::getExp(){
-    return new TEMP(&temp);
+    return new TEMP(temp);
 }
 
 }

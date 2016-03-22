@@ -68,7 +68,7 @@ public:
 
     virtual void visit(const NAME* node) const {
         print_tabs(counter++);
-        cout << "NAME" << node->label->Name() << endl;
+        cout << "NAME " << node->label->Name() << endl;
         --counter;
     }
 
@@ -98,6 +98,11 @@ public:
         print_tabs(counter++);
         cout << "CALL" << endl;
         node->func->accept(this);
+        shared_ptr<ExpList> cur = node->args;
+        while(cur){
+            cur->head->accept(this);
+            cur = cur->tail;
+        }
         --counter;
     }
 

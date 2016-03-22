@@ -42,10 +42,9 @@ public:
 
 class ExpList {
 public:
-	ExpList(const IExp* _head, const ExpList* _tail) : head(_head), tail(_tail) {}
-
+	ExpList(const IExp* _head, shared_ptr<const ExpList> _tail) : head(_head), tail(_tail) {}
 	const IExp* head;
-	const ExpList* tail;
+	shared_ptr<const ExpList> tail;
 };
 
 
@@ -71,7 +70,7 @@ public:
 	const ExpList* kids() const {
 		const MEM* memDst = dynamic_cast<const MEM*>(dst);
 		if (memDst != 0) {
-			return new ExpList(memDst->exp, new ExpList(src, 0));
+			return new ExpList(memDst->exp, shared_ptr<ExpList>(new ExpList(src, 0)));
 		} else {
 			return new ExpList(src, 0);
 		}
@@ -81,7 +80,7 @@ public:
 		
 		const MEM* memDst = dynamic_cast<const MEM*>(dst);
 		if (memDst != 0) {
-			return new MOVE(new MEM(kids->head), kids->tail->head);
+			return new MOVE(new MEM(kids->head), kids->tail.get()->head);
 		} else {
 			return new MOVE(dst, kids->head);
 		}
@@ -130,11 +129,11 @@ public:
 						relop(_relop), left(_left), right(_right), iftrue(_iftrue), iffalse(_iffalse) {}
 	
 	const ExpList* kids() const {
-		return new ExpList(left, new ExpList(right, 0));
+		return new ExpList(left, shared_ptr<ExpList>(new ExpList(right, 0)));
 	}
 	
 	const IStm* build(const ExpList* kids) const {
-		return new CJUMP(relop, kids->head, kids->tail->head, iftrue, iffalse);
+		return new CJUMP(relop, kids->head, kids->tail.get()->head, iftrue, iffalse);
 	}
 
 	CJUMP_OP relop;
@@ -195,7 +194,6 @@ public:
 
 class NAME : public CAcceptsIRVisitor<NAME, IExp> {
 public:
-	NAME(const Temp::CLabel* _label): label(_label) {}
 
 	const ExpList* kids() const {
 		return 0;
@@ -205,13 +203,12 @@ public:
 		return this;
 	}
 
-
-	const Temp::CLabel* label;
+	NAME(shared_ptr<Temp::CLabel> _label): label(_label) {}
+	shared_ptr<Temp::CLabel> label;
 };
 
 class TEMP: public CAcceptsIRVisitor<TEMP, IExp> {
 public:
-	TEMP(const Temp::CTemp* _temp): temp(_temp) {}
 
 	const ExpList* kids() const {
 		return 0;
@@ -221,8 +218,8 @@ public:
 		return this;
 	}
 
-
-	const Temp::CTemp* temp;
+	TEMP(shared_ptr<const Temp::CTemp> _temp): temp(_temp) {}
+	shared_ptr<const Temp::CTemp> temp;
 };
 
 class BINOP: public CAcceptsIRVisitor<BINOP, IExp> {
@@ -230,11 +227,11 @@ public:
 	BINOP(ArithmeticOpType _binop, const IExp* _left, const IExp* _right): binop(_binop), left(_left), right(_right) {}
 	
 	const ExpList* kids() const {
-		return new ExpList(left, new ExpList(right, 0));
+		return new ExpList(left, shared_ptr<ExpList>(new ExpList(right, 0)));
 	}
 
 	const IExp* build(const ExpList* kids) const {
-		return new BINOP(binop, kids->head, kids->tail->head);
+		return new BINOP(binop, kids->head, kids->tail.get()->head);
 	}
 
 	ArithmeticOpType binop;
@@ -246,7 +243,6 @@ public:
 
 class CALL: public CAcceptsIRVisitor<CALL, IExp> {
 public:
-	CALL(const IExp* _func, const ExpList* _args): func(_func), args(_args) {}
 
 	const ExpList* kids() const {
 		return new ExpList(func, args);
@@ -256,8 +252,9 @@ public:
 		return new CALL(kids->head, kids->tail);
 	}
 
+	CALL(const IExp* _func, shared_ptr<const ExpList> _args): func(_func), args(_args) {}
 	const IExp* func;
-	const ExpList* args;
+	shared_ptr<const ExpList> args;
 };
 
 class ESEQ: public CAcceptsIRVisitor<ESEQ, IExp> {
@@ -295,19 +292,19 @@ public:
 	StmExpList(const IStm* _stm, const ExpList* _exps) : stm(_stm), exps(_exps) {}
 
 	const IStm* stm;
-	const ExpList* exps;
+	shared_ptr<const ExpList> exps;
 };
 
 const StmExpList* reorder(const ExpList* list);
 
 const ESEQ* reorderExp(const IExp* exp) {
 	const StmExpList* l = reorder(exp->kids());
-	return new ESEQ(l->stm, exp->build(l->exps));
+	return new ESEQ(l->stm, exp->build(l->exps.get()));
 }
 
 const IStm* reorderStm(const IStm* stm) {
 	const StmExpList* list = reorder(stm->kids());
-	return new SEQ(list->stm, stm->build(list->exps));
+	return new SEQ(list->stm, stm->build(list->exps.get()));
 }
 
 const ESEQ* doExp(const IExp* exp) {
@@ -371,13 +368,13 @@ const StmExpList* reorder(const ExpList* list) {
 	}
 	const IExp* head = list->head;					
 	const ESEQ* eseq = doExp(head);
-	const StmExpList* stmtList = reorder(list->tail);
+	const StmExpList* stmtList = reorder(list->tail.get());
 	if (commute(stmtList->stm, eseq->exp)) {
 		return new StmExpList(new SEQ(eseq->stm, stmtList->stm), 
 								new ExpList(eseq->exp, stmtList->exps)
 							);
 	} else {
-		const Temp::CTemp* t = new Temp::CTemp();
+		shared_ptr<const Temp::CTemp> t(new Temp::CTemp());
 		return new StmExpList(new SEQ(eseq->stm, 
 										new SEQ(new MOVE(new TEMP(t), eseq->exp), 
 												stmtList->stm
