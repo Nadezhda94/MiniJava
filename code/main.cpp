@@ -84,8 +84,14 @@ int main(int argc, char** argv) {
 
         CIRPrinter ir_print_vis(false);
         for (int i = 0; i < traslator_vis.trees.size(); ++i ) {
+            const ESEQ* res = doExp(dynamic_cast<const IExp*>(traslator_vis.trees[i]));
             traslator_vis.trees[i]->accept(&ir_print_vis);
+            cout << "=================================" << endl;
+            cout << "modified tree" << endl;
+            res->accept(&ir_print_vis);
+
         }
+
 
         // storagePrinter();
         delete root;
