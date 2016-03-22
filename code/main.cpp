@@ -6,6 +6,8 @@
 #include "ASTVisitors/TypeChecker.h"
 #include "ASTVisitors/Translator.h"
 #include "IRVisitors/Printer.h"
+#include "IRVisitors/Canonizer.h"
+
 extern FILE * yyin;
 extern int yyparse();
 extern CProgramRuleNode* root;
@@ -83,14 +85,23 @@ int main(int argc, char** argv) {
         root->accept(&traslator_vis);
 
         CIRPrinter ir_print_vis(false);
+
+        Canonizer canonizer;
         for (int i = 0; i < traslator_vis.trees.size(); ++i ) {
-            const ESEQ* res = doExp(dynamic_cast<const IExp*>(traslator_vis.trees[i]));
-            traslator_vis.trees[i]->accept(&ir_print_vis);
+            //const ESEQ* res = doExp(dynamic_cast<const IExp*>(traslator_vis.trees[i]));
+            //traslator_vis.trees[i]->accept(&canonizer);
+            //traslator_vis.trees[i]->accept(&ir_print_vis);
             cout << "=================================" << endl;
             cout << "modified tree" << endl;
-            res->accept(&ir_print_vis);
+            //res->accept(&ir_print_vis);
 
         }
+        traslator_vis.trees[2]->accept(&ir_print_vis);
+        traslator_vis.trees[2]->accept(&canonizer);
+
+        canonizer.current_node->accept(&ir_print_vis);
+        //traslator_vis.trees[1]->accept(&ir_print_vis);
+       // traslator_vis.trees[1]->accept(&canonizer);
 
 
         // storagePrinter();

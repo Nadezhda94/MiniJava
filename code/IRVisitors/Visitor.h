@@ -17,6 +17,8 @@ namespace IRTree {
   class MEM;
   class CALL;
   class ESEQ;
+  class MoveCall;
+  class ExpCall;
 
 };
 
@@ -36,6 +38,8 @@ public:
   virtual void visit(const IRTree::MEM* node)const = 0;
   virtual void visit(const IRTree::CALL* node) const = 0;
   virtual void visit(const IRTree::ESEQ* node)const = 0;
+  virtual void visit(const IRTree::MoveCall* node)const = 0;
+  virtual void visit(const IRTree::ExpCall* node)const = 0;
 
 };
 

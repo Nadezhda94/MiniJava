@@ -114,6 +114,13 @@ public:
         --counter;
     }
 
+    virtual void visit(const IRTree::MoveCall* node)const {
+
+    }
+    virtual void visit(const IRTree::ExpCall* node)const {
+        
+    }
+
 private:
   mutable int counter = 0;
     void print_tabs(int num) const {
