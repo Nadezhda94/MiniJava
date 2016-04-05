@@ -69,7 +69,7 @@ public:
 	CProgramRuleNode( CMainClassNode* _mainClass, CDeclarationsNode* _decl) :
 		mainClass(_mainClass), decl(_decl) {}
     ~CProgramRuleNode(){
-        
+
     }
 
 	shared_ptr<CMainClassNode> mainClass;
@@ -81,7 +81,7 @@ public:
 	CMainClassDeclarationRuleNode( const char* _className, const char* _argNames, CStatementNode* _stmt ) :
 		className(symbolsStorage.get(_className)), argNames(symbolsStorage.get(_argNames)), stmt(_stmt) {}
     ~CMainClassDeclarationRuleNode(){
-        
+
     }
 	const CSymbol* className;
 	const CSymbol* argNames;
@@ -106,7 +106,7 @@ public:
     CVarDeclarationsNode* _vars, CMethodDeclarationsNode* _method ) :
 		ident(symbolsStorage.get(_ident)), extDecl(_extDecl), vars(_vars), method(_method) {}
     ~CClassDeclarationRuleNode(){
-       
+
     }
 
 	const CSymbol* ident;
@@ -126,7 +126,7 @@ public:
     CVarDeclarationsListNode(CVarDeclarationsNode* _first, CVarDeclarationNode* _second):
         list(_first), item(_second) {}
     ~CVarDeclarationsListNode(){
-        
+
     }
 
     shared_ptr<CVarDeclarationsNode> list;
@@ -138,7 +138,7 @@ public:
     CMethodDeclarationsListNode(CMethodDeclarationsNode* _first, CMethodDeclarationNode* _second):
         list(_first), item(_second) {}
     ~CMethodDeclarationsListNode(){
-       
+
     }
 
     shared_ptr<CMethodDeclarationsNode> list;
@@ -163,7 +163,7 @@ public:
         type(_type), ident(symbolsStorage.get(_ident)), param_arg(_param_arg),
         method_body(_method_body), return_exp(_return_exp){}
     ~CMethodDeclarationRuleNode(){
-       
+
     }
 
     shared_ptr<CTypeNode> type;
@@ -178,7 +178,7 @@ public:
     CVarsDecListNode(CVarsDecNode* _list, CVarDeclarationNode* _next):
         list(_list), next(_next){}
     ~CVarsDecListNode(){
-     
+
     }
 
     shared_ptr<CVarsDecNode> list;
@@ -210,7 +210,7 @@ class CStatsListNode: public CAcceptsVisitor<CStatsListNode, CStatsNode> {
 public:
     CStatsListNode(CStatsNode* _list,  CStatementNode* _stm) : list(_list), stm(_stm) {}
     ~CStatsListNode(){
-        
+
     }
 
     shared_ptr<CStatsNode> list;
@@ -221,7 +221,7 @@ class CMethodBodyVarsNode: public CAcceptsVisitor<CMethodBodyVarsNode, CMethodBo
 public:
     CMethodBodyVarsNode(CVarsDecNode* _vars) : vars(_vars){}
     ~CMethodBodyVarsNode(){
-        
+
     }
 
     shared_ptr<CVarsDecNode> vars;
@@ -242,7 +242,7 @@ public:
     CMethodBodyAllNode(CVarsDecNode* _vars, CStatsNode* _stats) :
         vars(_vars), stats(_stats){}
     ~CMethodBodyAllNode(){
-       
+
     }
 
     shared_ptr<CVarsDecNode> vars;
@@ -253,7 +253,7 @@ class CParamArgListNode: public CAcceptsVisitor<CParamArgListNode, CParamArgNode
 public:
     CParamArgListNode(CParamsNode* _params) : params(_params){}
     ~CParamArgListNode(){
-        
+
     }
 
     shared_ptr<CParamsNode> params;
@@ -263,7 +263,7 @@ class CParamsOneNode: public CAcceptsVisitor<CParamsOneNode, CParamsNode> {
 public:
     CParamsOneNode(CParamNode* _param) : param(_param){}
     ~CParamsOneNode(){
-        
+
     }
 
     shared_ptr<CParamNode> param;
@@ -274,7 +274,7 @@ public:
     CParamsTwoNode(CParamsNode* _first, CParamNode* _second):
         first(_first), second(_second){}
     ~CParamsTwoNode(){
-       
+
     }
 
     shared_ptr<CParamsNode> first;
@@ -306,7 +306,7 @@ public:
     CNumerousStatementsNode(CStatementsNode* _statements, CStatementNode* _statement):
         statements(_statements), statement(_statement){}
     ~CNumerousStatementsNode(){
-       
+
     }
 
     shared_ptr<CStatementsNode> statements;
@@ -317,7 +317,7 @@ class CBracedStatementNode : public CAcceptsVisitor<CBracedStatementNode, CState
 public:
     CBracedStatementNode(CStatementsNode* _statements):statements(_statements){}
     ~CBracedStatementNode(){
-       
+
     }
 
     shared_ptr<CStatementsNode> statements;
@@ -328,7 +328,7 @@ public:
     CIfStatementNode(CExpressionNode* _expression, CStatementNode* _thenStatement, CStatementNode* _elseStatement):
         expression(_expression), thenStatement(_thenStatement), elseStatement(_elseStatement){}
     ~CIfStatementNode(){
-      
+
     }
 
     shared_ptr<CExpressionNode> expression;
@@ -341,7 +341,7 @@ class CWhileStatementNode : public CAcceptsVisitor<CWhileStatementNode, CStateme
 public:
     CWhileStatementNode(CExpressionNode* _expression, CStatementNode* _statement):expression(_expression), statement(_statement){}
     ~CWhileStatementNode(){
-        
+
     }
 
     shared_ptr<CExpressionNode> expression;
@@ -352,7 +352,7 @@ class CPrintStatementNode : public CAcceptsVisitor<CPrintStatementNode, CStateme
 public:
     CPrintStatementNode(CExpressionNode* _expression):expression(_expression){}
     ~CPrintStatementNode(){
-        
+
     }
 
     shared_ptr<CExpressionNode> expression;
@@ -363,7 +363,7 @@ public:
     CAssignStatementNode(CExpressionNode* _expression, const char* ident):expression(_expression),
         identifier(symbolsStorage.get(ident)){}
     ~CAssignStatementNode(){
-        
+
     }
 
     shared_ptr<CExpressionNode> expression;
@@ -391,7 +391,7 @@ class CInvokeExpressionNode: public CAcceptsVisitor<CInvokeExpressionNode, CExpr
 public:
     CInvokeExpressionNode(CExpressionNode* _firstExp, CExpressionNode* _secondExp) : firstExp(_firstExp), secondExp(_secondExp) {}
     ~CInvokeExpressionNode(){
-        
+
     }
     shared_ptr<CExpressionNode> firstExp;
     shared_ptr<CExpressionNode> secondExp;
@@ -401,7 +401,7 @@ class CLengthExpressionNode: public CAcceptsVisitor<CLengthExpressionNode, CExpr
 public:
     CLengthExpressionNode(CExpressionNode* _exp) : expr(_exp) {}
     ~CLengthExpressionNode(){
-        
+
     }
 
     shared_ptr<CExpressionNode> expr;
@@ -412,7 +412,7 @@ public:
     CArithmeticExpressionNode(CExpressionNode* _firstExp, CExpressionNode* _secondExp, ArithmeticOpType _opType) :
         firstExp(_firstExp), secondExp(_secondExp), opType(_opType) {}
     ~CArithmeticExpressionNode(){
-        
+
     }
 
     shared_ptr<CExpressionNode> firstExp;
@@ -446,7 +446,7 @@ class CNotExpressionNode: public CAcceptsVisitor<CNotExpressionNode, CExpression
 public:
     CNotExpressionNode(CExpressionNode* _exp) : expr(_exp) {}
     ~CNotExpressionNode(){
-        
+
     }
 
     shared_ptr<CExpressionNode> expr;
@@ -456,7 +456,7 @@ class CNewArrayExpressionNode: public CAcceptsVisitor<CNewArrayExpressionNode, C
 public:
     CNewArrayExpressionNode(CExpressionNode* _exp) : expr(_exp) {}
     ~CNewArrayExpressionNode(){
-        
+
     }
 
   shared_ptr<CExpressionNode> expr;
@@ -496,7 +496,7 @@ class CParenExpressionNode: public CAcceptsVisitor<CParenExpressionNode, CExpres
 public:
     CParenExpressionNode(CExpressionNode* _exp) : expr(_exp) {}
     ~CParenExpressionNode(){
-        
+
     }
 
     shared_ptr<CExpressionNode> expr;
@@ -507,8 +507,8 @@ public:
     CInvokeMethodExpressionNode(CExpressionNode* _exp, const char* _name, CExpArgNode* _args):
         expr(_exp), name(symbolsStorage.get(_name)), args(_args) {}
     ~CInvokeMethodExpressionNode(){
-        
-        
+
+
     }
 
     shared_ptr<CExpressionNode> expr;
@@ -521,7 +521,7 @@ class CFewArgsExpressionNode: public CAcceptsVisitor<CFewArgsExpressionNode, CEx
 public:
     CFewArgsExpressionNode(CExpressionsNode* _exp) : expr(_exp) {}
     ~CFewArgsExpressionNode(){
-        
+
     }
 
     shared_ptr<CExpressionsNode> expr;
@@ -532,7 +532,7 @@ public:
     CListExpressionNode(CExpressionsNode* _prevExps, CExpressionNode* _nextExp):
                         prevExps(_prevExps), nextExp(_nextExp) {}
     ~CListExpressionNode(){
-        
+
     }
 
     shared_ptr<CExpressionsNode> prevExps;
@@ -543,7 +543,7 @@ class CLastListExpressionNode: public CAcceptsVisitor<CLastListExpressionNode, C
 public:
     CLastListExpressionNode(CExpressionNode* _exp) : expr(_exp) {}
     ~CLastListExpressionNode(){
-        
+
     }
 
     shared_ptr<CExpressionNode> expr;

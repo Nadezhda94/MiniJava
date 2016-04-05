@@ -202,9 +202,15 @@ public:
 		currentClass = &table.getClassInfo(node->ident);
 		if (node->extDecl != 0)
 			node->extDecl->accept(this);
+			//cout<<1<<endl;
 		if (node->vars != 0)
 			node->vars->accept(this);
-		node->method->accept(this);
+			//cout<<2<<endl;
+			//cout <<  node->ident << endl;
+			//cout <<  node->method << endl;
+		if (node->method != 0)
+			node->method->accept(this);
+		//cout<<3<<endl;
 	}
 
 	void visit(const CExtendDeclarationRuleNode* node){
@@ -212,6 +218,11 @@ public:
 	}
 
 	void visit(const CVarDeclarationsListNode* node){
+			if (node->list != 0)
+				node->list->accept(this);
+
+			if (node->item != 0)
+				node->item->accept(this);
 	}
 
 	void visit(const CMethodDeclarationsListNode* node){
@@ -223,6 +234,7 @@ public:
 	void visit(const CVarDeclarationRuleNode* node){}
 
 	void visit(const CMethodDeclarationRuleNode* node){
+		//cout<<"!!!!!"<<endl;
 		currentMethod = &(currentClass->getMethodInfo(node->ident));
 		currentFrame = shared_ptr<CFrame>( new CFrame(node->ident) );
 		currentFrame->allocFormal(symbolsStorage->get("this")); // this
