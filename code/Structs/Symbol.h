@@ -5,7 +5,7 @@
 namespace Symbol {
 class CStorage;
 
-class CSymbol{
+class CSymbol {
 public:
 	CSymbol(const std::string& _name): name(_name) {}
 	const std::string& getString() const {
