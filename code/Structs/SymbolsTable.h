@@ -35,6 +35,7 @@ struct CClassInfo {
 			if (name->getString() == methods[i].name->getString())
 				return methods[i];
 	}
+	//Метод для возврата переменных родителя
 };
 
 struct CTable {

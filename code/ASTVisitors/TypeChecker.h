@@ -61,6 +61,29 @@ public:
 				}
 			}
 		}
+
+		const CSymbol* first = table.classInfo[this->classPos].name;
+		const CSymbol* parent = table.classInfo[this->classPos].name;
+		do{
+			int i = 0;
+		 	while ((table.classInfo[i].name != parent) && (i < table.classInfo.size()))
+		 		i++;
+
+		 	if (i == table.classInfo.size())
+		 		parent = symbolsStorage->get("");
+			else
+				parent = table.classInfo[i].parent;
+
+			if (parent != symbolsStorage->get(""))
+				for (int k = 0; k < table.classInfo[i].vars.size(); k++){
+					flagDec = flagDec || (name == table.classInfo[i].vars[k].name);
+					if (flagDec){
+						type = table.classInfo[i].vars[k].type;
+						return true;
+					}
+				}
+
+		} while ((parent != symbolsStorage->get("")) && (parent != first));
 	}
 
 	const CSymbol* checkAssignment(const CSymbol* name) {
