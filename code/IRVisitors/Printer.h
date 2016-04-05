@@ -10,6 +10,7 @@ static const char * CJumpOpStrings[] = { "=", "!=", "<", ">", "<=", ">=", "u<", 
 class CIRPrinter: public CIRVisitor {
     bool withoutSEQ;
 public:
+    CIRPrinter(){}
     CIRPrinter(bool _withoutSEQ) : withoutSEQ(_withoutSEQ) {}
     virtual void visit(const MOVE* node) const {
         print_tabs(counter++);

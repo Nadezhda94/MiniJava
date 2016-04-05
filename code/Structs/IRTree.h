@@ -112,11 +112,19 @@ public:
 	JUMP(const Temp::CLabel* _target) : exp(0), target(_target) {}
 
 	shared_ptr<const ExpList> kids() const {
-		return make_shared<const ExpList>(exp, nullptr);
+		if (exp == 0) {
+			return 0;
+		} else {
+			return make_shared<const ExpList>(exp, nullptr);
+		}
 	}
 	
 	const IStm* build(shared_ptr<const ExpList> kids) const {
-		return new JUMP(kids->head, target);
+		if (kids != 0) {
+			return new JUMP(kids->head, target);
+		} else {
+			return new JUMP(target);
+		}
 	}
 
 	const IExp* exp;
@@ -232,7 +240,6 @@ public:
 	}
 
 	const IExp* build(shared_ptr<const ExpList> kids) const {
-		std::cerr << "a";
 		return new BINOP(binop, kids->head, kids->tail.get()->head);
 	}
 
@@ -312,6 +319,19 @@ bool commute(const IStm* stm, const IExp* exp) {
 }
 
 
+const IStm* seq(const IStm* arg1, const IStm* arg2) {
+	if (isNop(arg1)) {
+		return arg2;
+	} else {
+		if (isNop(arg2)) {
+			return arg1;
+		} else {
+			return new SEQ(arg1, arg2);
+		}
+	}
+}
+
+
 
 class StmExpList {
 public:
@@ -326,40 +346,38 @@ const StmExpList* reorder(shared_ptr<const ExpList> list);
 
 const ESEQ* reorderExp(const IExp* exp) {
 
-	if (exp == 0) {
-		cerr << "reorderExp" << endl;
-		
-	}
 	const StmExpList* l = reorder(exp->kids());
 
-	
+
 	return new ESEQ(l->stm, exp->build(l->exps));
 }
 
 const IStm* reorderStm(const IStm* stm) {
 	const StmExpList* list = reorder(stm->kids());
-	return new SEQ(list->stm, stm->build(list->exps));
+	return seq(list->stm, stm->build(list->exps));
 }
 
+const ESEQ* doExp(const ESEQ* exp);
+
 const ESEQ* doExp(const IExp* exp) {
-		
 
 	const ESEQ* eseq = dynamic_cast<const ESEQ*>(exp);
 	if ( eseq != 0) {
-		return eseq;
+		return doExp(eseq);
 	} else {
-
 		return reorderExp(exp);
 	}
 }
 
+
 const IStm* doStm(const IStm* stm);
 const IStm* doStm(const SEQ* s) {
-	return new SEQ(doStm(s->left), doStm(s->right));
+	return seq(doStm(s->left), doStm(s->right));
 }
 
 
 const IStm* doStm(const MOVE* s) {
+
 	const TEMP* temp = dynamic_cast<const TEMP*>(s->dst);
 	const CALL* call = dynamic_cast<const CALL*>(s->src);
 	if ( (temp != 0) && (call != 0)  ){
@@ -376,6 +394,7 @@ const IStm* doStm(const MOVE* s) {
 }
 
 const IStm* doStm(const EXP* s) {
+
 	const CALL* call = dynamic_cast<const CALL*>(s->exp);
 	if (call != 0) {
 		return reorderStm(new ExpCall(call));
@@ -386,8 +405,9 @@ const IStm* doStm(const EXP* s) {
 
 
 const IStm* doStm(const IStm* stm) {
+
 	const SEQ* seq = dynamic_cast<const SEQ*>(stm);
-	if (stm != 0) {
+	if (seq != 0) {
 		return doStm( seq );
 	} else {
 		const MOVE* move = dynamic_cast<const MOVE*>(stm);
@@ -406,9 +426,14 @@ const IStm* doStm(const IStm* stm) {
 }
 
 const ESEQ* doExp(const ESEQ* exp) {
+	if (exp == 0) {
+		                exit(1);
+	}
+
 	const IStm* stms = doStm(exp->stm);
+	
 	const ESEQ* eseq = doExp(exp->exp);
-	return new ESEQ(new SEQ(stms, eseq->stm), eseq->exp);
+	return new ESEQ(seq(stms, eseq->stm), eseq->exp);
 }
 
 
@@ -418,26 +443,26 @@ const StmExpList* reorder(shared_ptr<const ExpList> list) {
 	if (list == nullptr) {
 		return new StmExpList(new EXP(new CONST(0)), 0);
 	} else {
+
 		const IExp* head = list.get()->head;	
        	const CALL* call = dynamic_cast<const CALL*>(head);
 
        	if (call != 0) {
+
        		shared_ptr<const Temp::CTemp> t(new Temp::CTemp());
        		const IExp* eseq = new ESEQ(new MOVE(new TEMP(t), head), new TEMP(t));
        		return reorder(make_shared<const ExpList>(eseq, list->tail));
        	} else {
-
 			const ESEQ* eseq = doExp(head);
 			const StmExpList* stmtList = reorder(list->tail);
-			
 			if (commute(stmtList->stm, eseq->exp)) {
-				return new StmExpList(new SEQ(eseq->stm, stmtList->stm), 
+				return new StmExpList(seq(eseq->stm, stmtList->stm), 
 										make_shared<const ExpList>(eseq->exp, stmtList->exps)
 									);
 			} else {
 				shared_ptr<const Temp::CTemp> t(new Temp::CTemp());
-				return new StmExpList(new SEQ(eseq->stm, 
-												new SEQ(new MOVE(new TEMP(t), eseq->exp), 
+				return new StmExpList(seq(eseq->stm, 
+												seq(new MOVE(new TEMP(t), eseq->exp), 
 														stmtList->stm
 														)
 											), 

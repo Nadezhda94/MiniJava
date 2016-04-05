@@ -88,20 +88,23 @@ int main(int argc, char** argv) {
 
         Canonizer canonizer;
         for (int i = 0; i < traslator_vis.trees.size(); ++i ) {
-            //const ESEQ* res = doExp(dynamic_cast<const IExp*>(traslator_vis.trees[i]));
-            //traslator_vis.trees[i]->accept(&canonizer);
-            //traslator_vis.trees[i]->accept(&ir_print_vis);
+            cout << "=================================" << endl;
+            cout << "tree" << endl;
+            traslator_vis.trees[i]->accept(&ir_print_vis);
+               
+            traslator_vis.trees[i]->accept(&canonizer);
             cout << "=================================" << endl;
             cout << "modified tree" << endl;
-            //res->accept(&ir_print_vis);
+            const IExp* arg =  dynamic_cast<const IExp*>(canonizer.current_node);
+            if (arg != 0) {
+                const IExp* res = doExp(arg);
+                 res->accept(&ir_print_vis);
+            } else {
+               const IStm* res = doStm(dynamic_cast<const IStm*>(canonizer.current_node));
+                res->accept(&ir_print_vis);    
+            }
 
         }
-        traslator_vis.trees[2]->accept(&ir_print_vis);
-        traslator_vis.trees[2]->accept(&canonizer);
-
-        canonizer.current_node->accept(&ir_print_vis);
-        //traslator_vis.trees[1]->accept(&ir_print_vis);
-       // traslator_vis.trees[1]->accept(&canonizer);
 
 
         // storagePrinter();
