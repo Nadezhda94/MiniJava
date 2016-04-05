@@ -76,13 +76,16 @@ int main(int argc, char** argv) {
 
         CSymbolTableBuilder table_vis(&symbolsStorage);
         root->accept(&table_vis);
+        std::cout << "____________________________" << std::endl;
         //testBuilder(table_vis);
 
         CTypeChecker checker_vis(&symbolsStorage, table_vis.table);
         root->accept(&checker_vis);
 
+        std::cout << "____________________________" << std::endl;
         CTranslator traslator_vis(&symbolsStorage, table_vis.table);
         root->accept(&traslator_vis);
+        std::cout << "____________________________" << std::endl;
 
         CIRPrinter ir_print_vis(false);
 

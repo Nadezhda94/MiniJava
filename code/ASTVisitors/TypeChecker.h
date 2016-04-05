@@ -151,7 +151,7 @@ public:
 	}
 
 	void visit(const CVarDeclarationRuleNode* node){
-		CTypeRuleNode* tmp = dynamic_cast<CTypeRuleNode*>(node->type);
+		CTypeRuleNode* tmp = dynamic_cast<CTypeRuleNode*>(node->type.get());
 		if ((tmp->type != symbolsStorage->get("boolean") ) && (tmp->type != symbolsStorage->get("int") && (tmp->type != symbolsStorage->get("int[]")))) {
 			if (!checkClassExistence(tmp->type)) {
 				cout << "No such type: " << tmp->type << endl;
@@ -161,7 +161,7 @@ public:
 	}
 
 	void visit(const CMethodDeclarationRuleNode* node){
-		CTypeRuleNode* tmp = dynamic_cast<CTypeRuleNode*>(node->type);
+		CTypeRuleNode* tmp = dynamic_cast<CTypeRuleNode*>(node->type.get());
 		if ((tmp->type != symbolsStorage->get("boolean") ) && (tmp->type != symbolsStorage->get("int"))
 		&& (tmp->type != symbolsStorage->get("int[]"))) {
 			bool flag = false;

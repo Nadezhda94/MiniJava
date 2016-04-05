@@ -69,12 +69,11 @@ public:
 	CProgramRuleNode( CMainClassNode* _mainClass, CDeclarationsNode* _decl) :
 		mainClass(_mainClass), decl(_decl) {}
     ~CProgramRuleNode(){
-        delete mainClass;
-        delete decl;
+
     }
 
-	CMainClassNode* mainClass;
-	CDeclarationsNode* decl;
+	shared_ptr<CMainClassNode> mainClass;
+	shared_ptr<CDeclarationsNode> decl;
 };
 
 class CMainClassDeclarationRuleNode: public CAcceptsVisitor<CMainClassDeclarationRuleNode, CMainClassNode> {
@@ -82,11 +81,11 @@ public:
 	CMainClassDeclarationRuleNode( const char* _className, const char* _argNames, CStatementNode* _stmt ) :
 		className(symbolsStorage.get(_className)), argNames(symbolsStorage.get(_argNames)), stmt(_stmt) {}
     ~CMainClassDeclarationRuleNode(){
-        delete stmt;
+
     }
 	const CSymbol* className;
 	const CSymbol* argNames;
-	CStatementNode* stmt;
+	shared_ptr<CStatementNode> stmt;
 };
 
 class CDeclarationsListNode: public CAcceptsVisitor<CDeclarationsListNode, CDeclarationsNode> {
@@ -94,12 +93,11 @@ public:
 	CDeclarationsListNode( CDeclarationsNode* _decl, CClassDeclarationNode* _cl ) :
 		decl(_decl), cl(_cl) {}
     ~CDeclarationsListNode(){
-        delete decl;
-        delete cl;
+
     }
 
-	CDeclarationsNode* decl;
-	CClassDeclarationNode* cl;
+	shared_ptr<CDeclarationsNode> decl;
+	shared_ptr<CClassDeclarationNode> cl;
 };
 
 class CClassDeclarationRuleNode: public CAcceptsVisitor<CClassDeclarationRuleNode, CClassDeclarationNode> {
@@ -108,15 +106,13 @@ public:
     CVarDeclarationsNode* _vars, CMethodDeclarationsNode* _method ) :
 		ident(symbolsStorage.get(_ident)), extDecl(_extDecl), vars(_vars), method(_method) {}
     ~CClassDeclarationRuleNode(){
-        delete extDecl;
-        delete vars;
-        delete method;
+
     }
 
 	const CSymbol* ident;
-	CExtendDeclarationNode *extDecl;
-	CVarDeclarationsNode *vars;
-	CMethodDeclarationsNode *method;
+	shared_ptr<CExtendDeclarationNode> extDecl;
+	shared_ptr<CVarDeclarationsNode> vars;
+	shared_ptr<CMethodDeclarationsNode> method;
 };
 
 class CExtendDeclarationRuleNode: public CAcceptsVisitor<CExtendDeclarationRuleNode, CExtendDeclarationNode> {
@@ -130,12 +126,11 @@ public:
     CVarDeclarationsListNode(CVarDeclarationsNode* _first, CVarDeclarationNode* _second):
         list(_first), item(_second) {}
     ~CVarDeclarationsListNode(){
-        delete list;
-        delete item;
+
     }
 
-    CVarDeclarationsNode* list;
-    CVarDeclarationNode* item;
+    shared_ptr<CVarDeclarationsNode> list;
+    shared_ptr<CVarDeclarationNode> item;
 };
 
 class CMethodDeclarationsListNode : public CAcceptsVisitor<CMethodDeclarationsListNode, CMethodDeclarationsNode>{
@@ -143,22 +138,21 @@ public:
     CMethodDeclarationsListNode(CMethodDeclarationsNode* _first, CMethodDeclarationNode* _second):
         list(_first), item(_second) {}
     ~CMethodDeclarationsListNode(){
-        delete list;
-        delete item;
+
     }
 
-    CMethodDeclarationsNode* list;
-    CMethodDeclarationNode* item;
+    shared_ptr<CMethodDeclarationsNode> list;
+    shared_ptr<CMethodDeclarationNode> item;
 };
 
 class CVarDeclarationRuleNode : public CAcceptsVisitor<CVarDeclarationRuleNode, CVarDeclarationNode>{
 public:
     CVarDeclarationRuleNode(CTypeNode* _type, const char* _ident): type(_type), ident(symbolsStorage.get(_ident)){}
     ~CVarDeclarationRuleNode(){
-        delete type;
+
     }
 
-    CTypeNode* type;
+    shared_ptr<CTypeNode> type;
     const CSymbol* ident;
 };
 
@@ -169,17 +163,14 @@ public:
         type(_type), ident(symbolsStorage.get(_ident)), param_arg(_param_arg),
         method_body(_method_body), return_exp(_return_exp){}
     ~CMethodDeclarationRuleNode(){
-        delete type;
-        delete param_arg;
-        delete method_body;
-        delete return_exp;
+
     }
 
-    CTypeNode* type;
+    shared_ptr<CTypeNode> type;
     const CSymbol* ident;
-    CParamArgNode* param_arg;
-    CMethodBodyNode* method_body;
-    CExpressionNode* return_exp;
+    shared_ptr<CParamArgNode> param_arg;
+    shared_ptr<CMethodBodyNode> method_body;
+    shared_ptr<CExpressionNode> return_exp;
 };
 
 class CVarsDecListNode : public CAcceptsVisitor<CVarsDecListNode, CVarsDecNode>{
@@ -187,12 +178,11 @@ public:
     CVarsDecListNode(CVarsDecNode* _list, CVarDeclarationNode* _next):
         list(_list), next(_next){}
     ~CVarsDecListNode(){
-        delete list;
-        delete next;
+
     }
 
-    CVarsDecNode* list;
-    CVarDeclarationNode* next;
+    shared_ptr<CVarsDecNode> list;
+    shared_ptr<CVarDeclarationNode> next;
 };
 
 class CVarsDecFirstNode : public CAcceptsVisitor<CVarsDecFirstNode, CVarsDecNode>{
@@ -200,52 +190,51 @@ public:
     CVarsDecFirstNode(CVarDeclarationNode* _first):
         first(_first){}
     ~CVarsDecFirstNode(){
-        delete first;
+
     }
 
-    CVarDeclarationNode* first;
+    shared_ptr<CVarDeclarationNode> first;
 };
 
 class CStatsFirstNode: public CAcceptsVisitor<CStatsFirstNode, CStatsNode> {
 public:
     CStatsFirstNode(CStatementNode* _stm) : stm(_stm) {}
     ~CStatsFirstNode(){
-        delete stm;
+
     }
 
-    CStatementNode* stm;
+    shared_ptr<CStatementNode> stm;
 };
 
 class CStatsListNode: public CAcceptsVisitor<CStatsListNode, CStatsNode> {
 public:
     CStatsListNode(CStatsNode* _list,  CStatementNode* _stm) : list(_list), stm(_stm) {}
     ~CStatsListNode(){
-        delete stm;
-        delete list;
+
     }
 
-    CStatsNode* list;
-    CStatementNode* stm;
+    shared_ptr<CStatsNode> list;
+    shared_ptr<CStatementNode> stm;
 };
 
 class CMethodBodyVarsNode: public CAcceptsVisitor<CMethodBodyVarsNode, CMethodBodyNode> {
 public:
     CMethodBodyVarsNode(CVarsDecNode* _vars) : vars(_vars){}
     ~CMethodBodyVarsNode(){
-        delete vars;
+
     }
 
-    CVarsDecNode* vars;
+    shared_ptr<CVarsDecNode> vars;
 };
 
 class CMethodBodyStatsNode: public CAcceptsVisitor<CMethodBodyStatsNode, CMethodBodyNode> {
 public:
     CMethodBodyStatsNode(CStatsNode* _stats) : stats(_stats){}
     ~CMethodBodyStatsNode(){
-        delete stats;
+
     }
 
-    CStatsNode* stats;
+    shared_ptr<CStatsNode> stats;
 };
 
 class CMethodBodyAllNode: public CAcceptsVisitor<CMethodBodyAllNode, CMethodBodyNode> {
@@ -253,32 +242,31 @@ public:
     CMethodBodyAllNode(CVarsDecNode* _vars, CStatsNode* _stats) :
         vars(_vars), stats(_stats){}
     ~CMethodBodyAllNode(){
-        delete vars;
-        delete stats;
+
     }
 
-    CVarsDecNode* vars;
-    CStatsNode* stats;
+    shared_ptr<CVarsDecNode> vars;
+    shared_ptr<CStatsNode> stats;
 };
 
 class CParamArgListNode: public CAcceptsVisitor<CParamArgListNode, CParamArgNode> {
 public:
     CParamArgListNode(CParamsNode* _params) : params(_params){}
     ~CParamArgListNode(){
-        delete params;
+
     }
 
-    CParamsNode* params;
+    shared_ptr<CParamsNode> params;
 };
 
 class CParamsOneNode: public CAcceptsVisitor<CParamsOneNode, CParamsNode> {
 public:
     CParamsOneNode(CParamNode* _param) : param(_param){}
     ~CParamsOneNode(){
-        delete param;
+
     }
 
-    CParamNode* param;
+    shared_ptr<CParamNode> param;
 };
 
 class CParamsTwoNode: public CAcceptsVisitor<CParamsTwoNode, CParamsNode> {
@@ -286,12 +274,11 @@ public:
     CParamsTwoNode(CParamsNode* _first, CParamNode* _second):
         first(_first), second(_second){}
     ~CParamsTwoNode(){
-        delete first;
-        delete second;
+
     }
 
-    CParamsNode* first;
-    CParamNode* second;
+    shared_ptr<CParamsNode> first;
+    shared_ptr<CParamNode> second;
 };
 
 class CParamRuleNode: public CAcceptsVisitor<CParamRuleNode, CParamNode> {
@@ -299,10 +286,10 @@ public:
     CParamRuleNode(CTypeNode* _type, const char* _ident) :
         type(_type), ident(symbolsStorage.get(_ident)){}
     ~CParamRuleNode(){
-        delete type;
+
     }
 
-    CTypeNode* type;
+    shared_ptr<CTypeNode> type;
     const CSymbol* ident;
 };
 
@@ -319,22 +306,21 @@ public:
     CNumerousStatementsNode(CStatementsNode* _statements, CStatementNode* _statement):
         statements(_statements), statement(_statement){}
     ~CNumerousStatementsNode(){
-        delete statements;
-        delete statement;
+
     }
 
-    CStatementsNode* statements;
-    CStatementNode* statement;
+    shared_ptr<CStatementsNode> statements;
+    shared_ptr<CStatementNode> statement;
 };
 
 class CBracedStatementNode : public CAcceptsVisitor<CBracedStatementNode, CStatementNode>{
 public:
     CBracedStatementNode(CStatementsNode* _statements):statements(_statements){}
     ~CBracedStatementNode(){
-        delete statements;
+
     }
 
-    CStatementsNode* statements;
+    shared_ptr<CStatementsNode> statements;
 };
 
 class CIfStatementNode : public CAcceptsVisitor<CIfStatementNode, CStatementNode>{
@@ -342,14 +328,12 @@ public:
     CIfStatementNode(CExpressionNode* _expression, CStatementNode* _thenStatement, CStatementNode* _elseStatement):
         expression(_expression), thenStatement(_thenStatement), elseStatement(_elseStatement){}
     ~CIfStatementNode(){
-        delete expression;
-        delete thenStatement;
-        delete elseStatement;
+
     }
 
-    CExpressionNode* expression;
-    CStatementNode* thenStatement;
-    CStatementNode* elseStatement;
+    shared_ptr<CExpressionNode> expression;
+    shared_ptr<CStatementNode> thenStatement;
+    shared_ptr<CStatementNode> elseStatement;
 
 };
 
@@ -357,22 +341,21 @@ class CWhileStatementNode : public CAcceptsVisitor<CWhileStatementNode, CStateme
 public:
     CWhileStatementNode(CExpressionNode* _expression, CStatementNode* _statement):expression(_expression), statement(_statement){}
     ~CWhileStatementNode(){
-        delete expression;
-        delete statement;
+
     }
 
-    CExpressionNode* expression;
-    CStatementNode* statement;
+    shared_ptr<CExpressionNode> expression;
+    shared_ptr<CStatementNode> statement;
 };
 
 class CPrintStatementNode : public CAcceptsVisitor<CPrintStatementNode, CStatementNode>{
 public:
     CPrintStatementNode(CExpressionNode* _expression):expression(_expression){}
     ~CPrintStatementNode(){
-        delete expression;
+
     }
 
-    CExpressionNode* expression;
+    shared_ptr<CExpressionNode> expression;
 };
 
 class CAssignStatementNode : public CAcceptsVisitor<CAssignStatementNode, CStatementNode>{
@@ -380,10 +363,10 @@ public:
     CAssignStatementNode(CExpressionNode* _expression, const char* ident):expression(_expression),
         identifier(symbolsStorage.get(ident)){}
     ~CAssignStatementNode(){
-        delete expression;
+
     }
 
-    CExpressionNode* expression;
+    shared_ptr<CExpressionNode> expression;
     const CSymbol* identifier;
 };
 
@@ -393,12 +376,11 @@ public:
         const char* ident): firstexpression(_firstexpression), secondexpression(_secondexpression),
         identifier(symbolsStorage.get(ident)){}
     ~CInvokeExpressionStatementNode(){
-        delete firstexpression;
-        delete secondexpression;
+
     }
 
-    CExpressionNode* firstexpression;
-    CExpressionNode* secondexpression;
+    shared_ptr<CExpressionNode> firstexpression;
+    shared_ptr<CExpressionNode> secondexpression;
     const CSymbol* identifier;
 };
 
@@ -409,21 +391,20 @@ class CInvokeExpressionNode: public CAcceptsVisitor<CInvokeExpressionNode, CExpr
 public:
     CInvokeExpressionNode(CExpressionNode* _firstExp, CExpressionNode* _secondExp) : firstExp(_firstExp), secondExp(_secondExp) {}
     ~CInvokeExpressionNode(){
-        delete firstExp;
-        delete secondExp;
+
     }
-    CExpressionNode* firstExp;
-    CExpressionNode* secondExp;
+    shared_ptr<CExpressionNode> firstExp;
+    shared_ptr<CExpressionNode> secondExp;
 };
 
 class CLengthExpressionNode: public CAcceptsVisitor<CLengthExpressionNode, CExpressionNode> {
 public:
     CLengthExpressionNode(CExpressionNode* _exp) : expr(_exp) {}
     ~CLengthExpressionNode(){
-        delete expr;
+
     }
 
-    CExpressionNode* expr;
+    shared_ptr<CExpressionNode> expr;
 };
 
 class CArithmeticExpressionNode: public CAcceptsVisitor<CArithmeticExpressionNode, CExpressionNode> {
@@ -431,12 +412,11 @@ public:
     CArithmeticExpressionNode(CExpressionNode* _firstExp, CExpressionNode* _secondExp, ArithmeticOpType _opType) :
         firstExp(_firstExp), secondExp(_secondExp), opType(_opType) {}
     ~CArithmeticExpressionNode(){
-        delete firstExp;
-        delete secondExp;
+
     }
 
-    CExpressionNode* firstExp;
-    CExpressionNode* secondExp;
+    shared_ptr<CExpressionNode> firstExp;
+    shared_ptr<CExpressionNode> secondExp;
     ArithmeticOpType opType;
 };
 
@@ -444,10 +424,10 @@ class CUnaryExpressionNode: public CAcceptsVisitor<CUnaryExpressionNode, CExpres
 public:
     CUnaryExpressionNode(CExpressionNode* _exp, ArithmeticOpType _op) : expr(_exp), op(_op){}
     ~CUnaryExpressionNode(){
-        delete expr;
+
     }
 
-    CExpressionNode* expr;
+    shared_ptr<CExpressionNode> expr;
     ArithmeticOpType op;
 };
 
@@ -455,32 +435,31 @@ class CCompareExpressionNode: public CAcceptsVisitor<CCompareExpressionNode, CEx
 public:
     CCompareExpressionNode(CExpressionNode* _firstExp, CExpressionNode* _secondExp) : firstExp(_firstExp), secondExp(_secondExp) {}
     ~CCompareExpressionNode(){
-        delete firstExp;
-        delete secondExp;
+
     }
 
-    CExpressionNode* firstExp;
-    CExpressionNode* secondExp;
+    shared_ptr<CExpressionNode> firstExp;
+    shared_ptr<CExpressionNode> secondExp;
 };
 
 class CNotExpressionNode: public CAcceptsVisitor<CNotExpressionNode, CExpressionNode> {
 public:
     CNotExpressionNode(CExpressionNode* _exp) : expr(_exp) {}
     ~CNotExpressionNode(){
-        delete expr;
+
     }
 
-    CExpressionNode* expr;
+    shared_ptr<CExpressionNode> expr;
 };
 
 class CNewArrayExpressionNode: public CAcceptsVisitor<CNewArrayExpressionNode, CExpressionNode> {
 public:
     CNewArrayExpressionNode(CExpressionNode* _exp) : expr(_exp) {}
     ~CNewArrayExpressionNode(){
-        delete expr;
+
     }
 
-    CExpressionNode* expr;
+  shared_ptr<CExpressionNode> expr;
 };
 
 class CNewObjectExpressionNode: public CAcceptsVisitor<CNewObjectExpressionNode, CExpressionNode> {
@@ -517,10 +496,10 @@ class CParenExpressionNode: public CAcceptsVisitor<CParenExpressionNode, CExpres
 public:
     CParenExpressionNode(CExpressionNode* _exp) : expr(_exp) {}
     ~CParenExpressionNode(){
-        delete expr;
+
     }
 
-    CExpressionNode* expr;
+    shared_ptr<CExpressionNode> expr;
 };
 
 class CInvokeMethodExpressionNode: public CAcceptsVisitor<CInvokeMethodExpressionNode, CExpressionNode> {
@@ -528,13 +507,13 @@ public:
     CInvokeMethodExpressionNode(CExpressionNode* _exp, const char* _name, CExpArgNode* _args):
         expr(_exp), name(symbolsStorage.get(_name)), args(_args) {}
     ~CInvokeMethodExpressionNode(){
-        delete expr;
-        delete args;
+
+
     }
 
-    CExpressionNode* expr;
+    shared_ptr<CExpressionNode> expr;
     const CSymbol* name;
-    CExpArgNode* args;
+    shared_ptr<CExpArgNode> args;
 };
 
 
@@ -542,10 +521,10 @@ class CFewArgsExpressionNode: public CAcceptsVisitor<CFewArgsExpressionNode, CEx
 public:
     CFewArgsExpressionNode(CExpressionsNode* _exp) : expr(_exp) {}
     ~CFewArgsExpressionNode(){
-        delete expr;
+
     }
 
-    CExpressionsNode* expr;
+    shared_ptr<CExpressionsNode> expr;
 };
 
 class CListExpressionNode: public CAcceptsVisitor<CListExpressionNode, CExpressionsNode> {
@@ -553,22 +532,21 @@ public:
     CListExpressionNode(CExpressionsNode* _prevExps, CExpressionNode* _nextExp):
                         prevExps(_prevExps), nextExp(_nextExp) {}
     ~CListExpressionNode(){
-        delete prevExps;
-        delete nextExp;
+
     }
 
-    CExpressionsNode* prevExps;
-    CExpressionNode* nextExp;
+    shared_ptr<CExpressionsNode> prevExps;
+    shared_ptr<CExpressionNode> nextExp;
 };
 
 class CLastListExpressionNode: public CAcceptsVisitor<CLastListExpressionNode, CExpressionsNode> {
 public:
     CLastListExpressionNode(CExpressionNode* _exp) : expr(_exp) {}
     ~CLastListExpressionNode(){
-        delete expr;
+
     }
 
-    CExpressionNode* expr;
+    shared_ptr<CExpressionNode> expr;
 };
 
 #endif
