@@ -135,7 +135,6 @@ class CTranslator: public CVisitor {
 	CMethodInfo* currentMethod;
 	shared_ptr<CFrame> currentFrame;
 	shared_ptr<ISubtreeWrapper> currentNode;
-	string typeForInvoke;
 	shared_ptr<ExpList> arguments;
 
 	const CSymbol* getMallocFuncName() {
@@ -157,7 +156,7 @@ public:
 		for (int i=0; i<table.classInfo.size(); i++){
 			CClassInfo cl = table.classInfo[i];
 			for (int j=0; j<cl.methods.size(); j++){
-				string name = cl.name->getString()+"@"+cl.methods[j].name->getString();
+				string name = cl.methods[j].name->getString();
 				functionalLabels[name] = shared_ptr<CLabel>(new CLabel(name));
 			}
 		}
@@ -167,7 +166,6 @@ public:
 		node->mainClass->accept(this);
 		if (node->decl != 0)
 			node->decl->accept(this);
-
 	}
 
 	void visit(const CMainClassDeclarationRuleNode* node){
@@ -479,7 +477,6 @@ public:
 									new TEMP(temp));
 
 		currentNode = shared_ptr<CExpConverter>(new CExpConverter(res));
-		typeForInvoke = node->objType->getString();
 	}
 
 	void visit(const CIntExpressionNode* node) {
@@ -498,7 +495,6 @@ public:
 	}
 
 	void visit(const CThisExpressionNode* node){
-		typeForInvoke = currentClass->name->getString();
 		currentNode = shared_ptr<CExpConverter>(
 			new CExpConverter(currentFrame->getTP()->getExp()));
 	}
@@ -510,14 +506,13 @@ public:
 	void visit(const CInvokeMethodExpressionNode* node){
 		node->expr->accept(this);
 		const IExp* texp = currentNode->ToExp();
-
 		if (node->args != 0)
 			node->args->accept(this);
 		// надеюсь, что после прохода по списку аргументов (экспрешнов) currentNode станет ExpList
 		arguments = shared_ptr<ExpList>( new ExpList(texp, arguments) );  //надо как-то в список аргументов зацепить this
-		IExp* res = new CALL(new NAME(functionalLabels[typeForInvoke+"@"+node->name->getString()]), arguments);
+		IExp* name = new NAME(functionalLabels[node->name->getString()]);
+		IExp* res = new CALL(name, arguments);
 		currentNode = shared_ptr<CExpConverter>(new CExpConverter (res));
-
 		arguments = 0; //сбрасываем старые аргументы
 	}
 

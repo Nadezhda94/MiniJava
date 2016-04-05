@@ -94,7 +94,7 @@ int main(int argc, char** argv) {
             cout << "=================================" << endl;
             cout << "tree" << endl;
             traslator_vis.trees[i]->accept(&ir_print_vis);
-               
+
             traslator_vis.trees[i]->accept(&canonizer);
             cout << "=================================" << endl;
             cout << "modified tree" << endl;
@@ -104,7 +104,7 @@ int main(int argc, char** argv) {
                  res->accept(&ir_print_vis);
             } else {
                const IStm* res = doStm(dynamic_cast<const IStm*>(canonizer.current_node));
-                res->accept(&ir_print_vis);    
+                res->accept(&ir_print_vis);
             }
 
         }
