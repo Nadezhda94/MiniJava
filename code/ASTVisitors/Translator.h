@@ -181,6 +181,7 @@ public:
 		for (int i = 0; i < currentMethod->vars.size(); i++){
 			currentFrame->allocLocal(currentMethod->vars[i].name);
 		}
+		//ParentVars!!!1
 		for (int i = 0; i < currentClass->vars.size(); i++){
 			currentFrame->allocVar(currentClass->vars[i].name);
 		}
