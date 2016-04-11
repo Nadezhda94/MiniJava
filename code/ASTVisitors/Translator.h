@@ -68,12 +68,12 @@ public:
 		Temp::CLabel* t = new Temp::CLabel();
 		Temp::CLabel* f = new Temp::CLabel();
 		return new ESEQ(
-			   new SEQ( new MOVE( new TEMP(r), new CONST(1) ),
-			   new SEQ( ToConditional(t, f),
-		 	   new SEQ( new LABEL(f),
-			   new SEQ( new MOVE( new TEMP(r), new CONST(0) ),
-						 new LABEL(t) ) ) ) ),
-			   new TEMP(r) );
+				   new SEQ( new MOVE( new TEMP(r), new CONST(1) ),
+							new SEQ( ToConditional(t, f),
+									 new SEQ( new LABEL(f),
+											  new SEQ( new MOVE( new TEMP(r), new CONST(0) ),
+													  new LABEL(t) ) ) ) ),
+				   new TEMP(r) );
 	}
 
 	virtual const IStm* ToConditional(const Temp::CLabel* t, const Temp::CLabel* f) const = 0;
@@ -104,7 +104,7 @@ public:
 	const IStm* ToConditional(const Temp::CLabel* t, const Temp::CLabel* f) const {
 		const Temp::CLabel* z = new Temp::CLabel();
 		return new SEQ( new CJUMP(LT, leftArg, new CONST(1), f, z),
-			new SEQ(new LABEL(z), new CJUMP(LT, rightArg, new CONST(1), f, t)));
+						new SEQ(new LABEL(z), new CJUMP(LT, rightArg, new CONST(1), f, t)));
 	}
 private:
 	const IExp* leftArg;
@@ -117,7 +117,7 @@ public:
 	const IStm* ToConditional(const Temp::CLabel* t, const Temp::CLabel* f) const {
 		const CLabel* z = new CLabel();
 		return new SEQ(new CJUMP(GT, leftArg, new CONST(1), t, z),
-			new SEQ(new LABEL(z), new CJUMP(LT, rightArg, new CONST(1), f, t)));
+					   new SEQ(new LABEL(z), new CJUMP(LT, rightArg, new CONST(1), f, t)));
 	}
 private:
 	const IExp* leftArg;
@@ -135,7 +135,6 @@ class CTranslator: public CVisitor {
 	CMethodInfo* currentMethod;
 	shared_ptr<CFrame> currentFrame;
 	shared_ptr<ISubtreeWrapper> currentNode;
-	string typeForInvoke;
 	shared_ptr<ExpList> arguments;
 
 	const CSymbol* getMallocFuncName() {
@@ -152,106 +151,105 @@ public:
 	CTranslator(CStorage* _symbols, CTable& _table):
 		symbolsStorage(_symbols), table(_table),
 		currentClass(&table.classInfo[0]),
-		currentMethod(&table.classInfo[0].methods[0])
-	{
-		for (int i=0; i<table.classInfo.size(); i++){
+		currentMethod(&table.classInfo[0].methods[0]) {
+		for (int i=0; i<table.classInfo.size(); i++) {
 			CClassInfo cl = table.classInfo[i];
-			for (int j=0; j<cl.methods.size(); j++){
-				string name = cl.name->getString()+"@"+cl.methods[j].name->getString();
+			for (int j=0; j<cl.methods.size(); j++) {
+				string name = cl.methods[j].name->getString();
 				functionalLabels[name] = shared_ptr<CLabel>(new CLabel(name));
 			}
 		}
 	}
 
-	void visit(const CProgramRuleNode* node){
+	void visit(const CProgramRuleNode* node) {
 		node->mainClass->accept(this);
 		if (node->decl != 0)
 			node->decl->accept(this);
-
 	}
 
-	void visit(const CMainClassDeclarationRuleNode* node){
+	void visit(const CMainClassDeclarationRuleNode* node) {
 		const CSymbol* methodName = symbolsStorage->get("main");
 		currentMethod = &(currentClass->getMethodInfo(methodName));
 		currentFrame = shared_ptr<CFrame>( new CFrame(methodName) );
 		currentFrame->allocFormal(symbolsStorage->get("this")); // this
-		for (int i = 0; i < currentMethod->params.size(); i++){
+		for (int i = 0; i < currentMethod->params.size(); i++) {
 			currentFrame->allocFormal(currentMethod->params[i].name);
 		}
-		for (int i = 0; i < currentMethod->vars.size(); i++){
+		for (int i = 0; i < currentMethod->vars.size(); i++) {
 			currentFrame->allocLocal(currentMethod->vars[i].name);
 		}
-		for (int i = 0; i < currentClass->vars.size(); i++){
+		//ParentVars!!!1
+		for (int i = 0; i < currentClass->vars.size(); i++) {
 			currentFrame->allocVar(currentClass->vars[i].name);
 		}
 
-		if (node->stmt != 0){
+		if (node->stmt != 0) {
 			node->stmt->accept(this);
 			trees.push_back(currentNode->ToStm());
 		}
 	}
 
-	void visit(const CDeclarationsListNode* node){
+	void visit(const CDeclarationsListNode* node) {
 		if (node->decl != 0)
 			node->decl->accept(this);
 		if (node->cl != 0)
 			node->cl->accept(this);
 	}
 
-	void visit(const CClassDeclarationRuleNode* node){
+	void visit(const CClassDeclarationRuleNode* node) {
 		currentClass = &table.getClassInfo(node->ident);
 		if (node->extDecl != 0)
 			node->extDecl->accept(this);
-			//cout<<1<<endl;
+		//cout<<1<<endl;
 		if (node->vars != 0)
 			node->vars->accept(this);
-			//cout<<2<<endl;
-			//cout <<  node->ident << endl;
-			//cout <<  node->method << endl;
+		//cout<<2<<endl;
+		//cout <<  node->ident << endl;
+		//cout <<  node->method << endl;
 		if (node->method != 0)
 			node->method->accept(this);
 		//cout<<3<<endl;
 	}
 
-	void visit(const CExtendDeclarationRuleNode* node){
+	void visit(const CExtendDeclarationRuleNode* node) {
 		// TODO: realize
 	}
 
-	void visit(const CVarDeclarationsListNode* node){
-			if (node->list != 0)
-				node->list->accept(this);
+	void visit(const CVarDeclarationsListNode* node) {
+		if (node->list != 0)
+			node->list->accept(this);
 
-			if (node->item != 0)
-				node->item->accept(this);
+		if (node->item != 0)
+			node->item->accept(this);
 	}
 
-	void visit(const CMethodDeclarationsListNode* node){
+	void visit(const CMethodDeclarationsListNode* node) {
 		if (node->list != 0)
 			node->list->accept(this);
 		node->item->accept(this);
 	}
 
-	void visit(const CVarDeclarationRuleNode* node){}
+	void visit(const CVarDeclarationRuleNode* node) {}
 
-	void visit(const CMethodDeclarationRuleNode* node){
+	void visit(const CMethodDeclarationRuleNode* node) {
 		//cout<<"!!!!!"<<endl;
 		currentMethod = &(currentClass->getMethodInfo(node->ident));
 		currentFrame = shared_ptr<CFrame>( new CFrame(node->ident) );
 		currentFrame->allocFormal(symbolsStorage->get("this")); // this
-		for (int i = 0; i < currentMethod->params.size(); i++){
+		for (int i = 0; i < currentMethod->params.size(); i++) {
 			currentFrame->allocFormal(currentMethod->params[i].name);
 		}
-		for (int i = 0; i < currentMethod->vars.size(); i++){
+		for (int i = 0; i < currentMethod->vars.size(); i++) {
 			currentFrame->allocLocal(currentMethod->vars[i].name);
 		}
-		for (int i = 0; i < currentClass->vars.size(); i++){
+		for (int i = 0; i < currentClass->vars.size(); i++) {
 			currentFrame->allocVar(currentClass->vars[i].name);
 		}
 
 		node->return_exp->accept(this);
 		const IExp* res = currentNode->ToExp();
 
-		if (node->method_body != 0){
+		if (node->method_body != 0) {
 			node->method_body->accept(this);
 			const IStm* arg1 = currentNode->ToStm();
 			res = new ESEQ(arg1, res);
@@ -260,32 +258,32 @@ public:
 		trees.push_back(res);
 	}
 
-	void visit(const CVarsDecListNode* node){
+	void visit(const CVarsDecListNode* node) {
 		if (node->list != 0)
 			node->list->accept(this);
 		if (node->next != 0)
 			node->next->accept(this);
 	}
 
-	void visit(const CVarsDecFirstNode* node){
+	void visit(const CVarsDecFirstNode* node) {
 		if (node->first != 0)
-		  node->first->accept(this);
+			node->first->accept(this);
 	}
 
-	void visit(const CStatsFirstNode* node){
+	void visit(const CStatsFirstNode* node) {
 		if (node->stm != 0)
 			node->stm->accept(this);
 	}
 
-	void visit(const CStatsListNode* node){
+	void visit(const CStatsListNode* node) {
 		const IStm* inner_seq = 0;
-		if (node->list != 0){
+		if (node->list != 0) {
 			node->list->accept(this);
 			inner_seq = currentNode->ToStm();
 		}
 
 		const IStm* res = currentNode->ToStm();
-		if (node->stm != 0){
+		if (node->stm != 0) {
 			node->stm->accept(this);
 			if (inner_seq != 0)
 				res = new SEQ( inner_seq, currentNode->ToStm() );
@@ -293,25 +291,25 @@ public:
 		currentNode = shared_ptr<CStmConverter>( new CStmConverter(res) );
 	}
 
-	void visit(const CMethodBodyVarsNode* node){}
+	void visit(const CMethodBodyVarsNode* node) {}
 
-	void visit(const CMethodBodyStatsNode* node){
+	void visit(const CMethodBodyStatsNode* node) {
 		node->stats->accept(this);
 	}
 
-	void visit(const CMethodBodyAllNode* node){
+	void visit(const CMethodBodyAllNode* node) {
 		node->stats->accept(this);
 	}
 
-	void visit(const CParamArgListNode* node){}
-	void visit(const CParamsOneNode* node){}
-	void visit(const CParamsTwoNode* node){}
-	void visit(const CParamRuleNode* node){}
-	void visit(const CTypeRuleNode* node){}
+	void visit(const CParamArgListNode* node) {}
+	void visit(const CParamsOneNode* node) {}
+	void visit(const CParamsTwoNode* node) {}
+	void visit(const CParamRuleNode* node) {}
+	void visit(const CTypeRuleNode* node) {}
 
-	void visit(const CNumerousStatementsNode* node){
+	void visit(const CNumerousStatementsNode* node) {
 		const IStm* inner_seq = 0;
-		if (node->statements != 0){
+		if (node->statements != 0) {
 			node->statements->accept(this);
 			inner_seq = currentNode->ToStm();
 		}
@@ -322,12 +320,12 @@ public:
 		currentNode = shared_ptr<CStmConverter>( new CStmConverter(res) );
 	}
 
-	void visit(const CBracedStatementNode* node){
+	void visit(const CBracedStatementNode* node) {
 		if (node->statements != 0)
 			node->statements->accept(this);
 	}
 
-	void visit(const CIfStatementNode* node){
+	void visit(const CIfStatementNode* node) {
 		node->expression->accept(this);
 		const CLabel* t = new CLabel();
 		const CLabel* f = new CLabel();
@@ -338,7 +336,7 @@ public:
 
 		const IStm* thenStatement = currentNode->ToStm();
 		thenStatement = new SEQ( new SEQ( new LABEL(t), thenStatement ), new JUMP(e) );
-		if (node->elseStatement != 0){
+		if (node->elseStatement != 0) {
 			node->elseStatement->accept(this);
 		}
 		const IStm* elseStatement = currentNode->ToStm();
@@ -348,7 +346,7 @@ public:
 		currentNode = shared_ptr<CStmConverter>( new CStmConverter(res) );
 	}
 
-	void visit(const CWhileStatementNode* node){
+	void visit(const CWhileStatementNode* node) {
 		node->expression->accept(this);
 
 		const IExp* expr = currentNode->ToExp();
@@ -358,16 +356,16 @@ public:
 		const CLabel* t = new CLabel();
 
 		const IStm* res = new SEQ(new SEQ(new SEQ(new SEQ(
-							  new CJUMP(EQ, expr, new CONST(0), f, t),
-						  	  new LABEL(t)),
-					  		  statement),
-							  new CJUMP(EQ, expr, new CONST(0), f, t)),
-					  		  new LABEL(f));
+											  new CJUMP(EQ, expr, new CONST(0), f, t),
+											  new LABEL(t)),
+										  statement),
+										  new CJUMP(EQ, expr, new CONST(0), f, t)),
+								  new LABEL(f));
 
 		currentNode = shared_ptr<CStmConverter>(new CStmConverter(res));
 	}
 
-	void visit(const CPrintStatementNode* node){
+	void visit(const CPrintStatementNode* node) {
 		node->expression->accept(this);
 		const IExp* exp = currentNode->ToExp();
 		shared_ptr<ExpList> args = shared_ptr<ExpList>( new ExpList(exp, 0) );
@@ -376,22 +374,22 @@ public:
 		currentNode = std::shared_ptr<CStmConverter>(new CStmConverter(res->ToStm()));
 	}
 
-	void visit(const CAssignStatementNode* node){
+	void visit(const CAssignStatementNode* node) {
 		node->expression->accept(this);
 		const IStm* res = new MOVE( currentFrame->findByName(node->identifier), currentNode->ToExp() );
 		currentNode = shared_ptr<CStmConverter>(new CStmConverter(res));
 	}
-	void visit(const CInvokeExpressionStatementNode* node){
+	void visit(const CInvokeExpressionStatementNode* node) {
 		node->firstexpression->accept(this);
 		node->secondexpression->accept(this);
 	}
 
-	void visit(const CInvokeExpressionNode* node){
+	void visit(const CInvokeExpressionNode* node) {
 		node->firstExp->accept(this);
 		node->secondExp->accept(this);
 	}
 
-	void visit(const CLengthExpressionNode* node){
+	void visit(const CLengthExpressionNode* node) {
 		node->expr->accept(this);
 	}
 
@@ -403,30 +401,30 @@ public:
 		const IExp* res;
 		const CConditionalWrapper* converter;
 		switch (node->opType) {
-			case AND_OP:
-				converter = new CFromAndConverter( arg1, arg2 );
-				res = converter->ToExp();
-				break;
-			case OR_OP:
-				converter = new CFromOrConverter( arg1, arg2 );
-				res = converter->ToExp();
-				break;
-			default:
-				res = new BINOP( node->opType, arg1, arg2 );
-				break;
+		case AND_OP:
+			converter = new CFromAndConverter( arg1, arg2 );
+			res = converter->ToExp();
+			break;
+		case OR_OP:
+			converter = new CFromOrConverter( arg1, arg2 );
+			res = converter->ToExp();
+			break;
+		default:
+			res = new BINOP( node->opType, arg1, arg2 );
+			break;
 		}
 
 		currentNode = shared_ptr<CExpConverter>(new CExpConverter(res));
 	}
 
-	void visit(const CUnaryExpressionNode* node){
+	void visit(const CUnaryExpressionNode* node) {
 		node->expr->accept(this);
 		const IExp* arg = currentNode->ToExp();
 		const IExp* res = new BINOP(node->op, new CONST(0), arg);
 		currentNode = std::shared_ptr<CExpConverter>(new CExpConverter(res));
 	}
 
-	void visit(const CCompareExpressionNode* node){
+	void visit(const CCompareExpressionNode* node) {
 		node->firstExp->accept(this);
 		const IExp* arg1 = currentNode->ToExp();
 		node->secondExp->accept(this);
@@ -436,14 +434,14 @@ public:
 
 	}
 
-	void visit(const CNotExpressionNode* node){
+	void visit(const CNotExpressionNode* node) {
 		node->expr->accept(this);
 		const IExp* arg = currentNode->ToExp();
 		const CConditionalWrapper* cmpWrapper = new CRelativeCmpWrapper(EQ, arg, new CONST(0));
 		currentNode = std::shared_ptr<CExpConverter>(new CExpConverter(cmpWrapper->ToExp()) );
 	}
 
-	void visit(const CNewArrayExpressionNode* node){
+	void visit(const CNewArrayExpressionNode* node) {
 		node->expr->accept(this);
 		const IExp* arg = currentNode->ToExp();
 		shared_ptr<CTemp> arrSize = shared_ptr<CTemp>( new CTemp() );
@@ -459,14 +457,14 @@ public:
 		const IStm* storeLength = new MOVE( new MEM( new TEMP(temp) ), new MEM( new TEMP(arrSize) ) );
 
 		const IExp* res = new ESEQ( new SEQ( storeArrSize,
-									new SEQ(storeCalcRes,
-											storeLength)),
-											new TEMP(temp)
-									);
+											 new SEQ(storeCalcRes,
+													 storeLength)),
+									new TEMP(temp)
+								  );
 		currentNode = shared_ptr<CExpConverter>(new CExpConverter(res));
 	}
 
-	void visit(const CNewObjectExpressionNode* node){
+	void visit(const CNewObjectExpressionNode* node) {
 		shared_ptr<CTemp> temp = shared_ptr<CTemp>(new CTemp());
 
 		int varsSizeInBytes = CFrame::wordSize * table.getClassInfo(node->objType).vars.size();
@@ -479,59 +477,56 @@ public:
 									new TEMP(temp));
 
 		currentNode = shared_ptr<CExpConverter>(new CExpConverter(res));
-		typeForInvoke = node->objType->getString();
 	}
 
 	void visit(const CIntExpressionNode* node) {
 		currentNode = shared_ptr<CExpConverter>(
-			new CExpConverter(new CONST(node->value)));
+						  new CExpConverter(new CONST(node->value)));
 	}
 
-	void visit(const CBooleanExpressionNode* node){
+	void visit(const CBooleanExpressionNode* node) {
 		currentNode = shared_ptr<CExpConverter>(
-			new CExpConverter(new CONST(node->value)));
+						  new CExpConverter(new CONST(node->value)));
 	}
 
-	void visit(const CIdentExpressionNode* node){
+	void visit(const CIdentExpressionNode* node) {
 		IExp* result = currentFrame->findByName(node->name);
 		currentNode = shared_ptr<CExpConverter>(new CExpConverter(result));
 	}
 
-	void visit(const CThisExpressionNode* node){
-		typeForInvoke = currentClass->name->getString();
+	void visit(const CThisExpressionNode* node) {
 		currentNode = shared_ptr<CExpConverter>(
-			new CExpConverter(currentFrame->getTP()->getExp()));
+						  new CExpConverter(currentFrame->getTP()->getExp()));
 	}
 
-	void visit(const CParenExpressionNode* node){
+	void visit(const CParenExpressionNode* node) {
 		node->expr->accept(this);
 	}
 
-	void visit(const CInvokeMethodExpressionNode* node){
+	void visit(const CInvokeMethodExpressionNode* node) {
 		node->expr->accept(this);
 		const IExp* texp = currentNode->ToExp();
-
 		if (node->args != 0)
 			node->args->accept(this);
 		// надеюсь, что после прохода по списку аргументов (экспрешнов) currentNode станет ExpList
 		arguments = shared_ptr<ExpList>( new ExpList(texp, arguments) );  //надо как-то в список аргументов зацепить this
-		IExp* res = new CALL(new NAME(functionalLabels[typeForInvoke+"@"+node->name->getString()]), arguments);
+		IExp* name = new NAME(functionalLabels[node->name->getString()]);
+		IExp* res = new CALL(name, arguments);
 		currentNode = shared_ptr<CExpConverter>(new CExpConverter (res));
-
 		arguments = 0; //сбрасываем старые аргументы
 	}
 
-	void visit(const CFewArgsExpressionNode* node){
+	void visit(const CFewArgsExpressionNode* node) {
 		node->expr->accept(this);
 	}
 
-	void visit(const CListExpressionNode* node){
+	void visit(const CListExpressionNode* node) {
 		node->prevExps->accept(this);
 		node->nextExp->accept(this);
 		arguments = shared_ptr<ExpList>( new ExpList(currentNode->ToExp(), arguments) );
 	}
 
-	void visit(const CLastListExpressionNode* node){
+	void visit(const CLastListExpressionNode* node) {
 		node->expr->accept(this);
 		arguments = shared_ptr<ExpList>( new ExpList(currentNode->ToExp(), arguments) );
 	}

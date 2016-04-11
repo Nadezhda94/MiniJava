@@ -8,8 +8,9 @@ class CIRPrinter;
 
 class Canonizer: public CIRVisitor {
 public:
-    CIRPrinter ir_print_vis;
+	CIRPrinter ir_print_vis;
 	mutable const INode* current_node;
+
     virtual void visit(const MOVE* node) const {
         node->dst->accept(this);
         const IExp* arg1 = dynamic_cast<const IExp*>(current_node);
@@ -133,6 +134,7 @@ public:
   	virtual void visit(const IRTree::ExpCall* node)const {
 
   	}
+
 
 private:
 };
