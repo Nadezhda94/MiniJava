@@ -127,7 +127,7 @@ public:
     }
 
     virtual void visit(const IRTree::MoveCall* node)const {
-
+        cerr << "dsfsdfsdfsdfs" << endl;
     }
 
   	virtual void visit(const IRTree::ExpCall* node)const {

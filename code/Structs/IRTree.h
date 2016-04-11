@@ -47,6 +47,12 @@ public:
 	shared_ptr<const ExpList> tail;
 };
 
+class StmtList {
+public:
+	StmtList(const IStm* _head, shared_ptr<const StmtList> _tail) : head(_head), tail(_tail) {}
+	const IStm* head;
+	shared_ptr<const StmtList> tail;
+};
 
 class MEM: public CAcceptsIRVisitor<MEM, IExp> {
 public:
@@ -326,6 +332,7 @@ const IStm* seq(const IStm* arg1, const IStm* arg2) {
 		if (isNop(arg2)) {
 			return arg1;
 		} else {
+			cerr << "SEQ" << endl;
 			return new SEQ(arg1, arg2);
 		}
 	}
@@ -408,6 +415,7 @@ const IStm* doStm(const IStm* stm) {
 
 	const SEQ* seq = dynamic_cast<const SEQ*>(stm);
 	if (seq != 0) {
+		cerr << "seq" << endl;
 		return doStm( seq );
 	} else {
 		const MOVE* move = dynamic_cast<const MOVE*>(stm);
@@ -474,9 +482,26 @@ const StmExpList* reorder(shared_ptr<const ExpList> list) {
 
 }
 
+shared_ptr<const StmtList> linear(const IStm* s, shared_ptr<const StmtList> l);
+
+shared_ptr<const StmtList> linear(const SEQ* s, shared_ptr<const StmtList> l) {
+	return linear(s->left, linear(s->right, l));
+}
+
+shared_ptr<const StmtList> linear(const IStm* s, shared_ptr<const StmtList> l) {
+	const SEQ* seq = dynamic_cast<const SEQ*>(s);
+	if (seq != 0 ) {
+		return linear(seq, l);
+	} else {
+		return make_shared<const StmtList>(s, l);
+	}
+}
+
+shared_ptr<const StmtList> linearize(const IStm* s) {
+	return linear(doStm(s), nullptr);
+}
 
 };
-
 
 
 

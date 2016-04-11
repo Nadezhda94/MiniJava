@@ -101,10 +101,10 @@ int main(int argc, char** argv) {
             const IExp* arg =  dynamic_cast<const IExp*>(canonizer.current_node);
             if (arg != 0) {
                 const IExp* res = doExp(arg);
-                 res->accept(&ir_print_vis);
+                res->accept(&ir_print_vis);
             } else {
                const IStm* res = doStm(dynamic_cast<const IStm*>(canonizer.current_node));
-                res->accept(&ir_print_vis);    
+                doStm(res)->accept(&ir_print_vis);    
             }
 
         }
