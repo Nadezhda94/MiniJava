@@ -178,7 +178,6 @@ public:
 		for (int i = 0; i < currentMethod->vars.size(); i++) {
 			currentFrame->allocLocal(currentMethod->vars[i].name);
 		}
-		//ParentVars!!!1
 		for (int i = 0; i < currentClass->vars.size(); i++) {
 			currentFrame->allocVar(currentClass->vars[i].name);
 		}
@@ -200,15 +199,10 @@ public:
 		currentClass = &table.getClassInfo(node->ident);
 		if (node->extDecl != 0)
 			node->extDecl->accept(this);
-		//cout<<1<<endl;
 		if (node->vars != 0)
 			node->vars->accept(this);
-		//cout<<2<<endl;
-		//cout <<  node->ident << endl;
-		//cout <<  node->method << endl;
 		if (node->method != 0)
 			node->method->accept(this);
-		//cout<<3<<endl;
 	}
 
 	void visit(const CExtendDeclarationRuleNode* node) {
@@ -232,7 +226,6 @@ public:
 	void visit(const CVarDeclarationRuleNode* node) {}
 
 	void visit(const CMethodDeclarationRuleNode* node) {
-		//cout<<"!!!!!"<<endl;
 		currentMethod = &(currentClass->getMethodInfo(node->ident));
 		currentFrame = shared_ptr<CFrame>( new CFrame(node->ident) );
 		currentFrame->allocFormal(symbolsStorage->get("this")); // this
@@ -241,6 +234,10 @@ public:
 		}
 		for (int i = 0; i < currentMethod->vars.size(); i++) {
 			currentFrame->allocLocal(currentMethod->vars[i].name);
+		}
+		vector <CVarInfo> parentVars = table.getParentVars(currentClass->name);
+		for (int i = 0; i < parentVars.size(); i++) {
+			currentFrame->allocVar(parentVars[i].name);
 		}
 		for (int i = 0; i < currentClass->vars.size(); i++) {
 			currentFrame->allocVar(currentClass->vars[i].name);

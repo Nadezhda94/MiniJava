@@ -29,13 +29,12 @@ struct CClassInfo {
 	vector<CVarInfo> vars;
 	vector<CMethodInfo> methods;
 	CClassInfo(const CSymbol* _name):
-		name(_name), vars(), methods() {}
+		name(_name), vars(), methods(), parent() {}
 	CMethodInfo& getMethodInfo(const CSymbol* name) {
 		for (int i = 0; i < methods.size(); i++)
 			if (name->getString() == methods[i].name->getString())
 				return methods[i];
 	}
-	//Метод для возврата переменных родителя
 };
 
 struct CTable {
@@ -46,6 +45,18 @@ struct CTable {
 			if (name->getString() == classInfo[i].name->getString())
 				return classInfo[i];
 	}
+
+  vector<CVarInfo> getParentVars(const CSymbol* name){
+    vector<CVarInfo> ans;
+    CClassInfo* current = &getClassInfo(name);
+    do{
+			if (current->parent != 0){
+      	current = &getClassInfo(current->parent);
+        ans.insert(ans.begin(), current->vars.begin(), current->vars.end());
+			}
+    } while (current->parent != 0);
+    return ans;
+  }
 };
 }
 
