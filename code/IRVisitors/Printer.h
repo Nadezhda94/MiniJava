@@ -9,10 +9,15 @@ static const char * CJumpOpStrings[] = { "=", "!=", "<", ">", "<=", ">=", "u<", 
 
 class CIRPrinter: public CIRVisitor {
 	bool withoutSEQ;
+	int counter = 0;
+	void print_tabs(int num) {
+		for (int i = 0; i < num; i++)
+			cout << "| ";
+	}
 public:
 	CIRPrinter() {}
 	CIRPrinter(bool _withoutSEQ) : withoutSEQ(_withoutSEQ) {}
-	virtual void visit(const MOVE* node) const {
+	virtual void visit(MOVE* node) {
 		print_tabs(counter++);
 		cout << "MOVE" << endl;
 		node->dst->accept(this);
@@ -20,14 +25,14 @@ public:
 		--counter;
 	}
 
-	virtual void visit(const EXP* node) const {
+	virtual void visit(EXP* node) {
 		print_tabs(counter++);
 		cout << "EXP" << endl;
 		node->exp->accept(this);
 		--counter;
 	}
 
-	virtual void visit(const JUMP* node) const {
+	virtual void visit(JUMP* node) {
 		print_tabs(counter++);
 		cout << "JUMP "<< node->target->Name() << endl;
 		if (node->exp != 0)
@@ -35,7 +40,7 @@ public:
 		--counter;
 	}
 
-	virtual void visit(const CJUMP* node) const {
+	virtual void visit(CJUMP* node) {
 		print_tabs(counter++);
 		cout << "CJUMP " << CJumpOpStrings[node->relop] << " " <<
 			 node->iftrue->Name()<< " " << node->iffalse->Name() << " " << endl;
@@ -44,7 +49,7 @@ public:
 		--counter;
 	}
 
-	virtual void visit(const SEQ* node) const {
+	virtual void visit(SEQ* node) {
 		if (!withoutSEQ) {
 			print_tabs(counter++);
 			cout << "SEQ" << endl;
@@ -55,32 +60,32 @@ public:
 			--counter;
 	}
 
-	virtual void visit(const LABEL* node) const {
+	virtual void visit(LABEL* node) {
 		print_tabs(counter++);
 		cout << "LABEL "<< node->label->Name() << endl;
 		--counter;
 	}
 
-	virtual void visit(const CONST* node) const {
+	virtual void visit(CONST* node) {
 		print_tabs(counter++);
 		cout << "CONST " << node->value << endl;
 		--counter;
 	}
 
-	virtual void visit(const NAME* node) const {
+	virtual void visit(NAME* node) {
 		print_tabs(counter++);
 		cout << "NAME " << node->label->Name() << endl;
 		--counter;
 	}
 
-	virtual void visit(const TEMP* node) const {
+	virtual void visit(TEMP* node) {
 		print_tabs(counter++);
 		cout << "TEMP " << node->temp->Name() << endl;
 		//node->temp->accept(this);
 		--counter;
 	}
 
-	virtual void visit(const BINOP* node) const {
+	virtual void visit(BINOP* node) {
 		print_tabs(counter++);
 		cout << "BINOP " << ArithmeticOpStrings[node->binop] << endl;
 		node->left->accept(this);
@@ -88,18 +93,18 @@ public:
 		--counter;
 	}
 
-	virtual void visit(const MEM* node) const {
+	virtual void visit(MEM* node) {
 		print_tabs(counter++);
 		cout << "MEM" << endl;
 		node->exp->accept(this);
 		--counter;
 	}
 
-	virtual void visit(const CALL* node) const {
+	virtual void visit(CALL* node) {
 		print_tabs(counter++);
 		cout << "CALL" << endl;
 		node->func->accept(this);
-		shared_ptr<const ExpList> cur = node->args;
+		shared_ptr<ExpList> cur = node->args;
 		while(cur) {
 			cur->head->accept(this);
 			cur = cur->tail;
@@ -107,7 +112,7 @@ public:
 		--counter;
 	}
 
-	virtual void visit(const ESEQ* node) const {
+	virtual void visit(ESEQ* node) {
 		print_tabs(counter++);
 		cout << "ESEQ" << endl;
 		node->stm->accept(this);
@@ -115,18 +120,11 @@ public:
 		--counter;
 	}
 
-	virtual void visit(const IRTree::MoveCall* node)const {
-
+	virtual void visit(IRTree::MoveCall* node) {
+		assert(0);
 	}
-	virtual void visit(const IRTree::ExpCall* node)const {
-
-	}
-
-private:
-	mutable int counter = 0;
-	void print_tabs(int num) const {
-		for (int i = 0; i < num; i++)
-			cout << "| ";
+	virtual void visit(IRTree::ExpCall* node) {
+		assert(0);
 	}
 };
 

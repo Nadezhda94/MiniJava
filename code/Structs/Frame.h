@@ -113,7 +113,7 @@ public:
 		varOffset += wordSize;
 	}
 
-	const IExp* externalCall(const std::string& funcName, shared_ptr<ExpList> args) {
+	IExp* externalCall(const std::string& funcName, shared_ptr<ExpList> args) {
 		return new CALL(new NAME(shared_ptr<CLabel>(new CLabel(funcName))), args);
 	}
 

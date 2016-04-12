@@ -23,21 +23,21 @@ namespace IRTree {
 
 class CIRVisitor {
 public:
-	virtual void visit(const IRTree::MOVE* node) const = 0;
-	virtual void visit(const IRTree::EXP* node) const = 0;
-	virtual void visit(const IRTree::JUMP* node) const = 0;
-	virtual void visit(const IRTree::CJUMP* node) const = 0;
-	virtual void visit(const IRTree::SEQ* node) const = 0;
-	virtual void visit(const IRTree::LABEL* node) const  = 0;
-	virtual void visit(const IRTree::CONST* node)const = 0;
-	virtual void visit(const IRTree::NAME* node) const= 0;
-	virtual void visit(const IRTree::TEMP* node) const = 0;
-	virtual void visit(const IRTree::BINOP* node) const = 0;
-	virtual void visit(const IRTree::MEM* node)const = 0;
-	virtual void visit(const IRTree::CALL* node) const = 0;
-	virtual void visit(const IRTree::ESEQ* node)const = 0;
-	virtual void visit(const IRTree::MoveCall* node)const = 0;
-	virtual void visit(const IRTree::ExpCall* node)const = 0;
+	virtual void visit(IRTree::MOVE* node) = 0;
+	virtual void visit(IRTree::EXP* node) = 0;
+	virtual void visit(IRTree::JUMP* node) = 0;
+	virtual void visit(IRTree::CJUMP* node) = 0;
+	virtual void visit(IRTree::SEQ* node) = 0;
+	virtual void visit(IRTree::LABEL* node) = 0;
+	virtual void visit(IRTree::CONST* node)= 0;
+	virtual void visit(IRTree::NAME* node) = 0;
+	virtual void visit(IRTree::TEMP* node) = 0;
+	virtual void visit(IRTree::BINOP* node) = 0;
+	virtual void visit(IRTree::MEM* node)= 0;
+	virtual void visit(IRTree::CALL* node) = 0;
+	virtual void visit(IRTree::ESEQ* node) = 0;
+	virtual void visit(IRTree::MoveCall* node) = 0;
+	virtual void visit(IRTree::ExpCall* node) = 0;
 };
 
 #endif

@@ -23,22 +23,22 @@ public:
     shared_ptr<StmtList> lastStm;
     CIRPrinter ir_print_vis;
 
-    void addStm(const IStm* s) {
-        lastStm->tail = make_shared<const StmtList>(s, nullptr);
-        lastStm = const_pointer_cast<StmtList>(lastStm->tail);
+    void addStm(IStm* s) {
+        lastStm->tail = make_shared<StmtList>(s, nullptr);
+        lastStm = lastStm->tail;
     }
 
-    void doStms(shared_ptr<const StmtList> l) {
+    void doStms(shared_ptr<StmtList> l) {
         if ( l == nullptr ) {
-            doStms(make_shared<const StmtList>(new JUMP(done), nullptr));
+            doStms(make_shared<StmtList>(new JUMP(done), nullptr));
         } else {
-            const JUMP* jump = dynamic_cast<const JUMP*>(l->head);
-            const CJUMP* cjump = dynamic_cast<const CJUMP*>(l->head);
+            JUMP* jump = dynamic_cast<JUMP*>(l->head);
+            CJUMP* cjump = dynamic_cast<CJUMP*>(l->head);
             if ( (jump != 0) || (cjump != 0) ){
                 addStm(l->head);
                 mkBlocks(l->tail);
             } else {
-                const LABEL* label = dynamic_cast<const LABEL*>(l->head);
+                LABEL* label = dynamic_cast<LABEL*>(l->head);
                 if (label != 0) {
                     doStms(make_shared<StmtList>(new JUMP(label->label), l));
                 } else {
@@ -49,11 +49,11 @@ public:
         }
     }
 
-    void mkBlocks(shared_ptr<const StmtList> l) {
+    void mkBlocks(shared_ptr<StmtList> l) {
         if (l == nullptr) {
             return;
         } else {
-            const LABEL* label = dynamic_cast<const LABEL*>(l->head);
+            LABEL* label = dynamic_cast<LABEL*>(l->head);
             if (label != 0) {
                 //std::cerr << "LABEL" << std::endl;
                 lastStm = make_shared<StmtList>(StmtList(l->head, nullptr));
@@ -72,7 +72,7 @@ public:
         }
     }
 
-    BasicBlocks(shared_ptr<const StmtList> stms) {
+    BasicBlocks(shared_ptr<StmtList> stms) {
         done = new CLabel();
         mkBlocks(stms);
     }
