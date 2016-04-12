@@ -59,7 +59,7 @@ class CFrame {
 public:
 	static const int wordSize = 4;
 	CFrame( const Symbol::CSymbol* _name):
-		name(_name), localOffset(0), formalOffset(0), framePointer(new CTemp()) {
+		name(_name), localOffset(0), formalOffset(-4), framePointer(new CTemp()) {
 	}
 
 	shared_ptr<CTemp> getFP() {
@@ -102,11 +102,11 @@ public:
 
 	void allocLocal(const CSymbol* name) {
 		locals.push_back(shared_ptr<IAccess>(new CFrameAccess(name, this, localOffset)));
-		localOffset -= wordSize;
+		localOffset += wordSize;
 	}
 	void allocFormal(const CSymbol* name) {
 		formals.push_back(shared_ptr<IAccess>(new CFrameAccess(name, this, formalOffset)));
-		formalOffset += wordSize;
+		formalOffset -= wordSize;
 	}
 	void allocVar(const CSymbol* name) {
 		vars.push_back(shared_ptr<IAccess>(new CVarAccess(name, this, varOffset)));

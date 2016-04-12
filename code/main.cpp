@@ -2,11 +2,16 @@
 #include "Structs/Ast.h"
 #include "Structs/Symbol.h"
 #include "ASTVisitors/Printer.h"
+
 #include "ASTVisitors/SymbolTableBuilder.h"
 #include "ASTVisitors/TypeChecker.h"
 #include "ASTVisitors/Translator.h"
+/*
 #include "IRVisitors/Printer.h"
+
 #include "IRVisitors/Canonizer.h"
+*/
+#include "IRVisitors/CJumpOptimizer.h"
 
 extern FILE * yyin;
 extern int yyparse();
@@ -87,30 +92,7 @@ int main(int argc, char** argv) {
         CTranslator traslator_vis(&symbolsStorage, table_vis.table);
         root->accept(&traslator_vis);
         std::cout << "____________________________" << std::endl;
-
-        CIRPrinter ir_print_vis(false);
-
-        Canonizer canonizer;
-        for (int i = 0; i < traslator_vis.trees.size(); ++i ) {
-            cout << "=================================" << endl;
-            cout << "tree" << endl;
-            traslator_vis.trees[i]->accept(&ir_print_vis);
-               
-            traslator_vis.trees[i]->accept(&canonizer);
-            cout << "=================================" << endl;
-            cout << "modified tree" << endl;
-            const IExp* arg =  dynamic_cast<const IExp*>(canonizer.current_node);
-            if (arg != 0) {
-                const IExp* res = doExp(arg);
-                res->accept(&ir_print_vis);
-            } else {
-               const IStm* res = doStm(dynamic_cast<const IStm*>(canonizer.current_node));
-                doStm(res)->accept(&ir_print_vis);    
-            }
-
-        }
-
-
+        Canon::optimize(symbolsStorage, traslator_vis.trees);
         // storagePrinter();
         delete root;
 	} catch(const std::exception* e) {

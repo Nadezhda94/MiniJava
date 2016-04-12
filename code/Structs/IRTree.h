@@ -332,7 +332,7 @@ const IStm* seq(const IStm* arg1, const IStm* arg2) {
 		if (isNop(arg2)) {
 			return arg1;
 		} else {
-			cerr << "SEQ" << endl;
+			//cerr << "SEQ" << endl;
 			return new SEQ(arg1, arg2);
 		}
 	}
@@ -415,7 +415,7 @@ const IStm* doStm(const IStm* stm) {
 
 	const SEQ* seq = dynamic_cast<const SEQ*>(stm);
 	if (seq != 0) {
-		cerr << "seq" << endl;
+		//cerr << "seq" << endl;
 		return doStm( seq );
 	} else {
 		const MOVE* move = dynamic_cast<const MOVE*>(stm);
@@ -457,7 +457,7 @@ const StmExpList* reorder(shared_ptr<const ExpList> list) {
 
 		if (call != 0) {
 
-			shared_ptr<const Temp::CTemp> t(new Temp::CTemp());
+			shared_ptr<const Temp::CTemp> t = make_shared<const Temp::CTemp>();
 			const IExp* eseq = new ESEQ(new MOVE(new TEMP(t), head), new TEMP(t));
 			return reorder(make_shared<const ExpList>(eseq, list->tail));
 		} else {
@@ -468,7 +468,7 @@ const StmExpList* reorder(shared_ptr<const ExpList> list) {
 									  make_shared<const ExpList>(eseq->exp, stmtList->exps)
 									 );
 			} else {
-				shared_ptr<const Temp::CTemp> t(new Temp::CTemp());
+				shared_ptr<const Temp::CTemp> t = make_shared<const Temp::CTemp>();
 				return new StmExpList(seq(eseq->stm,
 										  seq(new MOVE(new TEMP(t), eseq->exp),
 											  stmtList->stm
@@ -502,6 +502,8 @@ shared_ptr<const StmtList> linearize(const IStm* s) {
 }
 
 };
+
+
 
 
 
