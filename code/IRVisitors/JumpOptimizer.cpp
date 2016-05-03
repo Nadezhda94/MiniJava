@@ -1,52 +1,50 @@
-#ifndef CJUMPOPTIMIZER_H_INCLUDED
-#define CJUMPOPTIMIZER_H_INCLUDED
+#include "JumpOptimizer.h"
 #include "../Structs/BasicBlocks.h"
-#include "../common.h"
-#include "../IRVisitors/Printer.h"
-#include "../IRVisitors/Canonizer.h"
 #include "../Structs/TraceShedule.h"
+#include "../IRVisitors/Canonizer.h"
+#include "../IRVisitors/Printer.h"
 
 namespace Canon {
 
-void printCanonizedTree(IStm* res) {
-	CIRPrinter ir_print_vis(false);
-	cout << "linearization" << endl;
+void printCanonizedTree(ostream& out, IStm* res) {
+	CIRPrinter ir_print_vis(out, false);
+	out << "linearization" << endl;
 	shared_ptr<StmtList> listLin = linearize(res);
     shared_ptr<StmtList> list = listLin;
     while (list != nullptr) {
             list->head->accept(&ir_print_vis);
             list = list->tail;
     }
-    cout << "end linearization" << endl;
+    out << "end linearization" << endl;
     BasicBlocks* blocks = new BasicBlocks(listLin);
     StmtListList* stmLL = blocks->blocks;
     TraceShedule* traceSh = new TraceShedule(blocks);
 	shared_ptr<StmtList> stms = traceSh->stms;
-	cout << "=============cjump start============" << endl;
+	out << "=============cjump start============" << endl;
     while (stms != nullptr) {
-    		//cout << "===========one start===========" << endl;
+    		//out << "===========one start===========" << endl;
             stms->head->accept(&ir_print_vis);
             stms = stms->tail;
-            //cout << "===========one end===========" << endl;
+            //out << "===========one end===========" << endl;
     }
-    cout << "=============cjump end============" << endl;
+    out << "=============cjump end============" << endl;
 
 
 }
 
-void optimize(Symbol::CStorage& symbolsStorage, std::vector<INode*>& traslator_trees) {
+void optimize(ostream& out, Symbol::CStorage& symbolsStorage, std::vector<INode*>& traslator_trees) {
 
-    CIRPrinter ir_print_vis(false);
+    CIRPrinter ir_print_vis(out, false);
 
     Canonizer canonizer;
     for (int i = 0; i < traslator_trees.size(); ++i ) {
-        cout << "=================================" << endl;
-        cout << "tree" << endl;
+        out << "=================================" << endl;
+        out << "tree" << endl;
         traslator_trees[i]->accept(&ir_print_vis);
 
         traslator_trees[i]->accept(&canonizer);
-        cout << "=================================" << endl;
-        cout << "modified tree" << endl;
+        out << "=================================" << endl;
+        out << "modified tree" << endl;
        	IExp* arg =  dynamic_cast<IExp*>(canonizer.current_node);
         if (arg != 0) {
             IExp* res = doExp(arg);
@@ -55,14 +53,13 @@ void optimize(Symbol::CStorage& symbolsStorage, std::vector<INode*>& traslator_t
 
 		    SEQ* seq = dynamic_cast<SEQ*>(eseq->stm);
 		    if (seq != 0) {
-            	printCanonizedTree(eseq->stm);
+            	printCanonizedTree(out, eseq->stm);
             }
 
         } else {
            	IStm* res = doStm(dynamic_cast<IStm*>(canonizer.current_node));
             doStm(res)->accept(&ir_print_vis);
-            printCanonizedTree(res);
-
+            printCanonizedTree(out, res);
         }
 
     }
@@ -70,4 +67,3 @@ void optimize(Symbol::CStorage& symbolsStorage, std::vector<INode*>& traslator_t
 
 }
 
-#endif

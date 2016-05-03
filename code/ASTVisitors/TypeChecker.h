@@ -2,505 +2,70 @@
 #define TYPECHECKER_H_INCLUDED
 #include "../common.h"
 #include "../ASTVisitors/Visitor.h"
-#include "../Structs/Ast.h"
 #include "../Structs/SymbolsTable.h"
 using namespace SymbolsTable;
 using namespace Symbol;
 
 class CTypeChecker : public CVisitor {
 public:
+	CTypeChecker(CStorage* _symbols, CTable& _table);
+	void Visit(const CProgramRuleNode* node);
+	void Visit(const CMainClassDeclarationRuleNode* node);
+	void Visit(const CDeclarationsListNode* node);
+	void Visit(const CClassDeclarationRuleNode* node);
+	void Visit(const CExtendDeclarationRuleNode* node);
+	void Visit(const CVarDeclarationsListNode* node);
+	void Visit(const CMethodDeclarationsListNode* node);
+	void Visit(const CVarDeclarationRuleNode* node);
+	void Visit(const CMethodDeclarationRuleNode* node);
+	void Visit(const CVarsDecListNode* node);
+	void Visit(const CVarsDecFirstNode* node);
+	void Visit(const CStatsFirstNode* node);
+	void Visit(const CStatsListNode* node);
+	void Visit(const CMethodBodyVarsNode* node);
+	void Visit(const CMethodBodyStatsNode* node);
+	void Visit(const CMethodBodyAllNode* node);
+	void Visit(const CParamArgListNode* node);
+	void Visit(const CParamsOneNode* node);
+	void Visit(const CParamsTwoNode* node);
+	void Visit(const CParamRuleNode* node);
+	void Visit(const CTypeRuleNode* node);
+	void Visit(const CNumerousStatementsNode* node);
+	void Visit(const CBracedStatementNode* node);
+	void Visit(const CIfStatementNode* node);
+	void Visit(const CWhileStatementNode* node);
+	void Visit(const CPrintStatementNode* node);
+	void Visit(const CAssignStatementNode* node);
+	void Visit(const CInvokeExpressionStatementNode* node);
+	void Visit(const CInvokeExpressionNode* node);
+	void Visit(const CLengthExpressionNode* node);
+	void Visit(const CArithmeticExpressionNode* node);
+	void Visit(const CUnaryExpressionNode* node);
+	void Visit(const CCompareExpressionNode* node);
+	void Visit(const CNotExpressionNode* node);
+	void Visit(const CNewArrayExpressionNode* node);
+	void Visit(const CNewObjectExpressionNode* node);
+	void Visit(const CIntExpressionNode* node) ;
+	void Visit(const CBooleanExpressionNode* node);
+	void Visit(const CIdentExpressionNode* node);
+	void Visit(const CThisExpressionNode* node);
+	void Visit(const CParenExpressionNode* node);
+	void Visit(const CInvokeMethodExpressionNode* node);
+	void Visit(const CFewArgsExpressionNode* node);
+	void Visit(const CListExpressionNode* node);
+	void Visit(const CLastListExpressionNode* node);
+private:
 	CTable table;
 	const CSymbol* lastTypeValue;
 	CStorage* symbolsStorage;
+	bool inMethod;
 	int classPos = 0;
 	int methodPos = -1;
 	int argCount = 0;
 	int argNum = 0;
 
-	bool inMethod;
-	CTypeChecker(CStorage* _symbols, CTable& _table): symbolsStorage(_symbols), table(_table) {}
-
-	bool checkClassExistence(const CSymbol* name) {
-		bool flag = false;
-		int i = 0;
-		while (!flag && (i < table.classInfo.size())) {
-			flag = flag || (table.classInfo[i].name == name);
-			i++;
-		}
-		return flag;
-	}
-
-	bool assignType(const CSymbol* name, const CSymbol*& type) {
-		bool flagDec = false;
-		for (int j = 0; j < table.classInfo[this->classPos].methods.size(); j++) {
-			for (int i = 0; i < table.classInfo[this->classPos].methods[j].vars.size(); i++) {
-				flagDec = flagDec || (name == table.classInfo[this->classPos].methods[j].vars[i].name);
-				if (flagDec) {
-					type = table.classInfo[this->classPos].methods[j].vars[i].type;
-					return true;
-				}
-			}
-
-			if (!flagDec) {
-				for (int i = 0; i < table.classInfo[this->classPos].methods[j].params.size(); i++) {
-					flagDec = flagDec || (name == table.classInfo[this->classPos].methods[j].params[i].name);
-					if (flagDec) {
-						type = table.classInfo[this->classPos].methods[j].params[i].type;
-						return true;
-					}
-				}
-			}
-
-			if (!flagDec) {
-				for (int i = 0; i < table.classInfo[this->classPos].vars.size(); i++) {
-					flagDec = flagDec || (name == table.classInfo[this->classPos].vars[i].name);
-					if (flagDec) {
-						type = table.classInfo[this->classPos].vars[i].type;
-						return true;
-					}
-				}
-			}
-		}
-
-		const CSymbol* first = table.classInfo[this->classPos].name;
-		const CSymbol* parent = table.classInfo[this->classPos].name;
-		do{
-			int i = 0;
-		 	while ((table.classInfo[i].name != parent) && (i < table.classInfo.size()))
-		 		i++;
-
-		 	if (i == table.classInfo.size())
-		 		parent = symbolsStorage->get("");
-			else
-				parent = table.classInfo[i].parent;
-
-			if (parent != symbolsStorage->get(""))
-				for (int k = 0; k < table.classInfo[i].vars.size(); k++){
-					flagDec = flagDec || (name == table.classInfo[i].vars[k].name);
-					if (flagDec){
-						type = table.classInfo[i].vars[k].type;
-						return true;
-					}
-				}
-
-		} while ((parent != symbolsStorage->get("")) && (parent != first));
-	}
-
-	const CSymbol* checkAssignment(const CSymbol* name) {
-		const CSymbol* type;
-
-		bool declared = assignType(name, type);
-		if (!declared) {
-			cout << "Variable not declared " << name << endl;
-			return symbolsStorage->get( "" );
-		}
-
-		if (type != lastTypeValue) {
-			cout << "Cannot assign " << lastTypeValue << " to " << type << endl;
-		}
-
-		return type;
-	}
-
-	void visit(const CProgramRuleNode* node) {
-		if (node->mainClass != 0)
-			node->mainClass->accept(this);
-
-		if (node->decl != 0)
-			node->decl->accept(this);
-	}
-
-	void visit(const CMainClassDeclarationRuleNode* node) {
-		if (node->stmt != 0)
-			node->stmt->accept(this);
-	}
-	void visit(const CDeclarationsListNode* node) {
-		if (node->decl != 0)
-			node->decl->accept(this);
-
-		node->cl->accept(this);
-	}
-
-	void visit(const CClassDeclarationRuleNode* node) {
-		this->classPos++;
-		if (node->extDecl != 0)
-			node->extDecl->accept(this);
-
-		if (node->vars != 0)
-			node->vars->accept(this);
-
-		if (node->method != 0)
-			node->method->accept(this);
-	}
-
-	void visit(const CExtendDeclarationRuleNode* node) {
-		const CSymbol* parent = node->ident;
-		do {
-			int i = 0;
-			while ((table.classInfo[i].name != parent) && (i < table.classInfo.size()))
-				i++;
-
-			if (i == table.classInfo.size())
-				parent = symbolsStorage->get("");
-
-			else
-				parent = table.classInfo[i].parent;
-
-		} while ((parent != symbolsStorage->get("")) && (parent != node->ident));
-
-		if (parent != symbolsStorage->get(""))
-			cout << "Cyclic inheritance with " << node->ident << endl;
-	}
-
-	void visit(const CVarDeclarationsListNode* node) {
-		if (node->list != 0)
-			node->list->accept(this);
-
-		if (node->item != 0)
-			node->item->accept(this);
-	}
-
-	void visit(const CMethodDeclarationsListNode* node) {
-		if (node->list != 0) {
-			node->list->accept(this);
-		}
-		node->item->accept(this);
-	}
-
-	void visit(const CVarDeclarationRuleNode* node) {
-		CTypeRuleNode* tmp = dynamic_cast<CTypeRuleNode*>(node->type.get());
-		if ((tmp->type != symbolsStorage->get("boolean") ) && (tmp->type != symbolsStorage->get("int") && (tmp->type != symbolsStorage->get("int[]")))) {
-			if (!checkClassExistence(tmp->type)) {
-				cout << "No such type: " << tmp->type << endl;
-			}
-		}
-		node->type->accept(this);
-	}
-
-	void visit(const CMethodDeclarationRuleNode* node) {
-		CTypeRuleNode* tmp = dynamic_cast<CTypeRuleNode*>(node->type.get());
-		if ((tmp->type != symbolsStorage->get("boolean") ) && (tmp->type != symbolsStorage->get("int"))
-				&& (tmp->type != symbolsStorage->get("int[]"))) {
-			bool flag = false;
-			for (int i = 0; i < table.classInfo.size(); i++) {
-				flag = flag || (table.classInfo[i].name == tmp->type);
-			}
-
-			if (!flag)
-				cout << "No such type: " << tmp->type << endl;
-		}
-		node->type->accept(this);
-		if (node->param_arg != 0)
-			node->param_arg->accept(this);
-		if (node->method_body != 0)
-			node->method_body->accept(this);
-		if (node->return_exp != 0)
-			node->return_exp->accept(this);
-
-		for (int i = 0; i < table.classInfo.size(); i++)
-			for (int j = 0; j < table.classInfo[i].methods.size(); j++) {
-				if (table.classInfo[i].methods[j].name == node->ident) {
-					if (table.classInfo[i].methods[j].returnType != lastTypeValue) {
-						cout<< "Return types does not match" << endl;
-					}
-				}
-			}
-	}
-
-	void visit(const CVarsDecListNode* node) {
-		if (node->list != 0)
-			node->list->accept(this);
-
-		if (node->next != 0)
-			node->next->accept(this);
-	}
-
-	void visit(const CVarsDecFirstNode* node) {
-		if (node->first != 0)
-			node->first->accept(this);
-	}
-
-	void visit(const CStatsFirstNode* node) {
-		if (node->stm != 0)
-			node->stm->accept(this);
-	}
-
-	void visit(const CStatsListNode* node) {
-		if (node->list != 0)
-			node->list->accept(this);
-		if (node->stm != 0)
-			node->stm->accept(this);
-	}
-
-	void visit(const CMethodBodyVarsNode* node) {
-		if (node->vars != 0)
-			node->vars->accept(this);
-	}
-
-	void visit(const CMethodBodyStatsNode* node) {
-		if (node->stats != 0)
-			node->stats->accept(this);
-	}
-
-	void visit(const CMethodBodyAllNode* node) {
-		if (node->vars != 0)
-			node->vars->accept(this);
-
-		if (node->stats != 0)
-			node->stats->accept(this);
-	}
-
-	void visit(const CParamArgListNode* node) {
-		if (node->params != 0)
-			node->params->accept(this);
-	}
-
-	void visit(const CParamsOneNode* node) {
-		if (node->param != 0)
-			node->param->accept(this);
-	}
-
-	void visit(const CParamsTwoNode* node) {
-		if (node->first != 0)
-			node->first->accept(this);
-		if (node->second != 0)
-			node->second->accept(this);
-	}
-
-	void visit(const CParamRuleNode* node) {
-		if (node->type != 0)
-			node->type->accept(this);
-	}
-
-	void visit(const CTypeRuleNode* node) {
-		lastTypeValue = node->type;
-	}
-
-	void visit(const CNumerousStatementsNode* node) {
-		if (node->statements != 0)
-			node->statements->accept(this);
-		if (node->statement != 0)
-			node->statement->accept(this);
-	}
-
-	void visit(const CBracedStatementNode* node) {
-		if (node->statements != 0)
-			node->statements->accept(this);
-	}
-
-	void visit(const CIfStatementNode* node) {
-		node->expression->accept(this);
-		if (lastTypeValue != symbolsStorage->get("boolean"))
-			cout << "Error in if/else statement expression" << endl;
-		node->thenStatement->accept(this);
-		if (node->elseStatement != 0) {
-			node->elseStatement->accept(this);
-		}
-	}
-
-	void visit(const CWhileStatementNode* node) {
-		node->expression->accept(this);
-		if (lastTypeValue != symbolsStorage->get("boolean"))
-			cout << "Error in while statement expression" << lastTypeValue << endl;
-		node->statement->accept(this);
-	}
-
-	void visit(const CPrintStatementNode* node) {
-		node->expression->accept(this);
-		if (lastTypeValue != symbolsStorage->get("int"))
-			cout << "Error in print expression" << endl;
-	}
-
-	void visit(const CAssignStatementNode* node) {
-		if (node->expression != 0)
-			node->expression->accept(this);
-
-		checkAssignment(node->identifier);
-	}
-
-	void visit(const CInvokeExpressionStatementNode* node) {
-		if (node->firstexpression != 0)
-			node->firstexpression->accept(this);
-
-		if (lastTypeValue != symbolsStorage->get("int"))
-			cout << "Array index is not int in " << node->identifier << endl;
-
-		if (node->secondexpression != 0)
-			node->secondexpression->accept(this);
-
-		const CSymbol* type;
-		assignType(node->identifier, type);
-		if (!((type == symbolsStorage->get("int[]")) && (lastTypeValue == symbolsStorage->get("int"))))
-			cout << "Cannot assign " << lastTypeValue << " to " << type << endl;
-
-	}
-
-	void visit(const CInvokeExpressionNode* node) {
-		if (node->firstExp != 0)
-			node->firstExp->accept(this);
-
-		if (lastTypeValue != symbolsStorage->get("int[]"))
-			cout << "Trying to access non-existent array" << endl;
-
-		if (node->secondExp != 0)
-			node->secondExp->accept(this);
-
-		if (lastTypeValue != symbolsStorage->get("int"))
-			cout << "Array index is not int" << endl;
-
-		lastTypeValue = symbolsStorage->get("int");
-	}
-
-	void visit(const CLengthExpressionNode* node) {
-
-		if (node->expr != 0)
-			node->expr->accept(this);
-		lastTypeValue = symbolsStorage->get("int");
-	}
-
-	void visit(const CArithmeticExpressionNode* node) {
-		node->firstExp->accept(this);
-		if ((lastTypeValue != symbolsStorage->get("int")) && (lastTypeValue != symbolsStorage->get("boolean")))
-			cout << "Error in arithmetic expression" << endl;
-
-		node->secondExp->accept(this);
-		if ((lastTypeValue != symbolsStorage->get("int")) && (lastTypeValue != symbolsStorage->get("boolean")))
-			cout << "Error in arithmetic expression" << endl;
-	}
-
-	void visit(const CUnaryExpressionNode* node) {
-		node->expr->accept(this);
-
-		if (lastTypeValue != symbolsStorage->get("int"))
-			cout << "Error in unary expression" << endl;
-
-		lastTypeValue = symbolsStorage->get("int");
-	}
-
-	void visit(const CCompareExpressionNode* node) {
-		node->firstExp->accept(this);
-
-		if (lastTypeValue != symbolsStorage->get("int"))
-			cout << "Error in compare expression" << endl;
-
-		node->secondExp->accept(this);
-		if (lastTypeValue != symbolsStorage->get("int"))
-			cout << "Error in compare expression" << endl;
-
-		lastTypeValue = symbolsStorage->get("boolean");
-	}
-
-	void visit(const CNotExpressionNode* node) {
-		node->expr->accept(this);
-
-		if (lastTypeValue != symbolsStorage->get("boolean"))
-			cout << "Error in NOT expression" << endl;
-
-		lastTypeValue = symbolsStorage->get("boolean");
-	}
-
-	void visit(const CNewArrayExpressionNode* node) {
-		if (node->expr != 0)
-			node->expr->accept(this);
-
-		if (lastTypeValue != symbolsStorage->get("int"))
-			cout << "Array index is not int in new array" << lastTypeValue << endl;
-		lastTypeValue = symbolsStorage->get("int[]");
-	}
-
-	void visit(const CNewObjectExpressionNode* node) {
-		if ((node->objType != symbolsStorage->get("int")) && (node->objType != symbolsStorage->get("boolean")))
-			if (!checkClassExistence(node->objType))
-				cout << "No such type: " << node->objType << endl;
-			else
-				lastTypeValue = node->objType;
-
-	}
-
-	void visit(const CIntExpressionNode* node) {
-		lastTypeValue = symbolsStorage->get("int");
-	}
-
-	void visit(const CBooleanExpressionNode* node) {
-		lastTypeValue = symbolsStorage->get("boolean");
-	}
-
-	void visit(const CIdentExpressionNode* node) {
-		const CSymbol* tmp;
-		if (assignType(node->name, tmp)) {
-			if (tmp != symbolsStorage->get("")) {
-				lastTypeValue = tmp;
-			}
-		} else {
-			cout << "Invaid ident " << node->name << endl;
-		}
-	}
-
-	void visit(const CThisExpressionNode* node) {
-		lastTypeValue = table.classInfo[this->classPos].name;
-	}
-
-	void visit(const CParenExpressionNode* node) {
-		if (node->expr != 0)
-			node->expr->accept(this);
-
-		if ((lastTypeValue != symbolsStorage->get("int")) && (lastTypeValue != symbolsStorage->get("boolean")))
-			cout << "Expression in brackets is not valid" << endl;
-	}
-	void visit(const CInvokeMethodExpressionNode* node) {
-
-		if (node->expr != 0)
-			node->expr->accept(this);
-
-		bool declaredClass = false;
-		bool declaredMethod = false;
-		const CSymbol* ret;
-		for (int i = 0; i < table.classInfo.size(); i++) {
-			declaredClass = declaredClass || (table.classInfo[i].name == lastTypeValue);
-			if (declaredClass) {
-				for (int j = 0; j < table.classInfo[i].methods.size(); j++) {
-					declaredMethod = declaredMethod || (table.classInfo[i].methods[j].name == node->name);
-					if (declaredMethod) {
-						argNum = table.classInfo[i].methods[j].params.size();
-						ret = table.classInfo[i].methods[j].returnType;
-						break;
-					}
-				}
-				if (!declaredMethod)
-					cout << "Method not declared: " << node->name << endl;
-				break;
-			}
-		}
-		if (!declaredClass)
-			cout << "Class not declared: " << lastTypeValue <<node->name << endl;
-
-		if (node->args != 0)
-			node->args->accept(this);
-		else {
-			if (argNum != 0)
-				cout << "Arguments number in declaration and in usage does not match" << endl;
-		}
-		lastTypeValue = ret;
-	}
-	void visit(const CFewArgsExpressionNode* node) {
-		if (node->expr != 0)
-			node->expr->accept(this);
-	}
-
-	void visit(const CListExpressionNode* node) {
-		argCount++;
-		if (node->prevExps != 0)
-			node->prevExps->accept(this);
-		if (node->nextExp != 0)
-			node->nextExp->accept(this);
-	}
-	void visit(const CLastListExpressionNode* node) {
-		argCount++;
-		if (argCount != argNum)
-			cout << "Arguments number in declaration and in usage does not match" << endl;
-		argCount  = 0;
-		if (node->expr != 0)
-			node->expr->accept(this);
-	}
+	bool checkClassExistence(const CSymbol* name);
+	bool assignType(const CSymbol* name, const CSymbol*& type);
+	const CSymbol* checkAssignment(const CSymbol* name);
 };
 #endif

@@ -1,53 +1,35 @@
 #ifndef TEMP_H_INCLUDED
 #define TEMP_H_INCLUDED
 #include "../common.h"
-#include "../Structs/Symbol.h"
 
 namespace Temp {
 // Метка - точка перехода в коде
 class CLabel {
 public:
 	// Создать метку с уникальным именем
-	CLabel(): name("label" + std::to_string(nextUniqueId)) {
-		++nextUniqueId;
-	}
-
-	CLabel(const std::string& uniqueName) : name(uniqueName) {}
-
-	const std::string& Name() const {
-		return name;
-	}
-
+	CLabel();
+	CLabel(const string& uniqueName);
+	const string& Name() const;
+	
 private:
 	// Счётчик для создания уникальных идентификаторов
 	static int nextUniqueId;
-	std::string name;
+	string name;
 };
-
-int CLabel::nextUniqueId = 0;
 
 // Временная переменная
 class CTemp {
 public:
 	// Новая переменная с уникальным именем
-	CTemp(): name("temp" + std::to_string(nextUniqueId)) {
-		++nextUniqueId;
-	}
-	// Новая переменная с заданным именем
-	explicit CTemp(const Symbol::CSymbol* symbol );
-	~CTemp() {}
-
-	const std::string& Name() const {
-		return name;
-	}
+	CTemp();
+	~CTemp();
+	const string& Name() const;
 
 private:
 	// Счётчик для создания уникальных имён
 	static int nextUniqueId;
-	std::string name;
+	string name;
 };
-
-int CTemp::nextUniqueId = 0;
 
 }
 

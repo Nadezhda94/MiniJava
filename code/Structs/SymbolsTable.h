@@ -3,61 +3,43 @@
 #include "../common.h"
 #include "../Structs/Symbol.h"
 
+using namespace Symbol;
 namespace SymbolsTable {
-using std::vector;
-using std::string;
 
 struct CVarInfo {
+	CVarInfo(const CSymbol* _name, const CSymbol* _type);
+
 	const CSymbol* name;
 	const CSymbol* type;
-	CVarInfo(const CSymbol* _name, const CSymbol* _type):
-		name(_name), type(_type) {}
 };
 
 struct CMethodInfo {
+	CMethodInfo(const CSymbol* _name, const CSymbol* _returnType);
+
 	const CSymbol* name;
 	vector<CVarInfo> vars;
 	vector<CVarInfo> params;
 	const CSymbol* returnType;
-	CMethodInfo(const CSymbol* _name, const CSymbol* _returnType):
-		name(_name), returnType(_returnType), vars(), params() {}
 };
 
 struct CClassInfo {
+	CClassInfo(const CSymbol* _name);
+	CMethodInfo& getMethodInfo(const CSymbol* name);
+
 	const CSymbol* name;
 	const CSymbol* parent;
 	vector<CVarInfo> vars;
 	vector<CMethodInfo> methods;
-	CClassInfo(const CSymbol* _name):
-		name(_name), vars(), methods(), parent() {}
-	CMethodInfo& getMethodInfo(const CSymbol* name) {
-		for (int i = 0; i < methods.size(); i++)
-			if (name->getString() == methods[i].name->getString())
-				return methods[i];
-	}
 };
 
 struct CTable {
-	vector<CClassInfo> classInfo;
-	CTable(): classInfo() {}
-	CClassInfo& getClassInfo(const CSymbol* name) {
-		for (int i = 0; i < classInfo.size(); i++)
-			if (name->getString() == classInfo[i].name->getString())
-				return classInfo[i];
-	}
+	CTable();
+	CClassInfo& getClassInfo(const CSymbol* name);
+	vector<CVarInfo> getParentVars(const CSymbol* name);
 
-  vector<CVarInfo> getParentVars(const CSymbol* name){
-    vector<CVarInfo> ans;
-    CClassInfo* current = &getClassInfo(name);
-    do{
-			if (current->parent != 0){
-      	current = &getClassInfo(current->parent);
-        ans.insert(ans.begin(), current->vars.begin(), current->vars.end());
-			}
-    } while (current->parent != 0);
-    return ans;
-  }
+	vector<CClassInfo> classInfo;
 };
+
 }
 
 #endif

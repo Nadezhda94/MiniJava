@@ -19,12 +19,7 @@ struct Location {
 
 struct CNode {
 	virtual void accept(CVisitor*)= 0;
-	void setLocation(int _firstColumn, int _firstLine, int _lastColumn, int _lastLine) {
-		location.firstColumn = _firstColumn;
-		location.firstLine = _firstLine;
-		location.lastColumn = _lastColumn;
-		location.lastLine = _lastLine;
-	}
+	void setLocation(int _firstColumn, int _firstLine, int _lastColumn, int _lastLine);
 	Location location;
 };
 
@@ -34,7 +29,7 @@ public:
 	virtual void accept(CVisitor* visitor) {
 		// Магический дебаг
 		// cout<<typeid(TARGET).name()<<endl;
-		visitor->visit( static_cast<TARGET*> (this) );
+		visitor->Visit( static_cast<TARGET*> (this) );
 	}
 };
 
@@ -407,10 +402,7 @@ class CInvokeMethodExpressionNode: public CAcceptsVisitor<CInvokeMethodExpressio
 public:
 	CInvokeMethodExpressionNode(CExpressionNode* _exp, const char* _name, CExpArgNode* _args):
 		expr(_exp), name(symbolsStorage.get(_name)), args(_args) {}
-	~CInvokeMethodExpressionNode() {
-
-
-	}
+	~CInvokeMethodExpressionNode() {}
 
 	shared_ptr<CExpressionNode> expr;
 	const CSymbol* name;

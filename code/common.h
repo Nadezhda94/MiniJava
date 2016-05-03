@@ -9,7 +9,12 @@
 #include <typeinfo>
 #include <cassert>
 #include <map>
+#include <ostream>
+#include <fstream>
 
 using namespace std;
 
 #endif
+
+
+

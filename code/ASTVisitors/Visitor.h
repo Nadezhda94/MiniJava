@@ -1,6 +1,5 @@
 #ifndef VISITOR_H_INCLUDED
 #define VISITOR_H_INCLUDED
-#include "../Structs/Ast.h"
 
 class CProgramRuleNode;
 class CMainClassDeclarationRuleNode;
@@ -50,51 +49,52 @@ class CLastListExpressionNode;
 
 class CVisitor {
 public:
-	virtual void visit(const CProgramRuleNode* node) = 0;
-	virtual void visit(const CMainClassDeclarationRuleNode* node) = 0;
-	virtual void visit(const CDeclarationsListNode* node) = 0;
-	virtual void visit(const CClassDeclarationRuleNode* node) = 0;
-	virtual void visit(const CExtendDeclarationRuleNode* node) = 0;
-	virtual void visit(const CVarDeclarationsListNode* node) = 0;
-	virtual void visit(const CMethodDeclarationsListNode* node) = 0;
-	virtual void visit(const CVarDeclarationRuleNode* node) = 0;
-	virtual void visit(const CMethodDeclarationRuleNode* node) = 0;
-	virtual void visit(const CVarsDecListNode* node) = 0;
-	virtual void visit(const CVarsDecFirstNode* node) = 0;
-	virtual void visit(const CStatsFirstNode* node) = 0;
-	virtual void visit(const CStatsListNode* node) = 0;
-	virtual void visit(const CMethodBodyVarsNode* node) = 0;
-	virtual void visit(const CMethodBodyStatsNode* node) = 0;
-	virtual void visit(const CMethodBodyAllNode* node) = 0;
-	virtual void visit(const CParamArgListNode* node) = 0;
-	virtual void visit(const CParamsOneNode* node) = 0;
-	virtual void visit(const CParamsTwoNode* node) = 0;
-	virtual void visit(const CParamRuleNode* node) = 0;
-	virtual void visit(const CTypeRuleNode* node) = 0;
-	virtual void visit(const CNumerousStatementsNode* node) = 0;
-	virtual void visit(const CBracedStatementNode* node) = 0;
-	virtual void visit(const CIfStatementNode* node) = 0;
-	virtual void visit(const CWhileStatementNode* node) = 0;
-	virtual void visit(const CPrintStatementNode* node) = 0;
-	virtual void visit(const CAssignStatementNode* node) = 0;
-	virtual void visit(const CInvokeExpressionStatementNode* node) = 0;
-	virtual void visit(const CInvokeExpressionNode* node) = 0;
-	virtual void visit(const CLengthExpressionNode* node) = 0;
-	virtual void visit(const CArithmeticExpressionNode* node) = 0;
-	virtual void visit(const CUnaryExpressionNode* node) = 0;
-	virtual void visit(const CCompareExpressionNode* node) = 0;
-	virtual void visit(const CNotExpressionNode* node) = 0;
-	virtual void visit(const CNewArrayExpressionNode* node) = 0;
-	virtual void visit(const CNewObjectExpressionNode* node) = 0;
-	virtual void visit(const CIntExpressionNode* node) = 0;
-	virtual void visit(const CBooleanExpressionNode* node) = 0;
-	virtual void visit(const CIdentExpressionNode* node) = 0;
-	virtual void visit(const CThisExpressionNode* node) = 0;
-	virtual void visit(const CParenExpressionNode* node) = 0;
-	virtual void visit(const CInvokeMethodExpressionNode* node) = 0;
-	virtual void visit(const CFewArgsExpressionNode* node) = 0;
-	virtual void visit(const CListExpressionNode* node) = 0;
-	virtual void visit(const CLastListExpressionNode* node) = 0;
+	virtual void Visit(const CProgramRuleNode* node) = 0;
+	virtual void Visit(const CMainClassDeclarationRuleNode* node) = 0;
+	virtual void Visit(const CDeclarationsListNode* node) = 0;
+	virtual void Visit(const CClassDeclarationRuleNode* node) = 0;
+	virtual void Visit(const CExtendDeclarationRuleNode* node) = 0;
+	virtual void Visit(const CVarDeclarationsListNode* node) = 0;
+	virtual void Visit(const CMethodDeclarationsListNode* node) = 0;
+	virtual void Visit(const CVarDeclarationRuleNode* node) = 0;
+	virtual void Visit(const CMethodDeclarationRuleNode* node) = 0;
+	virtual void Visit(const CVarsDecListNode* node) = 0;
+	virtual void Visit(const CVarsDecFirstNode* node) = 0;
+	virtual void Visit(const CStatsFirstNode* node) = 0;
+	virtual void Visit(const CStatsListNode* node) = 0;
+	virtual void Visit(const CMethodBodyVarsNode* node) = 0;
+	virtual void Visit(const CMethodBodyStatsNode* node) = 0;
+	virtual void Visit(const CMethodBodyAllNode* node) = 0;
+	virtual void Visit(const CParamArgListNode* node) = 0;
+	virtual void Visit(const CParamsOneNode* node) = 0;
+	virtual void Visit(const CParamsTwoNode* node) = 0;
+	virtual void Visit(const CParamRuleNode* node) = 0;
+	virtual void Visit(const CTypeRuleNode* node) = 0;
+	virtual void Visit(const CNumerousStatementsNode* node) = 0;
+	virtual void Visit(const CBracedStatementNode* node) = 0;
+	virtual void Visit(const CIfStatementNode* node) = 0;
+	virtual void Visit(const CWhileStatementNode* node) = 0;
+	virtual void Visit(const CPrintStatementNode* node) = 0;
+	virtual void Visit(const CAssignStatementNode* node) = 0;
+	virtual void Visit(const CInvokeExpressionStatementNode* node) = 0;
+	virtual void Visit(const CInvokeExpressionNode* node) = 0;
+	virtual void Visit(const CLengthExpressionNode* node) = 0;
+	virtual void Visit(const CArithmeticExpressionNode* node) = 0;
+	virtual void Visit(const CUnaryExpressionNode* node) = 0;
+	virtual void Visit(const CCompareExpressionNode* node) = 0;
+	virtual void Visit(const CNotExpressionNode* node) = 0;
+	virtual void Visit(const CNewArrayExpressionNode* node) = 0;
+	virtual void Visit(const CNewObjectExpressionNode* node) = 0;
+	virtual void Visit(const CIntExpressionNode* node) = 0;
+	virtual void Visit(const CBooleanExpressionNode* node) = 0;
+	virtual void Visit(const CIdentExpressionNode* node) = 0;
+	virtual void Visit(const CThisExpressionNode* node) = 0;
+	virtual void Visit(const CParenExpressionNode* node) = 0;
+	virtual void Visit(const CInvokeMethodExpressionNode* node) = 0;
+	virtual void Visit(const CFewArgsExpressionNode* node) = 0;
+	virtual void Visit(const CListExpressionNode* node) = 0;
+	virtual void Visit(const CLastListExpressionNode* node) = 0;
 };
+#include "../Structs/Ast.h"
 
 #endif

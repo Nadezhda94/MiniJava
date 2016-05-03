@@ -6,3 +6,8 @@ code\makefile
 code\a.out
 code\a.exe
 code\report.txt
+.idea
+Logs/
+Logs\
+code/Compilers
+code\Compilers

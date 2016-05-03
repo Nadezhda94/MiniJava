@@ -1,8 +1,6 @@
 #ifndef IRVISITOR_H_INCLUDED
 #define IRVISITOR_H_INCLUDED
 
-#include "../Structs/IRTree.h"
-
 namespace IRTree {
 	class MOVE;
 	class EXP;
@@ -23,21 +21,23 @@ namespace IRTree {
 
 class CIRVisitor {
 public:
-	virtual void visit(IRTree::MOVE* node) = 0;
-	virtual void visit(IRTree::EXP* node) = 0;
-	virtual void visit(IRTree::JUMP* node) = 0;
-	virtual void visit(IRTree::CJUMP* node) = 0;
-	virtual void visit(IRTree::SEQ* node) = 0;
-	virtual void visit(IRTree::LABEL* node) = 0;
-	virtual void visit(IRTree::CONST* node)= 0;
-	virtual void visit(IRTree::NAME* node) = 0;
-	virtual void visit(IRTree::TEMP* node) = 0;
-	virtual void visit(IRTree::BINOP* node) = 0;
-	virtual void visit(IRTree::MEM* node)= 0;
-	virtual void visit(IRTree::CALL* node) = 0;
-	virtual void visit(IRTree::ESEQ* node) = 0;
-	virtual void visit(IRTree::MoveCall* node) = 0;
-	virtual void visit(IRTree::ExpCall* node) = 0;
+	virtual void Visit(IRTree::MOVE* node) = 0;
+	virtual void Visit(IRTree::EXP* node) = 0;
+	virtual void Visit(IRTree::JUMP* node) = 0;
+	virtual void Visit(IRTree::CJUMP* node) = 0;
+	virtual void Visit(IRTree::SEQ* node) = 0;
+	virtual void Visit(IRTree::LABEL* node) = 0;
+	virtual void Visit(IRTree::CONST* node)= 0;
+	virtual void Visit(IRTree::NAME* node) = 0;
+	virtual void Visit(IRTree::TEMP* node) = 0;
+	virtual void Visit(IRTree::BINOP* node) = 0;
+	virtual void Visit(IRTree::MEM* node)= 0;
+	virtual void Visit(IRTree::CALL* node) = 0;
+	virtual void Visit(IRTree::ESEQ* node) = 0;
+	virtual void Visit(IRTree::MoveCall* node) = 0;
+	virtual void Visit(IRTree::ExpCall* node) = 0;
 };
+
+#include "../Structs/IRTree.h"
 
 #endif
