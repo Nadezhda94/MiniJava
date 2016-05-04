@@ -45,7 +45,7 @@ set(SOURCE_FILES
     code/Structs/Ast.cpp
     code/IRVisitors/Canonizer.cpp
     code/IRVisitors/Printer.cpp
-    code/IRVisitors/JumpOptimizer.cpp
+        code/IRVisitors/Optimizer.cpp
     code/main.cpp)
 
 SET_SOURCE_FILES_PROPERTIES(${Compilers_SOURCE_DIR}/code/simplejava.tab.cpp GENERATED)

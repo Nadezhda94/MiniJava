@@ -5,11 +5,9 @@ namespace IRTree {
 	// MEM
 	//--------------------------------------------------------------------------------------------------------------
 	MEM::MEM(IExp* _exp): exp(_exp) {}
-
 	shared_ptr<ExpList> MEM::kids() {
 		return make_shared<ExpList>(exp, nullptr);
 	}
-
 	IExp* MEM::build(shared_ptr<ExpList> kids) {
 		return new MEM(kids->head);
 	}
@@ -21,20 +19,16 @@ namespace IRTree {
 
 	shared_ptr<ExpList> MOVE::kids() {
 		const MEM* memDst = dynamic_cast<const MEM*>(dst);
-		if (memDst != 0) {
+		if (memDst != 0)
 			return make_shared<ExpList>(memDst->exp, make_shared<ExpList>(src, nullptr));
-		} else {
-			return make_shared<ExpList>(src, nullptr);
-		}
+		return make_shared<ExpList>(src, nullptr);
 	}
 
 	IStm* MOVE::build(shared_ptr<ExpList> kids) {
 		const MEM* memDst = dynamic_cast<const MEM*>(dst);
-		if (memDst != 0) {
+		if (memDst != 0)
 			return new MOVE(new MEM(kids->head), kids->tail.get()->head);
-		} else {
-			return new MOVE(dst, kids->head);
-		}
+		return new MOVE(dst, kids->head);
 	}
 
 	//--------------------------------------------------------------------------------------------------------------
@@ -54,14 +48,14 @@ namespace IRTree {
 	// JUMP
 	//--------------------------------------------------------------------------------------------------------------
 	JUMP::JUMP(IExp* _exp, const Temp::CLabel* _target) : exp(_exp), target(_target) {}
+
 	JUMP::JUMP(const Temp::CLabel* _target) : exp(0), target(_target) {}
+
 	shared_ptr<ExpList> JUMP::kids() {
-		if (exp == 0) {
-			return 0;
-		} else {
-			return make_shared<ExpList>(exp, nullptr);
-		}
+		if (exp == 0) return 0;
+		return make_shared<ExpList>(exp, nullptr);
 	}
+
 	IStm* JUMP::build(shared_ptr<ExpList> kids) {
 		if (kids != 0) {
 			return new JUMP(kids->head, target);
@@ -116,6 +110,7 @@ namespace IRTree {
 	// CONST
 	//--------------------------------------------------------------------------------------------------------------
 	CONST::CONST(int _value): value(_value) {}
+
 	shared_ptr<ExpList> CONST::kids() {
 		return 0;
 	}
@@ -226,155 +221,24 @@ namespace IRTree {
 	StmExpList::StmExpList(IStm* _stm, shared_ptr<ExpList> _exps) : stm(_stm), exps(_exps) {}
 
 	//--------------------------------------------------------------------------------------------------------------
+	// StmtList
+	//--------------------------------------------------------------------------------------------------------------
+	StmtList::StmtList(IStm* _head, shared_ptr<StmtList> _tail) : head(_head), tail(_tail) {}
 
-	bool isNop( IStm* stm ) {
-		EXP* exp = dynamic_cast<EXP*>(stm);
-		return ( exp != 0 ) && ( dynamic_cast<const CONST*>(exp->exp) != 0 );
-	}
-
-	bool commute( IStm* stm, IExp* exp ) {
-		return isNop( stm ) || ( dynamic_cast<EXP*>(exp) != 0 ) || ( dynamic_cast<const NAME*>(exp) != 0 );
-	}
-
-	IStm* seq( IStm* arg1, IStm* arg2 ) {
-		if ( isNop( arg1 )) {
-			return arg2;
+	StmtList::StmtList(vector<IStm*>& list) {
+		if (list.empty()) {
+			tail = 0;
 		} else {
-			if ( isNop( arg2 )) {
-				return arg1;
-			} else {
-				//cerr << "SEQ" << endl;
-				return new SEQ( arg1, arg2 );
-			}
+			head = list[0];
+			list.erase( list.begin() );
+			tail = make_shared<StmtList>( list );
 		}
 	}
 
-	StmExpList* reorder( shared_ptr<ExpList> list ) {
-		if ( list == nullptr ) {
-			return new StmExpList( new EXP( new CONST( 0 )), 0 );
-		} else {
-			IExp* head = list.get()->head;
-			CALL* call = dynamic_cast<CALL*>(head);
-
-			if ( call != 0 ) {
-
-				shared_ptr<const Temp::CTemp> t = make_shared<const Temp::CTemp>();
-				IExp* eseq = new ESEQ( new MOVE( new TEMP( t ), head ), new TEMP( t ));
-				return reorder( make_shared<ExpList>( eseq, list->tail ));
-			} else {
-				ESEQ* eseq = doExp( head );
-				StmExpList* stmtList = reorder( list->tail );
-				if ( commute( stmtList->stm, eseq->exp )) {
-					return new StmExpList( seq( eseq->stm, stmtList->stm ),
-										   make_shared<ExpList>( eseq->exp, stmtList->exps )
-					);
-				} else {
-					shared_ptr<const Temp::CTemp> t = make_shared<const Temp::CTemp>();
-					return new StmExpList( seq( eseq->stm,
-												seq( new MOVE( new TEMP( t ), eseq->exp ),
-													 stmtList->stm
-												)
-										   ),
-										   make_shared<ExpList>( new TEMP( t ), stmtList->exps )
-					);
-				}
-			}
-		}
-	}
-
-	ESEQ* reorderExp( IExp* exp ) {
-		StmExpList* l = reorder( exp->kids());
-		return new ESEQ( l->stm, exp->build( l->exps ));
-	}
-
-	IStm* reorderStm( IStm* stm ) {
-		StmExpList* list = reorder( stm->kids());
-		return seq( list->stm, stm->build( list->exps ));
-	}
-
-	ESEQ* doExp( IExp* exp ) {
-		ESEQ* eseq = dynamic_cast<ESEQ*>(exp);
-		if ( eseq != 0 ) {
-			return doExp( eseq );
-		} else {
-			return reorderExp( exp );
-		}
-	}
-
-	IStm* doStm( SEQ* s ) {
-		return seq( doStm( s->left ), doStm( s->right ));
-	}
-
-	IStm* doStm( MOVE* s ) {
-		TEMP* temp = dynamic_cast<TEMP*>(s->dst);
-		CALL* call = dynamic_cast<CALL*>(s->src);
-		if (( temp != 0 ) && ( call != 0 )) {
-			return reorderStm( new MoveCall( temp, call ));
-		} else {
-			ESEQ* eseq = dynamic_cast<ESEQ*>(s->dst);
-			if ( eseq != 0 ) {
-				return doStm( new SEQ( eseq->stm, new MOVE( eseq->exp, s->src )));
-			} else {
-				return reorderStm( s );
-			}
-		}
-	}
-
-	IStm* doStm( EXP* s ) {
-		CALL* call = dynamic_cast<CALL*>(s->exp);
-		if ( call != 0 ) {
-			return reorderStm( new ExpCall( call ));
-		} else {
-			return reorderStm( s );
-		}
-	}
-
-	IStm* doStm( IStm* stm ) {
-		SEQ* seq = dynamic_cast<SEQ*>(stm);
-		if ( seq != 0 ) {
-			//cerr << "seq" << endl;
-			return doStm( seq );
-		} else {
-			MOVE* move = dynamic_cast<MOVE*>(stm);
-			if ( move != 0 ) {
-				return doStm( move );
-			} else {
-				EXP* exp = dynamic_cast<EXP*>(stm);
-				if ( exp != 0 ) {
-					return doStm( exp );
-
-				} else {
-					return reorderStm( stm );
-				}
-			}
-		}
-	}
-
-	ESEQ* doExp( ESEQ* exp ) {
-		if ( exp == 0 ) {
-			exit( 1 );
-		}
-
-		IStm* stms = doStm( exp->stm );
-
-		ESEQ* eseq = doExp( exp->exp );
-		return new ESEQ( seq( stms, eseq->stm ), eseq->exp );
-	}
-
-	shared_ptr<StmtList> linear( IStm* s, shared_ptr<StmtList> l ) {
-		SEQ* seq = dynamic_cast<SEQ*>(s);
-		if ( seq != 0 ) {
-			return linear( seq, l );
-		} else {
-			return make_shared<StmtList>( s, l );
-		}
-	}
-
-	shared_ptr<StmtList> linear( SEQ* s, shared_ptr<StmtList> l ) {
-		return linear( s->left, linear( s->right, l ));
-	}
-
-	shared_ptr<StmtList> linearize( IStm* s ) {
-		return linear( doStm( s ), nullptr );
+	void StmtList::toVector(vector<IStm*>& list){
+		if ( head != 0 )
+			list.push_back(head);
+		if ( tail !=0 )
+			tail->toVector( list );
 	}
 }

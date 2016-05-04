@@ -3,7 +3,7 @@
 namespace Canon {
 	StmtListList::StmtListList( shared_ptr <StmtList> _head, StmtListList* _tail ) : head( _head ), tail( _tail ) { }
 
-	BasicBlocks::BasicBlocks( shared_ptr <StmtList> stms ) {
+	BasicBlocks::BasicBlocks( shared_ptr<StmtList> stms ) {
 		done = new CLabel();
 		mkBlocks( stms );
 	}
@@ -13,7 +13,7 @@ namespace Canon {
 		lastStm = lastStm->tail;
 	}
 
-	void BasicBlocks::doStms( shared_ptr <StmtList> l ) {
+	void BasicBlocks::doStms( shared_ptr<StmtList> l ) {
 		if ( l == nullptr ) {
 			doStms( make_shared<StmtList>( new JUMP( done ), nullptr ));
 		} else {

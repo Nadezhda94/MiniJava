@@ -4,7 +4,7 @@
 
 using namespace IRTree;
 
-class Canonizer: public CIRVisitor {
+class CCanonizer: public CIRVisitor {
 public:
     virtual void Visit(MOVE* node);
     virtual void Visit(EXP* node);
@@ -25,5 +25,26 @@ public:
 
     INode* current_node;
 };
+
+bool isNop(IStm* stm);
+bool commute(IStm* stm, IExp* exp);
+IStm* seq(IStm* arg1, IStm* arg2);
+
+IStm* doStm(IStm* stm);
+IStm* doStm(SEQ* s);
+IStm* doStm(MOVE* s);
+IStm* doStm(EXP* s);
+
+ESEQ* doExp(ESEQ* exp);
+ESEQ* doExp(IExp* exp);
+
+StmExpList* reorder(shared_ptr<ExpList> list);
+ESEQ* reorderExp(IExp* exp);
+IStm* reorderStm(IStm* stm);
+
+
+shared_ptr<StmtList> linear(IStm* s, shared_ptr<StmtList> l);
+shared_ptr<StmtList> linear(SEQ* s, shared_ptr<StmtList> l);
+shared_ptr<StmtList> linearize(IStm* s);
 
 #endif
