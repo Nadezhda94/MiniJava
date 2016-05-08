@@ -21,7 +21,6 @@ namespace IRTree {
 
 class CIRVisitor {
 public:
-	int count = 0;
 	virtual void Visit(IRTree::MOVE* node) = 0;
 	virtual void Visit(IRTree::EXP* node) = 0;
 	virtual void Visit(IRTree::JUMP* node) = 0;
