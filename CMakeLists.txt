@@ -54,9 +54,9 @@ SET_SOURCE_FILES_PROPERTIES(${Compilers_SOURCE_DIR}/code/lex.yy.cpp GENERATED)
 add_executable(Compilers ${SOURCE_FILES})
 add_dependencies(Compilers FlexBison)
 
-# Create custom command for flex/lex
 ADD_CUSTOM_COMMAND(
         TARGET Compilers
         POST_BUILD
         COMMAND rm
         ${Compilers_SOURCE_DIR}/code/lex.yy.cpp ${Compilers_SOURCE_DIR}/code/simplejava.tab.cpp ${Compilers_SOURCE_DIR}/code/simplejava.tab.hpp)
+
