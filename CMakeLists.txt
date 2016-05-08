@@ -45,7 +45,11 @@ set(SOURCE_FILES
     code/Structs/Ast.cpp
     code/IRVisitors/Canonizer.cpp
     code/IRVisitors/Printer.cpp
-        code/IRVisitors/Optimizer.cpp
+    code/IRVisitors/Optimizer.cpp
+        code/Structs/TempMap.cpp
+        code/Structs/Temp.cpp
+        code/Structs/Codegen.cpp
+        code/Structs/Assembler.cpp
     code/main.cpp)
 
 SET_SOURCE_FILES_PROPERTIES(${Compilers_SOURCE_DIR}/code/simplejava.tab.cpp GENERATED)
