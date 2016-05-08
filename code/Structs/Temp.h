@@ -31,6 +31,21 @@ private:
 	string name;
 };
 
+class CTempList {
+public:
+	CTempList(shared_ptr<CTemp> _head, CTempList* _tail);
+
+	shared_ptr<CTemp> head;
+	CTempList* tail;	
+};
+
+class CLabelList {
+public:
+	CLabelList(CLabel* _head, CLabelList* _tail);
+
+	CLabel* head;
+	CLabelList* tail;
+};
 }
 
 #endif
