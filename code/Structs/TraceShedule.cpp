@@ -9,7 +9,7 @@ namespace Canon {
 				exit(1);
 			}
 			table[static_cast<LABEL*>(l->head->head)->label] = l->head;
-			cout << "1" << endl;
+			//cout << "1" << endl;
 		}
 		stms = getNext();
 		//table = nullptr;
@@ -46,11 +46,11 @@ namespace Canon {
 					std::unordered_map<const Temp::CLabel*, shared_ptr<StmtList>>::iterator itTrue = table.find(cjump->iftrue);
 					std::unordered_map<const Temp::CLabel*, shared_ptr<StmtList>>::iterator itFalse = table.find(cjump->iffalse);
 					if ( itFalse != table.end() ) {
-						cout << last->tail->tail << endl;
+						//cout << last->tail->tail << endl;
 						last->tail->tail = itFalse->second;
-						cout << last->tail->tail << endl;
+						//cout << last->tail->tail << endl;
 						l = itFalse->second;
-						cout << "ohoho" << endl;
+						//cout << "ohoho" << endl;
 					} else if ( itTrue != table.end() ) {
 						last->tail->head = new CJUMP(cjump->relop, cjump->left, cjump->right, cjump->iffalse, cjump->iftrue);
 						last->tail->tail = itTrue->second;

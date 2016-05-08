@@ -43,8 +43,6 @@ namespace Canon {
 		for ( int i = 0; i < linearized.size(); ++i ) {
 			shared_ptr<StmtList> listLin = linearized[i];
 			Print(cout, listLin);
-			cout<< "!!!!" << endl;
-			// TODO: ломается здесь, на следующей строчке
 			BasicBlocks* blocks = new BasicBlocks( listLin );
 			TraceShedule* traceSh = new TraceShedule( blocks );
 			shared_ptr<StmtList> traced = traceSh->stms;
@@ -72,7 +70,7 @@ namespace Canon {
 		}
 	}
 
-	void Print(ostream& out, shared_ptr<StmtList>& stmts) {
+	void Print(ostream& out, shared_ptr<StmtList> stmts) {
 		vector<IStm*> trees;
 		stmts->toVector(trees);
 		CIRPrinter ir_print_vis( out, false );

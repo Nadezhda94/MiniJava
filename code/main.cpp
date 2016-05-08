@@ -74,6 +74,7 @@ int main(int argc, char** argv) {
 		Canon::Print(ofs, traced_blocks);
 		ofs.close();
 
+		cerr << "SUCCESS" << endl;
         // storagePrinter();
         delete root;
 	} catch(const exception* e) {

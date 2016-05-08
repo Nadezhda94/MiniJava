@@ -3,7 +3,7 @@
 namespace Canon {
 	StmtListList::StmtListList( shared_ptr <StmtList> _head, StmtListList* _tail ) : head( _head ), tail( _tail ) { }
 
-	BasicBlocks::BasicBlocks( shared_ptr<StmtList> stms ) {
+	BasicBlocks::BasicBlocks( shared_ptr<StmtList> stms ) : lastBlock(nullptr), blocks(nullptr), lastStm(nullptr) {
 		done = new CLabel();
 		mkBlocks( stms );
 	}
@@ -40,10 +40,11 @@ namespace Canon {
 		} else {
 			LABEL* label = dynamic_cast<LABEL*>(l->head);
 			if ( label != 0 ) {
-				//std::cerr << "LABEL" << std::endl;
-				lastStm = make_shared<StmtList>( StmtList( l->head, nullptr ));
+				lastStm = make_shared<StmtList>( l->head, nullptr );
+
 				if ( lastBlock == nullptr ) {
 					blocks = new StmtListList( lastStm, nullptr );
+
 					lastBlock = blocks;
 				} else {
 					lastBlock->tail = new StmtListList( lastStm, nullptr );

@@ -11,7 +11,7 @@ namespace Canon {
 	void Trace(vector<shared_ptr<StmtList>>& stmts, vector<shared_ptr<StmtList>>& result);
 	void Print(ostream& out, vector<INode*>& trees);
 	void Print(ostream& out, vector<IStm*>& trees);
-	void Print(ostream& out, shared_ptr<StmtList>& stmts);
+	void Print(ostream& out, shared_ptr<StmtList> stmts);
 	void Print(ostream& out, vector<shared_ptr<StmtList>>& stmts);
 }
 
