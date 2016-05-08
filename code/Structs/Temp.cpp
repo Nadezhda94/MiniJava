@@ -29,4 +29,9 @@ namespace Temp {
 
 	int CLabel::nextUniqueId = 0;
 	int CTemp::nextUniqueId = 0;
+
+
+	CTempList::CTempList(shared_ptr<CTemp> _head, CTempList* _tail) : head(_head), tail(_tail) {}
+
+	CLabelList::CLabelList(CLabel* _head, CLabelList* _tail) : head(_head), tail(_tail) {}
 }
