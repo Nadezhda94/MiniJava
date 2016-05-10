@@ -21,6 +21,8 @@ namespace Temp {
 		++nextUniqueId;
 	}
 
+	CTemp::CTemp(const std::string& uniqueName) : name(uniqueName) {}
+
 	CTemp::~CTemp() {}
 
 	const std::string& CTemp::Name() const {
@@ -31,7 +33,7 @@ namespace Temp {
 	int CTemp::nextUniqueId = 0;
 
 
-	CTempList::CTempList(shared_ptr<CTemp> _head, CTempList* _tail) : head(_head), tail(_tail) {}
+	CTempList::CTempList(shared_ptr<const CTemp> _head, CTempList* _tail) : head(_head), tail(_tail) {}
 
 	CLabelList::CLabelList(CLabel* _head, CLabelList* _tail) : head(_head), tail(_tail) {}
 }

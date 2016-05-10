@@ -1,6 +1,7 @@
 #include "Frame.h"
 
 namespace Frame {
+
 	IExp* CFrameAccess::getExp() {
 		return new MEM( new BINOP( ArithmeticOpType::PLUS_OP,
 								   static_cast<IExp*>(new TEMP( frame->getFP())),
@@ -19,6 +20,15 @@ namespace Frame {
 
 	CFrame::CFrame( const Symbol::CSymbol* _name):
 			name(_name), localOffset(0), formalOffset(-4), framePointer(new CTemp()) {
+		//TODO: заполнить регистры
+	}
+
+	CTempList* CFrame::Registers() {
+		return registers;
+	}
+
+	const std::string& CFrame::tempMap(shared_ptr<const CTemp> t) {
+		return t->Name();
 	}
 
 	shared_ptr<CTemp> CFrame::getFP() {
@@ -75,4 +85,11 @@ namespace Frame {
 	IExp* CFrame::externalCall(const std::string& funcName, shared_ptr<ExpList> args) {
 		return new CALL(new NAME(shared_ptr<CLabel>(new CLabel(funcName))), args);
 	}
+
+	CTempList* CFrame::callDefsInit() {
+		CTempList* l = new CTempList(std::make_shared<CTemp>("esp"), 
+										new CTempList( std::make_shared<CTemp>("ebp"), nullptr) );
+
+	}
+	CTempList* CFrame::callDefs = CFrame::callDefsInit();
 }

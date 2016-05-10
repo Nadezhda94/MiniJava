@@ -1,6 +1,6 @@
 #ifndef ASSEMBLER_H_INCLUDED
 #define ASSEMBLER_H_INCLUDED
-#include "TempMap.h"
+#include "../Structs/TempMap.h"
 
 using namespace Temp;
 
@@ -22,7 +22,7 @@ namespace Assembler {
 		virtual CTempList* def() = 0;
 		virtual CTargets* jumps() = 0;
 
-		shared_ptr<CTemp> getTemp(CTempList* l, int tempNumber);
+		shared_ptr<const CTemp> getTemp(CTempList* l, int tempNumber);
   		CLabel* getLabel(CLabelList* l, int tempNumber);
   		std::string format(CTempMap* m);
 	};
@@ -36,8 +36,8 @@ namespace Assembler {
 
 	class ALABEL: public CInstr {
 	public:	
-		ALABEL(const std::string& a, CLabel* l);
-		CLabel* label;
+		ALABEL(const std::string& a, const CLabel* l);
+		const CLabel* label;
 
 		CTempList* use();
 		CTempList* def();
@@ -46,9 +46,9 @@ namespace Assembler {
 
 	class AMOVE: public CInstr {
 	public:
-		shared_ptr<CTemp> dst;
-		shared_ptr<CTemp> src;
-		AMOVE(const std::string& a, shared_ptr<CTemp> d, shared_ptr<CTemp> s);
+		shared_ptr<const CTemp> dst;
+		shared_ptr<const CTemp> src;
+		AMOVE(const std::string& a, shared_ptr<const CTemp> d, shared_ptr<const CTemp> s);
 
 		CTempList* use();
 		CTempList* def();

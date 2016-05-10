@@ -22,6 +22,7 @@ class CTemp {
 public:
 	// Новая переменная с уникальным именем
 	CTemp();
+	CTemp(const std::string& uniqueName);
 	~CTemp();
 	const string& Name() const;
 
@@ -33,9 +34,9 @@ private:
 
 class CTempList {
 public:
-	CTempList(shared_ptr<CTemp> _head, CTempList* _tail);
+	CTempList(shared_ptr<const CTemp> _head, CTempList* _tail);
 
-	shared_ptr<CTemp> head;
+	shared_ptr<const CTemp> head;
 	CTempList* tail;	
 };
 

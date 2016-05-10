@@ -3,6 +3,7 @@
 
 #include "../Structs/IRTree.h"
 #include "../Structs/Temp.h"
+#include "../Structs/TempMap.h"
 
 using namespace Temp;
 using namespace IRTree;
@@ -56,11 +57,15 @@ private:
 	int offset;
 };
 
-class CFrame {
+class CFrame: public CTempMap {
 // Класс-контейнер с платформо-зависимой информацией о функции
 public:
 	static const int wordSize = 4;
+	static CTempList* callDefs;
+	/*static*/CTempList* registers;
 	CFrame( const Symbol::CSymbol* _name);
+	/*static*/CTempList* Registers();
+	/*static*/const std::string& tempMap(shared_ptr<const CTemp> t);
 	shared_ptr<CTemp> getFP();
 	shared_ptr<IAccess> getTP();
 	shared_ptr<IAccess> getLocal(const CSymbol* name);
@@ -73,8 +78,12 @@ public:
 	IExp* externalCall(const std::string& funcName, shared_ptr<ExpList> args);
 	~CFrame() {}
 private:
+	static CTempList* callDefsInit();
+
 	const Symbol::CSymbol* name;
 	shared_ptr<CTemp> framePointer;
+	
+	
 	int localOffset;
 	int formalOffset;
 	int varOffset;

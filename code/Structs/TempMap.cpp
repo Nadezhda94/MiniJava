@@ -1,4 +1,4 @@
-#include "TempMap.h"
+#include "../Structs/TempMap.h"
 
 namespace Temp {
 	//--------------------------------------------------------------------------------------------------------------
@@ -9,7 +9,7 @@ namespace Temp {
 	: tmapFirst(_tmapFirst), tmapSecond(_tmapSecond) {}
 
 
-	const std::string& CCombineMap::tempMap(shared_ptr<CTemp> t) {
+	const std::string& CCombineMap::tempMap(shared_ptr<const CTemp> t) {
 		const std::string& s = tmapFirst->tempMap(t);
 		if ( !s.empty() ) {
 			return s;
@@ -22,7 +22,7 @@ namespace Temp {
 	// CDefaultMap
 	//--------------------------------------------------------------------------------------------------------------
 
-	const std::string& CDefaultMap::tempMap(shared_ptr<CTemp> t) {
+	const std::string& CDefaultMap::tempMap(shared_ptr<const CTemp> t) {
 		return t->Name();
 	}
 }

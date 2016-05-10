@@ -14,7 +14,7 @@ namespace Assembler {
 	
 	CInstr::CInstr(const std::string& a) : assemCmd(a) {}
 
-	shared_ptr<CTemp> CInstr::getTemp(CTempList* l, int tempNumber) {
+	shared_ptr<const CTemp> CInstr::getTemp(CTempList* l, int tempNumber) {
 		if (tempNumber == 0) {
 			return l->head;
 		} else {
@@ -73,7 +73,7 @@ namespace Assembler {
 	// ALABEL
 	//--------------------------------------------------------------------------------------------------------------
 	
-	ALABEL::ALABEL(const std::string& a, CLabel* l) : CInstr(a), label(l) {}
+	ALABEL::ALABEL(const std::string& a, const CLabel* l) : CInstr(a), label(l) {}
 
 	CTempList* ALABEL::use() {
 		return nullptr;
@@ -91,7 +91,7 @@ namespace Assembler {
 	// AMOVE
 	//--------------------------------------------------------------------------------------------------------------
 	
-	AMOVE::AMOVE(const std::string& a, shared_ptr<CTemp> d, shared_ptr<CTemp> s) : CInstr(a), dst(d), src(s) {}	
+	AMOVE::AMOVE(const std::string& a, shared_ptr<const CTemp> d, shared_ptr<const CTemp> s) : CInstr(a), dst(d), src(s) {}	
 
 	CTempList* AMOVE::use() {
 		return new CTempList(src, nullptr);
