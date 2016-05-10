@@ -42,7 +42,6 @@ namespace Canon {
 		result.clear();
 		for ( int i = 0; i < linearized.size(); ++i ) {
 			shared_ptr<StmtList> listLin = linearized[i];
-			Print(cout, listLin);
 			BasicBlocks* blocks = new BasicBlocks( listLin );
 			TraceShedule* traceSh = new TraceShedule( blocks );
 			shared_ptr<StmtList> traced = traceSh->stms;
@@ -50,8 +49,8 @@ namespace Canon {
 		}
 	}
 
-	void Print(ostream& out, vector<INode*>& trees) {
-		CIRPrinter ir_print_vis( out, false );
+	void Print(ostream& out, ostream& gv, vector<INode*>& trees) {
+		CIRPrinter ir_print_vis( out, gv );
 		for ( int i = 0; i < trees.size(); ++i ) {
 			out << "=================================" << endl;
 			out << i << " tree" << endl;
@@ -60,8 +59,8 @@ namespace Canon {
 		}
 	}
 
-	void Print(ostream& out, vector<IStm*>& trees) {
-		CIRPrinter ir_print_vis( out, false );
+	void Print(ostream& out, ostream& gv, vector<IStm*>& trees) {
+		CIRPrinter ir_print_vis( out, gv );
 		for ( int i = 0; i < trees.size(); ++i ) {
 			out << "=================================" << endl;
 			out << i << " tree" << endl;
@@ -70,21 +69,21 @@ namespace Canon {
 		}
 	}
 
-	void Print(ostream& out, shared_ptr<StmtList> stmts) {
-		vector<IStm*> trees;
-		stmts->toVector(trees);
-		CIRPrinter ir_print_vis( out, false );
-		for ( int i = 0; i < trees.size(); ++i ) {
-			trees[i]->accept( &ir_print_vis );
-		}
+	void Print(ostream& out, ostream& gv, shared_ptr<StmtList> stmts) {
+
 	}
 
-	void Print(ostream& out, vector<shared_ptr<StmtList>>& stmts) {
+	void Print(ostream& out, ostream& gv, vector<shared_ptr<StmtList>>& stmts) {
+		CIRPrinter ir_print_vis( out, gv );
 		for ( int i = 0; i < stmts.size(); ++i ) {
 			out << "=================================" << endl;
 			out << i << " tree" << endl;
 			out << "=================================" << endl;
-			Print(out, stmts[i]);
+			vector<IStm*> trees;
+			stmts[i]->toVector(trees);
+			for ( int j = 0; j < trees.size(); ++j ) {
+				trees[j]->accept( &ir_print_vis );
+			}
 		}
 	}
 }

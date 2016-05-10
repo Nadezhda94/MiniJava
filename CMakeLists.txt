@@ -45,7 +45,11 @@ set(SOURCE_FILES
     code/Structs/Ast.cpp
     code/IRVisitors/Canonizer.cpp
     code/IRVisitors/Printer.cpp
-        code/IRVisitors/Optimizer.cpp
+    code/IRVisitors/Optimizer.cpp
+        code/Structs/TempMap.cpp
+        code/Structs/Temp.cpp
+        code/Structs/Codegen.cpp
+        code/Structs/Assembler.cpp
     code/main.cpp)
 
 SET_SOURCE_FILES_PROPERTIES(${Compilers_SOURCE_DIR}/code/simplejava.tab.cpp GENERATED)
@@ -54,9 +58,9 @@ SET_SOURCE_FILES_PROPERTIES(${Compilers_SOURCE_DIR}/code/lex.yy.cpp GENERATED)
 add_executable(Compilers ${SOURCE_FILES})
 add_dependencies(Compilers FlexBison)
 
-# Create custom command for flex/lex
 ADD_CUSTOM_COMMAND(
         TARGET Compilers
         POST_BUILD
         COMMAND rm
         ${Compilers_SOURCE_DIR}/code/lex.yy.cpp ${Compilers_SOURCE_DIR}/code/simplejava.tab.cpp ${Compilers_SOURCE_DIR}/code/simplejava.tab.hpp)
+

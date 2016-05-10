@@ -6,10 +6,8 @@ using namespace IRTree;
 
 class CIRPrinter: public CIRVisitor {
 public:
-	fstream gv;
 	~CIRPrinter();
-	CIRPrinter(ostream& _out);
-	CIRPrinter(ostream& _out, bool _withoutSEQ);
+	CIRPrinter(ostream& _out, ostream& _gv, bool _withoutSEQ = false);
 	void Visit(MOVE* node);
 	void Visit(EXP* node);
 	void Visit(JUMP* node);
@@ -26,6 +24,7 @@ public:
 	void Visit(IRTree::MoveCall* node);
 	void Visit(IRTree::ExpCall* node);
 private:
+	ostream& gv;
 	ostream& out;
 	bool withoutSEQ;
 	int counter = 0;

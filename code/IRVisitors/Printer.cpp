@@ -5,15 +5,9 @@ static const char * CJumpOpStrings[] = { "=", "!=", "<", ">", "<=", ">=", "u<", 
 
 CIRPrinter::~CIRPrinter(){
 	gv << "}" << endl;
-	gv.close();
 }
-CIRPrinter::CIRPrinter(ostream& _out): out(_out) {
-	gv.open("IRTree.gv");
+CIRPrinter::CIRPrinter(ostream& _out, ostream& _gv, bool _withoutSEQ /* = false */) : out(_out), gv(_gv), withoutSEQ(_withoutSEQ) {
 	gv << "digraph IRTree {" << endl;
-}
-CIRPrinter::CIRPrinter(ostream& _out, bool _withoutSEQ) : out(_out), withoutSEQ(_withoutSEQ) {
-		gv.open("IRTree.gv");
-		gv << "digraph IRTree {" << endl;
 }
 void CIRPrinter::Visit(MOVE* node) {
 	print_tabs(counter++);
