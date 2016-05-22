@@ -20,27 +20,27 @@ ostream& operator<< (ostream& s, CEdge<E> const & rhs){
 }
 
 template <class N>
-istream& operator>> (istream& s, CNode<N>& rhs){
+istream& operator>> (istream& s, CGraphNode<N>& rhs){
 	s>>rhs.N;
 	return s;
 }
 template <class N>
-ostream& operator<< (ostream& s, CNode<N> const & rhs){
+ostream& operator<< (ostream& s, CGraphNode<N> const & rhs){
 	s<<rhs.index<<" "<<rhs.value;
 	return s;
 }
 
 template <class E, class N>
-struct CGraph<E,N>::iterator : std::iterator<ptrdiff_t, CNode<N>, CNode<N>*, CNode<N>&, bidirectional_iterator_tag>{
+struct CGraph<E,N>::iterator : std::iterator<ptrdiff_t, CGraphNode<N>, CGraphNode<N>*, CGraphNode<N>&, bidirectional_iterator_tag>{
 	typedef iterator          Self;
 	CGraph<E,N>* _CGraph;
-	CNode<N>* _node;
+	CGraphNode<N>* _node;
 
 	iterator() : _CGraph(), _node() {}
-	explicit iterator(CNode<N>* __x, CGraph<E,N>* __g) :  _CGraph(__g), _node(__x){}
+	explicit iterator(CGraphNode<N>* __x, CGraph<E,N>* __g) :  _CGraph(__g), _node(__x){}
 
-	CNode<N> operator*() const { return *(_node); }
-	CNode<N>* operator->() const { return _node; }
+	CGraphNode<N> operator*() const { return *(_node); }
+	CGraphNode<N>* operator->() const { return _node; }
 	Self& up(){
 		set<int> parents=_CGraph->getNodesIndexToNode(_node->index);
 		if (!parents.empty())
@@ -85,9 +85,9 @@ struct CGraph<E,N>::iterator : std::iterator<ptrdiff_t, CNode<N>, CNode<N>*, CNo
 template <class E, class N>
 int CGraph<E,N>::addNode(N value){
 	if ( !nodes.empty() )
-		nodes.push_back(CNode<N>(nodes.back().index+1, value));
+		nodes.push_back(CGraphNode<N>(nodes.back().index+1, value));
 	else
-		nodes.push_back(CNode<N>(0, value));
+		nodes.push_back(CGraphNode<N>(0, value));
 	return nodes.back().index;
 }
 
@@ -206,7 +206,7 @@ bool CGraph<E,N>::isNodeExists(N _node) const{
 }
 
 template <class E, class N>
-CNode<N>& CGraph<E,N>::getNode(int __index){
+CGraphNode<N>& CGraph<E,N>::getNode(int __index){
 	for (auto& i : nodes)
 		if (i.index==__index)
 			return (i);
@@ -215,7 +215,7 @@ CNode<N>& CGraph<E,N>::getNode(int __index){
 }
 
 template <class E, class N>
-CNode<N>& CGraph<E,N>::getNode(N value){
+CGraphNode<N>& CGraph<E,N>::getNode(N value){
 	for (auto& i : nodes)
 		if (i.value==value)
 			return (i);
@@ -261,8 +261,8 @@ set<int> CGraph<E,N>::getNodesIndexFromNode(int __index) const{
 }
 
 template <class E, class N>
-set<CNode<N>> CGraph<E,N>::getNodesCopyFromNode(int __index) const{
-	set<CNode<N>> res;
+set<CGraphNode<N>> CGraph<E,N>::getNodesCopyFromNode(int __index) const{
+	set<CGraphNode<N>> res;
 	for (auto i : edges)
 		if (i.first==__index)
 			res.insert(i);
@@ -297,8 +297,8 @@ set<int> CGraph<E,N>::getNodesIndexToNode(int __index) const{
 }
 
 template <class E, class N>
-set<CNode<N>&> CGraph<E,N>::getNodesFromNode(int __index){
-	set<CNode<N>&> res;
+set<CGraphNode<N>&> CGraph<E,N>::getNodesFromNode(int __index){
+	set<CGraphNode<N>&> res;
 	for (auto i : edges)
 		if (i.first==__index)
 			res.insert( getNode(i.second) );
@@ -306,8 +306,8 @@ set<CNode<N>&> CGraph<E,N>::getNodesFromNode(int __index){
 }
 
 template <class E, class N>
-set<CNode<N>&> CGraph<E,N>::getNodesToNode(int __index){
-	set<CNode<N>&> res;
+set<CGraphNode<N>&> CGraph<E,N>::getNodesToNode(int __index){
+	set<CGraphNode<N>&> res;
 	for (auto i : edges)
 		if (i.second==__index)
 			res.insert( getNode(i.first) );
@@ -315,8 +315,8 @@ set<CNode<N>&> CGraph<E,N>::getNodesToNode(int __index){
 }
 
 template <class E, class N>
-set<CNode<N>> CGraph<E,N>::getNodesCopyToNode(int __index) const{
-	set<CNode<N>> res;
+set<CGraphNode<N>> CGraph<E,N>::getNodesCopyToNode(int __index) const{
+	set<CGraphNode<N>> res;
 	for (auto i : edges)
 		if (i.second==__index)
 			res.insert(i);
@@ -329,8 +329,8 @@ list< CEdge<E> > CGraph<E,N>::getAllEdgesCopy() const{
 }
 
 template <class E, class N>
-list< CNode<N> > CGraph<E,N>::getAllNodesCopy() const{
-	return(list< CNode<N> >(nodes));
+list< CGraphNode<N> > CGraph<E,N>::getAllNodesCopy() const{
+	return(list< CGraphNode<N> >(nodes));
 }
 
 /// Algorithms
@@ -396,7 +396,7 @@ CGraph<E,N> CGraph<E,N>::BFS(int __index){
 }
 
 template <class E, class N>
-void CGraph<E,N>::DFS(bool& cycled, list<CNode<N>*>& ordered){
+void CGraph<E,N>::DFS(bool& cycled, list<CGraphNode<N>*>& ordered){
 	vector<int> colors(nodes.size(), 0);
 	int time=0;
 	for (auto i : nodes)
@@ -405,7 +405,7 @@ void CGraph<E,N>::DFS(bool& cycled, list<CNode<N>*>& ordered){
 		}
 }
 template <class E, class N>
-void CGraph<E,N>::DFS_visit(int current, vector<int>& colors, int& time, bool& cycled, list<CNode<N>*>& ordered){
+void CGraph<E,N>::DFS_visit(int current, vector<int>& colors, int& time, bool& cycled, list<CGraphNode<N>*>& ordered){
 	colors[current]=1;
 	time++;
 	set<int> children=getNodesIndexFromNode(current);
@@ -421,8 +421,8 @@ void CGraph<E,N>::DFS_visit(int current, vector<int>& colors, int& time, bool& c
 	time++;
 }
 template <class E, class N>
-pair<bool, list<CNode<N> > > CGraph<E,N>::TSort(){
-	list<CNode<N>> ordered;
+pair<bool, list<CGraphNode<N> > > CGraph<E,N>::TSort(){
+	list<CGraphNode<N>> ordered;
 	bool cycled=false;
 	DFS(cycled, ordered);
 	return make_pair(cycled, ordered);

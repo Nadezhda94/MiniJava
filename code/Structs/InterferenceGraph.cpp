@@ -8,7 +8,7 @@ namespace RegAlloc {
 		map< int, set<const CTemp*> > outOld;
 
 		bool cycled;
-		list<CNode<CInstr*>*> ordered;
+		list<CGraphNode<CInstr*>*> ordered;
 		flowGraph.DFS(cycled, ordered);
 		set<const CTemp*> inDiff;
 		set<const CTemp*> outDiff;
@@ -16,7 +16,7 @@ namespace RegAlloc {
 			inDiff.clear();
 			outDiff.clear();
 			for (auto it = ordered.begin(); it != ordered.end(); it++){
-				CNode<CInstr*>* node = (*it);
+				CGraphNode<CInstr*>* node = (*it);
 				int index = node->index;
 				inOld[index] = in[index];
 				outOld[index] = out[index];
@@ -50,7 +50,7 @@ namespace RegAlloc {
 
 		set<const CTemp*> allTemps;
 		for (auto it = ordered.begin(); it != ordered.end(); it++) {
-			CNode<CInstr*>* node = (*it);
+			CGraphNode<CInstr*>* node = (*it);
 			set<const CTemp*> defs = flowGraph.GetDef(node->index);
 			allTemps.insert( defs.begin(), defs.end() );
 		}
@@ -59,7 +59,7 @@ namespace RegAlloc {
 		}
 
 		for (auto i = ordered.begin(); i != ordered.end(); i++) {
-			CNode<CInstr*>* node = (*i);
+			CGraphNode<CInstr*>* node = (*i);
 			int index = node->index;
 			AMOVE* move = dynamic_cast<AMOVE*>(node->value);
 			if ( move != 0 ){

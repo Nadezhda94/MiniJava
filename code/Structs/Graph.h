@@ -41,18 +41,18 @@ struct CEdge{
     friend ostream& operator<< <>(ostream& s, CEdge<E> const & rhs);
 };
 
-template <class N> struct CNode;
-template <class N> istream& operator>> (istream&, CNode<N>&);
-template <class N> ostream& operator<< (ostream&, CNode<N> const &);
+template <class N> struct CGraphNode;
+template <class N> istream& operator>> (istream&, CGraphNode<N>&);
+template <class N> ostream& operator<< (ostream&, CGraphNode<N> const &);
 template <class N>
-struct CNode{
+struct CGraphNode{
     int index;
     N value;
-    CNode(int __index, N __val) : index(__index), value(__val) {}
-    bool operator==(const CNode& rhs) const{ return (index==rhs.index && value==rhs.value); }
-    bool operator< (const CNode& rhs) const{ return (index<rhs.index); }
-    friend istream& operator>> <>(istream& s, CNode<N>& rhs);
-    friend ostream& operator<< <>(ostream& s, CNode<N> const & rhs);
+    CGraphNode(int __index, N __val) : index(__index), value(__val) {}
+    bool operator==(const CGraphNode& rhs) const{ return (index==rhs.index && value==rhs.value); }
+    bool operator< (const CGraphNode& rhs) const{ return (index<rhs.index); }
+    friend istream& operator>> <>(istream& s, CGraphNode<N>& rhs);
+    friend ostream& operator<< <>(ostream& s, CGraphNode<N> const & rhs);
 };
 
 
@@ -65,9 +65,9 @@ class CGraph{
     typedef pair<bool, E> EdgeProp;
 private:
     list< CEdge<E> > edges;
-    list< CNode<N> > nodes;
+    list< CGraphNode<N> > nodes;
 public:
-    CGraph() : edges(list< CEdge<E> >(0, CEdge<E>(0, 0, 0, E()))), nodes(list< CNode<N> >(0, CNode<N>(0, N()))) {}
+    CGraph() : edges(list< CEdge<E> >(0, CEdge<E>(0, 0, 0, E()))), nodes(list< CGraphNode<N> >(0, CGraphNode<N>(0, N()))) {}
 
 
     int addNode(N);
@@ -87,21 +87,21 @@ public:
     set<int> getEdgesIndexToNode(int) const;
     list<CEdge<E>> getAllEdgesCopy() const;
 
-    CNode<N>& getNode(int);
-    CNode<N>& getNode(N);
+    CGraphNode<N>& getNode(int);
+    CGraphNode<N>& getNode(N);
     set<int> getNodesIndexFromNode(int) const;
     set<int> getNodesIndexToNode(int) const;
-    set<CNode<N>> getNodesCopyFromNode(int) const;
-    set<CNode<N>> getNodesCopyToNode(int) const;
-    set<CNode<N>&> getNodesFromNode(int);
-    set<CNode<N>&> getNodesToNode(int);
-    list<CNode<N>> getAllNodesCopy() const;
+    set<CGraphNode<N>> getNodesCopyFromNode(int) const;
+    set<CGraphNode<N>> getNodesCopyToNode(int) const;
+    set<CGraphNode<N>&> getNodesFromNode(int);
+    set<CGraphNode<N>&> getNodesToNode(int);
+    list<CGraphNode<N>> getAllNodesCopy() const;
 
     vector<E> Dijkstra(int, E);
     CGraph<E,N> BFS(int);
-    void DFS(bool&, list<CNode<N>*>&);
-    void DFS_visit(int , vector<int>&, int&, bool&, list<CNode<N>*>&);
-    pair<bool, list<CNode<N>>> TSort();
+    void DFS(bool&, list<CGraphNode<N>*>&);
+    void DFS_visit(int , vector<int>&, int&, bool&, list<CGraphNode<N>*>&);
+    pair<bool, list<CGraphNode<N>>> TSort();
 
     friend istream& operator>> <>(istream&, CGraph<E,N>&);
     friend ostream& operator<< <>(ostream&, CGraph<E,N> const &);

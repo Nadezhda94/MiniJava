@@ -1,7 +1,7 @@
 #include "../Structs/FlowGraph.h"
 
 namespace FlowGraph {
-	CFlowGraph::CFlowGraph(const CInstrList* instructions){
+	void CFlowGraph::Build(const CInstrList* instructions){
 		map<const CLabel*, int> labelToNode;
 		
 		// Первый проход - сбор ALABEL и их соответствий с CLabel*, добавление вершин
@@ -26,7 +26,7 @@ namespace FlowGraph {
 			if ( targets != 0 ) {
 				CLabelList* labels = targets->labels;
 				while ( labels != 0 ) {
-					CLabel* label = labels->head;
+					const CLabel* label = labels->head;
 					assert( label != 0 );
 					addEdge( getNode(node).index, labelToNode[label] );
 					labels = labels->tail;

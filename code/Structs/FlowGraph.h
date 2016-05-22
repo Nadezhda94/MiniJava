@@ -10,7 +10,8 @@ namespace FlowGraph {
 	using namespace Temp;
 	class CFlowGraph : public CGraph<int, CInstr*> {
 	public:
-		CFlowGraph(const CInstrList* instructions);
+		CFlowGraph() : CGraph<int, CInstr*>() {}
+		void Build(const CInstrList* instructions);
 		CInstr* GetInstr(int node);
 		set<const CTemp*> GetDef( int node );
 		set<const CTemp*> GetUse( int node );
