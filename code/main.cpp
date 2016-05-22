@@ -7,6 +7,7 @@
 #include "IRVisitors/Printer.h"
 #include "IRVisitors/Canonizer.h"
 #include "IRVisitors/Optimizer.h"
+#include "IRVisitors/CodeGenerator.h"
 
 extern FILE * yyin;
 extern int yyparse();
@@ -81,6 +82,11 @@ int main(int argc, char** argv) {
 		Canon::Trace(linearized_blocks, traced_blocks);
 		Canon::Print(ofs, gv, traced_blocks);
 		gv.close();
+		ofs.close();
+
+		cout << "CodeGen..." << endl;
+		ofs.open("Logs/CodeGen.log", ofstream::out);
+		GenerateCode(ofs, traced_blocks);
 		ofs.close();
 
 		cout << "SUCCESS" << endl;

@@ -62,9 +62,8 @@ class CFrame: public CTempMap {
 public:
 	static const int wordSize = 4;
 	static CTempList* callDefs;
-	/*static*/CTempList* registers;
+	static CTempList* registers;
 	CFrame( const Symbol::CSymbol* _name);
-	/*static*/CTempList* Registers();
 	/*static*/const std::string& tempMap(shared_ptr<const CTemp> t);
 	shared_ptr<CTemp> getFP();
 	shared_ptr<IAccess> getTP();
@@ -79,6 +78,7 @@ public:
 	~CFrame() {}
 private:
 	static CTempList* callDefsInit();
+	static CTempList* registersInit();
 
 	const Symbol::CSymbol* name;
 	shared_ptr<CTemp> framePointer;

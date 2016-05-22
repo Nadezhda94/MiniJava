@@ -8,9 +8,9 @@ using namespace Assembler;
 
 class CCodegen {
 public:
-	shared_ptr<Frame::CFrame> frame;
 
-	CCodegen(shared_ptr<Frame::CFrame> f);
+
+	CCodegen();
 	
 
 	void MunchStm(IRTree::IStm* s);
@@ -26,14 +26,23 @@ public:
 	CTempList* MunchArgs(shared_ptr<ExpList>);
 
 	shared_ptr<const Temp::CTemp>  MunchExp(IRTree::IExp* exp);
-	shared_ptr<const Temp::CTemp> MunchBinop(IRTree::CONST* cst, IRTree::IExp* exp);
-	shared_ptr<const Temp::CTemp> MunchBinop(IRTree::IExp* src, IRTree::IExp* exp);
+	shared_ptr<const Temp::CTemp> MunchBinop(
+		IRTree::CONST* cst, 
+		IRTree::IExp* exp, 
+		ArithmeticOpType binop);
+	shared_ptr<const Temp::CTemp> MunchBinop(
+		IRTree::IExp* src, 
+		IRTree::IExp* exp, 
+		ArithmeticOpType binop);
 
 	CInstrList* Codegen(IRTree::IStm* s);
 private:
 	CInstrList* instrList;
 	CInstrList* last;
-
+	static std::vector<std::string> opNames;
+	static std::vector<std::string> opSymbols;
+	static std::vector<std::string> initOpNames();
+	static std::vector<std::string> initOpSymbols();
 	void emit(CInstr* instr);
 };
 
