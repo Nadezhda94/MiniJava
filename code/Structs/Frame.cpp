@@ -10,7 +10,7 @@ namespace Frame {
 
 	IExp* CVarAccess::getExp() {
 		return new MEM( new BINOP( ArithmeticOpType::PLUS_OP,
-								   static_cast<IExp*>(new MEM( frame->getTP()->getExp())),
+								   static_cast<IExp*>( frame->getTP()->getExp()),
 								   static_cast<IExp*>(new CONST( offset ))));
 	}
 
@@ -19,7 +19,7 @@ namespace Frame {
 	}
 
 	CFrame::CFrame( const Symbol::CSymbol* _name):
-			name(_name), localOffset(0), formalOffset(-4), framePointer(new CTemp()) {
+			name(_name), varOffset(0), localOffset(0), formalOffset(-4), framePointer(new CTemp()) {
 		//TODO: заполнить регистры
 	}
 

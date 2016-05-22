@@ -17,7 +17,7 @@ namespace Assembler {
 	shared_ptr<const CTemp> CInstr::getTemp(CTempList* l, int tempNumber) {
 		if (l == 0) {
 			std::cerr << tempNumber << std::endl;
-			return  std::make_shared<CTemp>();
+			//return  std::make_shared<CTemp>();
 		}
 		if (tempNumber == 0) {
 			return l->head;
@@ -31,14 +31,14 @@ namespace Assembler {
 
 	const CLabel* CInstr::getLabel(CLabelList* l, int tempNumber) {
 		if (l == 0) {
-			std::cerr << tempNumber << std::endl;
-			return new CLabel();
+			//std::cerr << tempNumber << std::endl;
+			//return new CLabel();
 		}
 		if (tempNumber == 0) {
 			return l->head;
 		} else {
 			if (l->tail == 0) {
-				std::cerr << tempNumber << std::endl;
+				//std::cerr << tempNumber << std::endl;
 			}
 			return getLabel(l->tail, tempNumber - 1);
 		}
@@ -50,7 +50,7 @@ namespace Assembler {
 		CTargets* j = jumps();
 		CLabelList* jump = ( j == nullptr) ? nullptr : j->labels;
 		std::string s;
-		std::cerr << assemCmd << std::endl;
+		//std::cerr << assemCmd << std::endl;
 		int len = assemCmd.length();
 		for (int i = 0; i < len; ++i) {
 			if (assemCmd[i] == '`') {
