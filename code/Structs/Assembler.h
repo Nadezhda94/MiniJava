@@ -10,7 +10,7 @@ namespace Assembler {
 	public:
 		CTargets(CLabelList* _labels);
 		CLabelList* labels;
-		
+
 	};
 
 	class CInstr {

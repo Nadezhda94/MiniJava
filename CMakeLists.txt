@@ -50,7 +50,7 @@ set(SOURCE_FILES
         code/Structs/Temp.cpp
         code/Structs/Codegen.cpp
         code/Structs/Assembler.cpp
-    code/main.cpp)
+    code/main.cpp code/Structs/FlowGraph.cpp code/Structs/InterferenceGraph.cpp code/Structs/InterferenceGraph.h code/IRVisitors/Coloring.cpp code/IRVisitors/Coloring.h code/IRVisitors/CodeGenerator.cpp)
 
 SET_SOURCE_FILES_PROPERTIES(${Compilers_SOURCE_DIR}/code/simplejava.tab.cpp GENERATED)
 SET_SOURCE_FILES_PROPERTIES(${Compilers_SOURCE_DIR}/code/lex.yy.cpp GENERATED)
