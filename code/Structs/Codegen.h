@@ -27,13 +27,13 @@ public:
 
 	shared_ptr<const Temp::CTemp>  MunchExp(IRTree::IExp* exp);
 	shared_ptr<const Temp::CTemp> MunchBinop(
-		IRTree::CONST* cst, 
-		IRTree::IExp* exp, 
-		ArithmeticOpType binop);
+											IRTree::CONST* cst, 
+											IRTree::IExp* exp, 
+											ArithmeticOpType binop);
 	shared_ptr<const Temp::CTemp> MunchBinop(
-		IRTree::IExp* src, 
-		IRTree::IExp* exp, 
-		ArithmeticOpType binop);
+											IRTree::IExp* src, 
+											IRTree::IExp* exp, 
+											ArithmeticOpType binop);
 
 	CInstrList* Codegen(IRTree::IStm* s);
 private:

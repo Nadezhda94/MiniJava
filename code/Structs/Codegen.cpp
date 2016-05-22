@@ -182,7 +182,7 @@ shared_ptr<const Temp::CTemp>  CCodegen::MunchExp(IExp* exp) {
 	MEM* mem = dynamic_cast<MEM*>(exp);
 	if ( mem != 0) {
 		BINOP* binop = dynamic_cast<BINOP*>(mem->exp);
-		
+		 if (binop != 0) {
 			CONST* cst = dynamic_cast<CONST*>(binop->right);
 			if (cst != 0) {
 				//MEM(BINOP(PLUS,e1,CONST(i)))
@@ -203,8 +203,8 @@ shared_ptr<const Temp::CTemp>  CCodegen::MunchExp(IExp* exp) {
 					);
 				return r;
 			}
-		
-		cst = dynamic_cast<CONST*>(mem->exp);
+		}
+		CONST* cst = dynamic_cast<CONST*>(mem->exp);
 		if (cst != 0) {
 			//MEM(CONST(i))
 			shared_ptr<const CTemp> r = make_shared<const CTemp>();
@@ -223,7 +223,6 @@ shared_ptr<const Temp::CTemp>  CCodegen::MunchExp(IExp* exp) {
 
 	BINOP* binop = dynamic_cast<BINOP*>(exp);
 	if ( (binop != 0) ) {
-		std::cerr << "A djn z Z!" << std::endl;
 		return MunchBinop(binop->left, binop->right, binop->binop);
 	}
 	CONST* cst = dynamic_cast<CONST*>(exp);
@@ -236,7 +235,6 @@ shared_ptr<const Temp::CTemp>  CCodegen::MunchExp(IExp* exp) {
 	}
 	TEMP* t = dynamic_cast<TEMP*>(exp);
 	if (t != 0) {
-		std::cerr << "temp";
 		return t->temp;
 	}
 	CALL* call = dynamic_cast<CALL*>(exp);

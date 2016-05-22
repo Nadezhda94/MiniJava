@@ -65,6 +65,7 @@ public:
 	static CTempList* registers;
 	CFrame( const Symbol::CSymbol* _name);
 	/*static*/const std::string& tempMap(shared_ptr<const CTemp> t);
+	
 	shared_ptr<CTemp> getFP();
 	shared_ptr<IAccess> getTP();
 	shared_ptr<IAccess> getLocal(const CSymbol* name);

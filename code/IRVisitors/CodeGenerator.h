@@ -20,7 +20,7 @@ void GenerateCode(ostream& out, const vector<shared_ptr<StmtList>>& blocks) {
 			}
 			while (instructs != 0) {
 				if (instructs->head  != 0) {
-					cout << "ohoho" << endl;
+					//cout << "ohoho" << endl;
 					out << instructs->head->format(defMap);
 				} 
 				instructs = instructs->tail;
