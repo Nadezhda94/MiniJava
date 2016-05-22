@@ -82,24 +82,44 @@ namespace Frame {
 		return new CALL(new NAME(shared_ptr<CLabel>(new CLabel(funcName))), args);
 	}
 
-	CTempList* CFrame::callDefsInit() {
-		CTempList* l = new CTempList(std::make_shared<CTemp>("esp"), 
-										new CTempList( std::make_shared<CTemp>("ebp"), 
-														new CTempList(std::make_shared<CTemp>("ecx"), 
-															nullptr)) );
+	CTempList* CFrame::GetAllRegisters() {
+		std::unordered_map<std::string, shared_ptr<const CTemp>>::iterator it;
+		CTempList* toReturn = nullptr;
+		CTempList* l = toReturn;
 
+		for (it = allRegisters.begin(); it != allRegisters.end(); ++it) {
+			l = new CTempList(it->second, nullptr);
+			if (toReturn == nullptr) {
+				toReturn = l;
+			}
+			l = l->tail;
+		}
+		return toReturn;
 	}
 
-	CTempList* CFrame::registersInit() {
-		CTempList* l = new CTempList(std::make_shared<const CTemp>("eax"), 
-										new CTempList( std::make_shared<const CTemp>("ebx"), 
-														new CTempList(std::make_shared<const CTemp>("ecx"), 
-																		new CTempList(std::make_shared<const CTemp>("edx"), 
-																			nullptr))) );
+	
 
+	std::unordered_map<std::string, shared_ptr<const CTemp>> CFrame::registersInit() {
+		std::unordered_map<std::string, shared_ptr<const CTemp>> regs;
+		regs["eax"] = std::make_shared<const CTemp>("eax");
+		regs["ebx"] = std::make_shared<const CTemp>("ebx");
+		regs["ecx"] = std::make_shared<const CTemp>("ecx");
+		regs["edx"] = std::make_shared<const CTemp>("edx");
+		regs["ebp"] = std::make_shared<const CTemp>("ebp");
+		regs["esp"] = std::make_shared<const CTemp>("esp");
+		return regs;
 	}
 
-	CTempList* CFrame::callDefs = CFrame::callDefsInit();
+	shared_ptr<const CTemp> CFrame::CallerSaveRegister() {
+		return allRegisters["ecx"];
+	}
 
-	CTempList* CFrame::registers = CFrame::registersInit();
+	CTempList* CFrame::PreColoredRegisters() {
+		return new CTempList(allRegisters["ecx"], new CTempList(allRegisters["ebp"], 
+			new CTempList(allRegisters["esp"], nullptr)));
+	}
+
+	std::unordered_map<std::string, shared_ptr<const CTemp>> CFrame::allRegisters = CFrame::registersInit();
+
+
 }

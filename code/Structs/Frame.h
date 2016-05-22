@@ -61,8 +61,10 @@ class CFrame: public CTempMap {
 // Класс-контейнер с платформо-зависимой информацией о функции
 public:
 	static const int wordSize = 4;
-	static CTempList* callDefs;
-	static CTempList* registers;
+	static std::unordered_map<std::string, shared_ptr<const CTemp>> allRegisters;
+	static CTempList* PreColoredRegisters();
+	static CTempList* GetAllRegisters();
+	static shared_ptr<const CTemp> CallerSaveRegister();
 	CFrame( const Symbol::CSymbol* _name);
 	/*static*/const std::string& tempMap(shared_ptr<const CTemp> t);
 	
@@ -78,8 +80,7 @@ public:
 	IExp* externalCall(const std::string& funcName, shared_ptr<ExpList> args);
 	~CFrame() {}
 private:
-	static CTempList* callDefsInit();
-	static CTempList* registersInit();
+	static std::unordered_map<std::string, shared_ptr<const CTemp>> registersInit();
 
 	const Symbol::CSymbol* name;
 	shared_ptr<CTemp> framePointer;
