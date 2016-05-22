@@ -440,9 +440,9 @@ namespace Translate {
 	}
 
 	const CSymbol* CTranslator::getMallocFuncName() {
-		return symbolsStorage->get("#malloc");
+		return symbolsStorage->get("_malloc");
 	}
 	const CSymbol* CTranslator::getPrintFuncName() {
-		return symbolsStorage->get("#print");
+		return symbolsStorage->get("_print");
 	}
 }

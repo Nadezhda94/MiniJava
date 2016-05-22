@@ -23,10 +23,6 @@ namespace Frame {
 		//TODO: заполнить регистры
 	}
 
-	CTempList* CFrame::Registers() {
-		return registers;
-	}
-
 	const std::string& CFrame::tempMap(shared_ptr<const CTemp> t) {
 		return t->Name();
 	}
@@ -88,8 +84,22 @@ namespace Frame {
 
 	CTempList* CFrame::callDefsInit() {
 		CTempList* l = new CTempList(std::make_shared<CTemp>("esp"), 
-										new CTempList( std::make_shared<CTemp>("ebp"), nullptr) );
+										new CTempList( std::make_shared<CTemp>("ebp"), 
+														new CTempList(std::make_shared<CTemp>("ecx"), 
+															nullptr)) );
 
 	}
+
+	CTempList* CFrame::registersInit() {
+		CTempList* l = new CTempList(std::make_shared<const CTemp>("eax"), 
+										new CTempList( std::make_shared<const CTemp>("ebx"), 
+														new CTempList(std::make_shared<const CTemp>("ecx"), 
+																		new CTempList(std::make_shared<const CTemp>("edx"), 
+																			nullptr))) );
+
+	}
+
 	CTempList* CFrame::callDefs = CFrame::callDefsInit();
+
+	CTempList* CFrame::registers = CFrame::registersInit();
 }

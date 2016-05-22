@@ -53,9 +53,9 @@ public:
 
 class CLabelList {
 public:
-	CLabelList(CLabel* _head, CLabelList* _tail);
+	CLabelList(const CLabel* _head, CLabelList* _tail);
 
-	CLabel* head;
+	const CLabel* head;
 	CLabelList* tail;
 };
 }

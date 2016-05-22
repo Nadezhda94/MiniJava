@@ -15,17 +15,31 @@ namespace Assembler {
 	CInstr::CInstr(const std::string& a) : assemCmd(a) {}
 
 	shared_ptr<const CTemp> CInstr::getTemp(CTempList* l, int tempNumber) {
+		if (l == 0) {
+			std::cerr << tempNumber << std::endl;
+			return  std::make_shared<CTemp>();
+		}
 		if (tempNumber == 0) {
 			return l->head;
 		} else {
+			if (l->tail == 0) {
+				std::cerr << tempNumber << std::endl;
+			}
 			return getTemp(l->tail, tempNumber - 1);
 		}
 	}
 
-	CLabel* CInstr::getLabel(CLabelList* l, int tempNumber) {
+	const CLabel* CInstr::getLabel(CLabelList* l, int tempNumber) {
+		if (l == 0) {
+			std::cerr << tempNumber << std::endl;
+			return new CLabel();
+		}
 		if (tempNumber == 0) {
 			return l->head;
 		} else {
+			if (l->tail == 0) {
+				std::cerr << tempNumber << std::endl;
+			}
 			return getLabel(l->tail, tempNumber - 1);
 		}
 	}
@@ -36,24 +50,31 @@ namespace Assembler {
 		CTargets* j = jumps();
 		CLabelList* jump = ( j == nullptr) ? nullptr : j->labels;
 		std::string s;
+		std::cerr << assemCmd << std::endl;
 		int len = assemCmd.length();
 		for (int i = 0; i < len; ++i) {
-			if (assemCmd[i] = '`') {
-				int n = std::stoi(&assemCmd[++i]);
+			if (assemCmd[i] == '`') {
+
+				int n = 0;
 				switch(assemCmd[++i]) {
 					case 's':
+						n = std::stoi(&assemCmd[++i]);
 						s.append(m->tempMap(getTemp(src, n)));
 						break;
 					case 'd':
+						n = std::stoi(&assemCmd[++i]);
 						s.append(m->tempMap(getTemp(dst, n)));
 						break;
 					case 'j':
+						n = std::stoi(&assemCmd[++i]);
 						s.append(getLabel(jump, n)->Name());
 						break;
 					case '`':
 						s.append("`");
 						break;
 					default:
+						std::cerr << "ERROR" << std::endl;
+						std::cerr << assemCmd << std::endl;
 						throw new std::invalid_argument("assembler syntax error");
 				}
 			} else {

@@ -23,7 +23,7 @@ namespace Assembler {
 		virtual CTargets* jumps() = 0;
 
 		shared_ptr<const CTemp> getTemp(CTempList* l, int tempNumber);
-  		CLabel* getLabel(CLabelList* l, int tempNumber);
+  		const CLabel* getLabel(CLabelList* l, int tempNumber);
   		std::string format(CTempMap* m);
 	};
 
