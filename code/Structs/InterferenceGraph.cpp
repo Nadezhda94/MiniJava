@@ -1,6 +1,7 @@
 #include "../Structs/InterferenceGraph.h"
+
 namespace RegAlloc {
-	CInterferenceGraph::CInterferenceGraph( CFlowGraph &flowGraph ) {
+	void CInterferenceGraph::Build( CFlowGraph& flowGraph ){
 		map< int, set<const CTemp*> > in;
 		map< int, set<const CTemp*> > inOld;
 		map< int, set<const CTemp*> > out;
@@ -8,7 +9,7 @@ namespace RegAlloc {
 
 		bool cycled;
 		list<CNode<CInstr*>*> ordered;
-		flowGraph.DFS( cycled, ordered );
+		flowGraph.DFS(cycled, ordered);
 		set<const CTemp*> inDiff;
 		set<const CTemp*> outDiff;
 		do {
@@ -50,7 +51,7 @@ namespace RegAlloc {
 		set<const CTemp*> allTemps;
 		for (auto it = ordered.begin(); it != ordered.end(); it++) {
 			CNode<CInstr*>* node = (*it);
-			set<const CTemp*> defs = node->value->def()->GetSet();
+			set<const CTemp*> defs = flowGraph.GetDef(node->index);
 			allTemps.insert( defs.begin(), defs.end() );
 		}
 		for (auto it = allTemps.begin(); it != allTemps.end(); it++) {
@@ -60,12 +61,28 @@ namespace RegAlloc {
 		for (auto i = ordered.begin(); i != ordered.end(); i++) {
 			CNode<CInstr*>* node = (*i);
 			int index = node->index;
-			set<const CTemp*> defs = node->value->def()->GetSet();
-			for (auto j = defs.begin(); j != defs.end(); j++) {
-				for (auto k = out[index].begin(); k != out[index].end(); k++) {
-					addBiEdge( getNode((*k)).index, getNode((*j)).index );
+			AMOVE* move = dynamic_cast<AMOVE*>(node->value);
+			if ( move != 0 ){
+				set<const CTemp*> use = flowGraph.GetUse(index);
+				set<const CTemp*> all = flowGraph.GetDef(index);
+				all.insert(use.begin(), use.end());
+				for (auto j = all.begin(); j != all.end(); j++) {
+					movesAssociated[getNode(*j).index].insert(move);
+					movesAssociated[getNode(*j).index].insert(move);
+				}
+				worklistMoves.insert(move);
+			} else {
+				set<const CTemp*> def = flowGraph.GetDef(index);
+				for (auto j = def.begin(); j != def.end(); j++) {
+					for (auto k = out[index].begin(); k != out[index].end(); k++) {
+						addBiEdge( getNode((*k)).index, getNode((*j)).index );
+					}
 				}
 			}
+
 		}
+	}
+	void Simplify(){
+
 	}
 }
