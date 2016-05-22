@@ -11,6 +11,10 @@
 #include <map>
 #include <ostream>
 #include <fstream>
+#include <iterator>
+#include <set>
+#include <list>
+#include <algorithm>
 
 using namespace std;
 

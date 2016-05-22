@@ -37,7 +37,18 @@ public:
 	CTempList(shared_ptr<const CTemp> _head, CTempList* _tail);
 
 	shared_ptr<const CTemp> head;
-	CTempList* tail;	
+	CTempList* tail;
+
+	set<const CTemp*> GetSet() {
+		CTempList* cur = this;
+		set<const CTemp*> res;
+		while ( cur != 0 ) {
+			assert( cur->head != 0 );
+			res.insert(cur->head.get());
+			cur = cur->tail;
+		}
+		return res;
+	}
 };
 
 class CLabelList {
