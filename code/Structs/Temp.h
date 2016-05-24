@@ -35,6 +35,7 @@ private:
 class CTempList {
 public:
 	CTempList(shared_ptr<const CTemp> _head, CTempList* _tail);
+	CTempList* Reverse();
 
 	shared_ptr<const CTemp> head;
 	CTempList* tail;

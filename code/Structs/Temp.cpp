@@ -35,5 +35,6 @@ namespace Temp {
 
 	CTempList::CTempList(shared_ptr<const CTemp> _head, CTempList* _tail) : head(_head), tail(_tail) {}
 
+
 	CLabelList::CLabelList(const CLabel* _head, CLabelList* _tail) : head(_head), tail(_tail) {}
 }

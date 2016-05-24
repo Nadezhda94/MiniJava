@@ -64,11 +64,11 @@ void CCodegen::MunchExpCall(CALL* call) {
 	NAME* name = dynamic_cast<NAME*>(call->func);
 	if (name != 0) {
 		CTempList* l = MunchArgs(call->args);
-		emit(new AOPER("CALL " + name->label->Name() + "\n", CFrame::callDefs, l)); 
+		emit(new AOPER("CALL " + name->label->Name() + "\n", CFrame::PreColoredRegisters(), l)); 
 	} else {
 		shared_ptr<const CTemp> r = MunchExp(call->func);
 		CTempList* l = MunchArgs(call->args);
-		emit(new AOPER("CALL `s0\n", CFrame::callDefs, new CTempList(r, l))); 
+		emit(new AOPER("CALL `s0\n", CFrame::PreColoredRegisters(), new CTempList(r, l))); 
 	}
 }
 
@@ -240,7 +240,7 @@ shared_ptr<const Temp::CTemp>  CCodegen::MunchExp(IExp* exp) {
 	CALL* call = dynamic_cast<CALL*>(exp);
 	if (call != 0) {
 		MunchExpCall(call);
-		return make_shared<const CTemp>("ecx");
+		return CFrame::CallerSaveRegister();
 	}
 	
 
