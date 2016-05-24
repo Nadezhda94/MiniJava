@@ -8,7 +8,7 @@
 #include "IRVisitors/Canonizer.h"
 #include "IRVisitors/Optimizer.h"
 #include "IRVisitors/CodeGenerator.h"
-#include "IRVisitors/Coloring.h"
+#include "IRVisitors/RegAlloc.h"
 
 extern FILE * yyin;
 extern int yyparse();
@@ -85,16 +85,22 @@ int main(int argc, char** argv) {
 		gv.close();
 		ofs.close();
 
-		cout << "Generating asm..." << endl;
+		cout << "Generating ASM code..." << endl;
 		ofs.open("Logs/CodeGen.log", ofstream::out);
 		vector<shared_ptr<CInstrList>> blockInstrs;
 		CodeGenerator::GenerateCode(ofs, traced_blocks, blockInstrs);
 		ofs.close();
 
-		cout << "Flow grpah building.." << endl;
+		cout << "Flow graph building.." << endl;
 		ofs.open("Logs/FlowGraph.log", ofstream::out);
 		vector<shared_ptr<FlowGraph::CFlowGraph>> graphs;
-		Coloring::BuildFlowGraph(ofs, blockInstrs, graphs);
+		RegAlloc::BuildFlowGraph(ofs, blockInstrs, graphs);
+		ofs.close();
+
+		cout << "Interference graph building.." << endl;
+		ofs.open("Logs/InterferenceGraph.log", ofstream::out);
+		vector<shared_ptr<RegAlloc::CInterferenceGraph>> interferenceGraphs;
+		RegAlloc::BuildInterferenceGraph(ofs, graphs, interferenceGraphs);
 		ofs.close();
 
 		cout << "SUCCESS" << endl;

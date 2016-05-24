@@ -20,12 +20,11 @@ namespace RegAlloc {
 				int index = node->index;
 				inOld[index] = in[index];
 				outOld[index] = out[index];
-				in[index].clear();
-				out[index].clear();
 
 				set<const CTemp*> use = flowGraph.GetUse(index);
 				set<const CTemp*> def = flowGraph.GetDef(index);
 				set<const CTemp*> inter;
+				in[index].clear();
 				set_intersection(out[index].begin(), out[index].end(),
 								 def.begin(), def.end(),
 								 inserter(inter, inter.begin()));
@@ -51,8 +50,11 @@ namespace RegAlloc {
 		set<const CTemp*> allTemps;
 		for (auto it = ordered.begin(); it != ordered.end(); it++) {
 			CGraphNode<CInstr*>* node = (*it);
+			// Todo: убрать uses, сейчас из-за того что ecx без def'а
 			set<const CTemp*> defs = flowGraph.GetDef(node->index);
+			set<const CTemp*> uses = flowGraph.GetUse(node->index);
 			allTemps.insert( defs.begin(), defs.end() );
+			allTemps.insert( uses.begin(), uses.end() );
 		}
 		for (auto it = allTemps.begin(); it != allTemps.end(); it++) {
 			addNode( (*it) );
@@ -75,14 +77,12 @@ namespace RegAlloc {
 				set<const CTemp*> def = flowGraph.GetDef(index);
 				for (auto j = def.begin(); j != def.end(); j++) {
 					for (auto k = out[index].begin(); k != out[index].end(); k++) {
-						addBiEdge( getNode((*k)).index, getNode((*j)).index );
+						if (*k != *j) {
+							addBiEdge( getNode(( *k )).index, getNode(( *j )).index );
+						}
 					}
 				}
 			}
-
 		}
-	}
-	void Simplify(){
-
 	}
 }

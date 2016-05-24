@@ -210,7 +210,7 @@ CGraphNode<N>& CGraph<E,N>::getNode(int __index){
 	for (auto& i : nodes)
 		if (i.index==__index)
 			return (i);
-	cout<<"Not found"<<endl;
+	cout<<"Not found "<<__index<<endl;
 	return (*nodes.begin());
 }
 
@@ -219,17 +219,16 @@ CGraphNode<N>& CGraph<E,N>::getNode(N value){
 	for (auto& i : nodes)
 		if (i.value==value)
 			return (i);
-	cout<<"Not found"<<endl;
+	cout<<"Not found "<<value<<endl;
 	return (*nodes.begin());
 }
-
 
 template <class E, class N>
 CEdge<E>& CGraph<E,N>::getEdge(int lhs, int rhs){
 	for (auto& i : edges)
 		if (i.first==lhs && i.second==rhs)
 			return i;
-	cout<<"Not found"<<endl;
+	cout<<"Not found "<<lhs<<" "<<rhs<<endl;
 	return (*edges.begin());
 }
 

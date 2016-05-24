@@ -7,9 +7,15 @@ ostream& operator<< <Assembler::CInstr*> (ostream& s, CGraphNode<Assembler::CIns
 	return s;
 }
 
+template <>
+ostream& operator<< <const Temp::CTemp*> (ostream& s, CGraphNode<const Temp::CTemp*> const & rhs){
+	s<<rhs.index<<" "<<rhs.value->Name();
+	return s;
+}
+
 namespace RegAlloc {
-	void BuildFlowGraph( ostream &out, vector<shared_ptr<CInstrList>> &blockInstructions,
-						 vector<shared_ptr<CFlowGraph>> graphs )
+	void BuildFlowGraph( ostream &out, vector<shared_ptr<CInstrList>>& blockInstructions,
+						 vector<shared_ptr<CFlowGraph>>& graphs )
 	{
 		for (int i = 0; i < blockInstructions.size(); i++) {
 			graphs.push_back(make_shared<CFlowGraph>());
@@ -18,8 +24,8 @@ namespace RegAlloc {
 		}
 	}
 
-	void BuildInterferenceGraph( ostream &out, vector<shared_ptr<CFlowGraph>> flowGraphs,
-						 vector<shared_ptr<CInterferenceGraph>> interferenceGraphs )
+	void BuildInterferenceGraph( ostream &out, vector<shared_ptr<CFlowGraph>>& flowGraphs,
+						 vector<shared_ptr<CInterferenceGraph>>& interferenceGraphs )
 	{
 		for (int i = 0; i < flowGraphs.size(); i++) {
 			interferenceGraphs.push_back(make_shared<CInterferenceGraph>());

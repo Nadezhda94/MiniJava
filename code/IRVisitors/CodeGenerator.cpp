@@ -5,23 +5,33 @@ namespace CodeGenerator {
 		CCodegen generator;
 		CDefaultMap* defMap = new CDefaultMap();
 		for ( int i = 0; i < blocks.size(); ++i ) {
-			CInstrList* instructs = 0;
 			out << "===========================" << endl;
 			shared_ptr<StmtList> curBlock = blocks[i];
+			CInstrList* instructs = 0;
+			CInstrList* blockInstructs = 0;
 			while ( curBlock != 0 ) {
-				instructs = 0;
-				if ( curBlock->head != 0 ) {
+				assert( curBlock->head != 0 );
+				if ( instructs == 0 ) {
 					instructs = generator.Codegen( curBlock->head );
-				}
-				while ( instructs != 0 ) {
-					if ( instructs->head != 0 ) {
-						out << instructs->head->format( defMap );
+					blockInstructs = instructs;
+				} else {
+					while ( instructs->tail != 0 ) {
+						instructs = instructs->tail;
 					}
-					instructs = instructs->tail;
+					instructs->tail = generator.Codegen( curBlock->head );
 				}
 				curBlock = curBlock->tail;
 			}
-			blockInstructions.push_back( shared_ptr<CInstrList>(instructs) );
+
+			instructs = blockInstructs;
+			while ( instructs != 0 ) {
+				if ( instructs->head != 0 ) {
+					out << instructs->head->format( defMap );
+				}
+				instructs = instructs->tail;
+			}
+
+			blockInstructions.push_back( shared_ptr<CInstrList>(blockInstructs) );
 		}
 	}
 }

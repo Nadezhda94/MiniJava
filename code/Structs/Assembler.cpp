@@ -108,6 +108,11 @@ namespace Assembler {
 		return nullptr;
 	}
 
+	void ALABEL::Print(ostream& s){
+		s<<"ALABEL";
+	}
+
+
 	//--------------------------------------------------------------------------------------------------------------
 	// AMOVE
 	//--------------------------------------------------------------------------------------------------------------
@@ -123,6 +128,10 @@ namespace Assembler {
 	}
 	CTargets* AMOVE::jumps() {
 		return nullptr;
+	}
+
+	void AMOVE::Print(ostream& s){
+		s<<"AMOVE";
 	}
 
 	//--------------------------------------------------------------------------------------------------------------
@@ -146,6 +155,10 @@ namespace Assembler {
 
 	CTargets* AOPER::jumps() {
 		return jump;
+	}
+
+	void AOPER::Print(ostream& s){
+		s<<"AOPER";
 	}
 
 }

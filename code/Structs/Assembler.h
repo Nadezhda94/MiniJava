@@ -25,6 +25,8 @@ namespace Assembler {
 		shared_ptr<const CTemp> getTemp(CTempList* l, int tempNumber);
   		const CLabel* getLabel(CLabelList* l, int tempNumber);
   		std::string format(CTempMap* m);
+
+		virtual void Print(ostream& s) = 0;
 	};
 
 	class CInstrList {
@@ -42,7 +44,9 @@ namespace Assembler {
 		CTempList* use();
 		CTempList* def();
 		CTargets* jumps();
+		virtual void Print(ostream& s);
 	};
+
 
 	class AMOVE: public CInstr {
 	public:
@@ -53,6 +57,7 @@ namespace Assembler {
 		CTempList* use();
 		CTempList* def();
 		CTargets* jumps();
+		virtual void Print(ostream& s);
 	};
 
    	class AOPER: public CInstr {
@@ -67,6 +72,7 @@ namespace Assembler {
    		CTempList* use();
 		CTempList* def();
 		CTargets* jumps();
+		virtual void Print(ostream& s);
    };
 
 }
